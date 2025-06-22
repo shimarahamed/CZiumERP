@@ -74,7 +74,7 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
             </div>
 
              <div className="mt-12 text-center text-gray-500 text-sm">
-                BizFlow POS - End of Report
+                CZium POS - End of Report
             </div>
         </div>
     )

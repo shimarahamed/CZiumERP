@@ -6,7 +6,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent }
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { invoices, salesData, customers } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
+import { DollarSign, Users, CreditCard, Activity, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const chartConfig = {
@@ -18,12 +19,17 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Dashboard" />
+      <Header title="Dashboard">
+        <Button>
+          <PlusCircle className="h-4 w-4" />
+          Generate Sales Invoice
+        </Button>
+      </Header>
       <main className="flex-1 overflow-auto p-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle>Total Revenue</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -33,7 +39,7 @@ export default function DashboardPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Customers</CardTitle>
+              <CardTitle>Customers</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -43,7 +49,7 @@ export default function DashboardPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Sales</CardTitle>
+              <CardTitle>Sales</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -53,7 +59,7 @@ export default function DashboardPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+              <CardTitle>Active Now</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>

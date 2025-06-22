@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { LifeBuoy, LogOut, Settings, Store } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'BizFlow POS',
+  title: 'CZium POS',
   description: 'Modern POS for your business',
 };
 
@@ -39,7 +39,7 @@ export default function RootLayout({
                  <div className="p-2 bg-primary/20 rounded-lg">
                     <Store className="w-6 h-6 text-primary-foreground" />
                  </div>
-                 <h1 className="text-xl font-semibold text-sidebar-foreground">BizFlow POS</h1>
+                 <h1 className="text-xl font-semibold text-sidebar-foreground">CZium POS</h1>
               </SidebarHeader>
               <SidebarContent>
                 <Nav />
