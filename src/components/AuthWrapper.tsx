@@ -16,27 +16,34 @@ import { Button } from '@/components/ui/button';
 import { LifeBuoy, Settings, Store } from 'lucide-react';
 import UserNav from './UserNav';
 
+const UNAUTH_ROUTES = ['/login'];
+const AUTH_NO_STORE_ROUTES = ['/login', '/select-store'];
+
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAppContext();
+  const { isAuthenticated, currentStore } = useAppContext();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isAuthenticated && pathname !== '/login') {
+    if (!isAuthenticated && !UNAUTH_ROUTES.includes(pathname)) {
       router.push('/login');
-    }
-    if (isAuthenticated && pathname === '/login') {
+    } else if (isAuthenticated && pathname === '/login') {
+      router.push(currentStore ? '/' : '/select-store');
+    } else if (isAuthenticated && !currentStore && !AUTH_NO_STORE_ROUTES.includes(pathname)) {
+      router.push('/select-store');
+    } else if (isAuthenticated && currentStore && pathname === '/select-store') {
       router.push('/');
     }
-  }, [isAuthenticated, pathname, router]);
+  }, [isAuthenticated, currentStore, pathname, router]);
 
-  if (!isAuthenticated && pathname !== '/login') {
+  if (!isAuthenticated && !UNAUTH_ROUTES.includes(pathname)) {
     return null; // or a loading spinner
   }
 
-  if (pathname === '/login') {
+  if (AUTH_NO_STORE_ROUTES.includes(pathname)) {
     return <>{children}</>;
   }
+
 
   return (
     <SidebarProvider>

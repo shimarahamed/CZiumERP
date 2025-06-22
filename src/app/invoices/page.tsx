@@ -46,7 +46,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, products, setProducts, addActivityLog } = useAppContext();
+    const { invoices, setInvoices, customers, products, setProducts, addActivityLog, currentStore } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
@@ -67,6 +67,8 @@ export default function InvoicesPage() {
         control: form.control,
         name: "items"
     });
+
+    const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
 
     const watchedItems = useWatch({ control: form.control, name: 'items' });
     const totalAmount = watchedItems.reduce((acc, item) => {
@@ -157,6 +159,7 @@ export default function InvoicesPage() {
         } else {
             const newInvoice: Invoice = {
                 id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
+                storeId: currentStore?.id,
                 customerId: data.customerId === 'none' ? undefined : data.customerId,
                 customerName: data.customerId === 'none' ? undefined : customer?.name,
                 status: data.status,
@@ -234,7 +237,7 @@ export default function InvoicesPage() {
                 <Card>
                     <CardHeader>
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div><CardTitle>Invoices</CardTitle><CardDescription>Manage and track all your customer invoices.</CardDescription></div>
+                            <div><CardTitle>Invoices</CardTitle><CardDescription>Manage and track all your customer invoices for {currentStore?.name}.</CardDescription></div>
                             <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" /> Create Invoice
                             </Button>
@@ -248,10 +251,10 @@ export default function InvoicesPage() {
                                 <TabsTrigger value="pending">Pending</TabsTrigger>
                                 <TabsTrigger value="overdue">Overdue</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="all"><InvoiceTable invoices={invoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
-                            <TabsContent value="paid"><InvoiceTable invoices={invoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
-                            <TabsContent value="pending"><InvoiceTable invoices={invoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
-                            <TabsContent value="overdue"><InvoiceTable invoices={invoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
+                            <TabsContent value="all"><InvoiceTable invoices={storeInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
+                            <TabsContent value="paid"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
+                            <TabsContent value="pending"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
+                            <TabsContent value="overdue"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
                         </Tabs>
                     </CardContent>
                 </Card>

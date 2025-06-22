@@ -1,4 +1,10 @@
-import type { Customer, Invoice, Sale, Product, Vendor } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store } from '@/types';
+
+export const initialStores: Store[] = [
+  { id: 'store-1', name: 'Downtown Central', address: '123 Main St, Anytown, USA' },
+  { id: 'store-2', name: 'Westside Mall', address: '456 Oak Ave, Anytown, USA' },
+  { id: 'store-3', name: 'Northpoint Plaza', address: '789 Pine Ln, Anytown, USA' },
+];
 
 export const customers: Customer[] = [
   { id: '1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40' },
@@ -25,6 +31,7 @@ export const initialVendors: Vendor[] = [
 export const initialInvoices: Invoice[] = [
   { 
     id: 'INV-001', 
+    storeId: 'store-1',
     customerId: '1', 
     customerName: 'John Doe', 
     items: [
@@ -36,6 +43,7 @@ export const initialInvoices: Invoice[] = [
   },
   { 
     id: 'INV-002', 
+    storeId: 'store-2',
     customerId: '2', 
     customerName: 'Jane Smith', 
     items: [
@@ -48,6 +56,7 @@ export const initialInvoices: Invoice[] = [
   },
   { 
     id: 'INV-003', 
+    storeId: 'store-1',
     customerId: '3', 
     customerName: 'Sam Wilson', 
     items: [
@@ -59,6 +68,7 @@ export const initialInvoices: Invoice[] = [
   },
   { 
     id: 'INV-004', 
+    storeId: 'store-2',
     customerId: '1', 
     customerName: 'John Doe', 
     items: [
@@ -71,6 +81,7 @@ export const initialInvoices: Invoice[] = [
   },
   { 
     id: 'INV-005', 
+    storeId: 'store-1',
     customerName: 'Alice Johnson', 
     customerId: '4', 
     items: [
@@ -81,7 +92,8 @@ export const initialInvoices: Invoice[] = [
     date: '2023-10-28' 
   },
   { 
-    id: 'INV-006', 
+    id: 'INV-006',
+    storeId: 'store-3',
     items: [
       { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00 }
     ],

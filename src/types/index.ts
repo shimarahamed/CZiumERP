@@ -4,6 +4,12 @@ export type User = {
   avatar: string;
 }
 
+export type Store = {
+  id: string;
+  name: string;
+  address: string;
+};
+
 export type Customer = {
   id: string;
   name: string;
@@ -39,6 +45,7 @@ export type InvoiceItem = {
 
 export type Invoice = {
   id: string;
+  storeId?: string;
   customerId?: string;
   customerName?: string;
   items: InvoiceItem[]; // Replaces single amount

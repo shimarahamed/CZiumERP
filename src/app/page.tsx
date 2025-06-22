@@ -12,7 +12,9 @@ import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 
 export default function DashboardPage() {
-  const { invoices, customers } = useAppContext();
+  const { invoices, customers, currentStore } = useAppContext();
+  
+  const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
 
   const chartConfig = {
     revenue: {
@@ -21,7 +23,7 @@ export default function DashboardPage() {
     },
   };
 
-  const totalRevenue = invoices
+  const totalRevenue = storeInvoices
     .filter(i => i.status === 'paid')
     .reduce((sum, inv) => sum + inv.amount, 0);
 
@@ -54,7 +56,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">+{customers.length}</div>
-              <p className="text-xs text-muted-foreground">+18.1% from last month</p>
+              <p className="text-xs text-muted-foreground">Global count</p>
             </CardContent>
           </Card>
           <Card>
@@ -63,8 +65,8 @@ export default function DashboardPage() {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+{invoices.filter(i => i.status === 'paid').length}</div>
-              <p className="text-xs text-muted-foreground">+19% from last month</p>
+              <div className="text-2xl font-bold">+{storeInvoices.filter(i => i.status === 'paid').length}</div>
+              <p className="text-xs text-muted-foreground">+19% from last month (this store)</p>
             </CardContent>
           </Card>
           <Card>
@@ -99,11 +101,11 @@ export default function DashboardPage() {
           <Card className="lg:col-span-3">
             <CardHeader>
               <CardTitle>Recent Sales</CardTitle>
-              <p className="text-sm text-muted-foreground">You made {invoices.filter(i => i.status === 'paid').length} sales this month.</p>
+              <p className="text-sm text-muted-foreground">You made {storeInvoices.filter(i => i.status === 'paid').length} sales this month.</p>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {invoices.slice(0, 5).map(invoice => (
+                {storeInvoices.slice(0, 5).map(invoice => (
                   <div key={invoice.id} className="flex items-center">
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={`https://placehold.co/40x40`} alt="Avatar" data-ai-hint="person user" />

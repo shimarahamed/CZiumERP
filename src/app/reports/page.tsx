@@ -11,15 +11,18 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Toolti
 import { useAppContext } from '@/context/AppContext';
 
 const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
-    const { invoices } = useAppContext();
-    const totalRevenue = invoices.reduce((acc, inv) => acc + inv.amount, 0);
-    const totalInvoices = invoices.length;
-    const uniqueCustomers = new Set(invoices.map(inv => inv.customerId).filter(Boolean)).size;
+    const { invoices, currentStore } = useAppContext();
+    
+    const storeInvoices = invoices.filter(inv => inv.storeId === currentStore?.id);
+
+    const totalRevenue = storeInvoices.reduce((acc, inv) => acc + inv.amount, 0);
+    const totalInvoices = storeInvoices.length;
+    const uniqueCustomers = new Set(storeInvoices.map(inv => inv.customerId).filter(Boolean)).size;
 
     return (
         <div ref={ref} className="printable-area bg-white text-black p-4 sm:p-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Sales Report</h1>
+                <h1 className="text-3xl font-bold mb-2">Sales Report for {currentStore?.name}</h1>
                 <p className="text-gray-600">Generated on: {new Date().toLocaleDateString()}</p>
             </div>
 
@@ -63,7 +66,7 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {invoices.slice(0,10).map(invoice => (
+                        {storeInvoices.slice(0,10).map(invoice => (
                             <TableRow key={invoice.id}>
                                 <TableCell>{invoice.id}</TableCell>
                                 <TableCell>{invoice.customerName || 'Walk-in Customer'}</TableCell>

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores } from '@/lib/data';
 
 interface AppContextType {
   invoices: Invoice[];
@@ -13,6 +13,9 @@ interface AppContextType {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   vendors: Vendor[];
   setVendors: React.Dispatch<React.SetStateAction<Vendor[]>>;
+  stores: Store[];
+  currentStore: Store | null;
+  selectStore: (storeId: string) => void;
   isAuthenticated: boolean;
   user: User | null;
   login: (email: string, pass: string) => boolean;
@@ -28,13 +31,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const [stores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const [currentStore, setCurrentStore] = useState<Store | null>(null);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('isAuthenticated');
+    const storedStoreId = localStorage.getItem('currentStoreId');
     if (storedAuth === 'true') {
       setIsAuthenticated(true);
       setUser({
@@ -42,19 +48,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         email: 'admin@bizflow.com',
         avatar: 'https://placehold.co/40x40'
       });
+      if (storedStoreId) {
+        const store = stores.find(s => s.id === storedStoreId);
+        setCurrentStore(store || null);
+      }
     }
-  }, []);
+  }, [stores]);
 
   const addActivityLog = (action: string, details: string) => {
     const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@bizflow.com', avatar: '' } : null);
     if (!currentUser) return;
 
+    const storeInfo = currentStore ? ` (Store: ${currentStore.name})` : '';
+
     const newLog: ActivityLog = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString(),
       user: currentUser.email,
-      action,
-      details,
+      action: action,
+      details: `${details}${storeInfo}`,
     };
     setActivityLogs(prevLogs => [newLog, ...prevLogs]);
   };
@@ -70,18 +82,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setUser(loggedInUser);
       localStorage.setItem('isAuthenticated', 'true');
       
-      const newLog: ActivityLog = {
-        id: `log-${Date.now()}`,
-        timestamp: new Date().toISOString(),
-        user: loggedInUser.email,
-        action: 'User Login',
-        details: `User ${loggedInUser.email} logged in.`,
-      };
-      setActivityLogs(prevLogs => [newLog, ...prevLogs]);
-
+      addActivityLog('User Login', `User ${loggedInUser.email} logged in.`);
       return true;
     }
     return false;
+  };
+
+  const selectStore = (storeId: string) => {
+    const store = stores.find(s => s.id === storeId);
+    if (store) {
+        setCurrentStore(store);
+        localStorage.setItem('currentStoreId', store.id);
+        addActivityLog('Store Selected', `Session set to store: ${store.name}`);
+    }
   };
 
   const logout = () => {
@@ -90,7 +103,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
     setIsAuthenticated(false);
     setUser(null);
+    setCurrentStore(null);
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('currentStoreId');
   };
 
 
@@ -100,6 +115,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       customers, setCustomers,
       products, setProducts,
       vendors, setVendors,
+      stores,
+      currentStore,
+      selectStore,
       isAuthenticated, user, login, logout,
       activityLogs, addActivityLog
     }}>

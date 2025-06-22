@@ -14,7 +14,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { Invoice } from "@/types";
 
 export default function PaymentsPage() {
-  const { invoices, setInvoices, customers, addActivityLog } = useAppContext();
+  const { invoices, setInvoices, customers, addActivityLog, currentStore } = useAppContext();
   const [unpaidInvoices, setUnpaidInvoices] = useState<Invoice[]>([]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
   const [amount, setAmount] = useState<number | string>('');
@@ -22,8 +22,11 @@ export default function PaymentsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    setUnpaidInvoices(invoices.filter(inv => inv.status === 'pending' || inv.status === 'overdue'));
-  }, [invoices]);
+    const storeUnpaidInvoices = invoices.filter(inv => 
+        inv.storeId === currentStore?.id && (inv.status === 'pending' || inv.status === 'overdue')
+    );
+    setUnpaidInvoices(storeUnpaidInvoices);
+  }, [invoices, currentStore]);
 
   const handleInvoiceChange = (invoiceId: string) => {
     setSelectedInvoiceId(invoiceId);
@@ -79,7 +82,7 @@ export default function PaymentsPage() {
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>New Transaction</CardTitle>
-            <CardDescription>Select an invoice and payment method to complete the transaction.</CardDescription>
+            <CardDescription>Select an invoice from {currentStore?.name} to complete the transaction.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
