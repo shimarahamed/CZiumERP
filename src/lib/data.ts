@@ -13,7 +13,8 @@ export const initialInvoices: Invoice[] = [
   { id: 'INV-002', customerId: '2', customerName: 'Jane Smith', amount: 150.75, status: 'pending', date: '2023-10-26' },
   { id: 'INV-003', customerId: '3', customerName: 'Sam Wilson', amount: 350.00, status: 'overdue', date: '2023-09-15' },
   { id: 'INV-004', customerId: '1', customerName: 'John Doe', amount: 450.50, status: 'paid', date: '2023-10-27' },
-  { id: 'INV-005', customerId: '4', customerName: 'Alice Johnson', amount: 50.25, status: 'pending', date: '2023-10-28' },
+  { id: 'INV-005', customerName: 'Alice Johnson', customerId: '4', amount: 50.25, status: 'pending', date: '2023-10-28' },
+  { id: 'INV-006', amount: 120.00, status: 'pending', date: '2023-10-29' },
 ];
 
 export const salesData: Sale[] = [

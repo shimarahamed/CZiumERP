@@ -13,8 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,7 +26,7 @@ import Header from "@/components/Header";
 import type { Invoice, Customer } from "@/types";
 
 const invoiceSchema = z.object({
-  customerId: z.string().min(1, { message: "Please select a customer." }),
+  customerId: z.string().optional(),
   amount: z.coerce.number().positive({ message: "Amount must be a positive number." }),
   status: z.enum(['paid', 'pending', 'overdue'], { required_error: "Please select a status." }),
   date: z.date({ required_error: "An invoice date is required." }),
@@ -53,19 +53,22 @@ export default function InvoicesPage() {
     });
 
     useEffect(() => {
-        if (invoiceToEdit) {
-            form.reset({
-                ...invoiceToEdit,
-                date: new Date(invoiceToEdit.date),
-                amount: invoiceToEdit.amount,
-            });
-        } else {
-            form.reset({
-                customerId: '',
-                amount: 0,
-                status: 'pending',
-                date: new Date(),
-            });
+        if (isFormOpen) {
+            if (invoiceToEdit) {
+                form.reset({
+                    ...invoiceToEdit,
+                    date: new Date(invoiceToEdit.date),
+                    amount: invoiceToEdit.amount,
+                    customerId: invoiceToEdit.customerId || '',
+                });
+            } else {
+                form.reset({
+                    customerId: '',
+                    amount: 0,
+                    status: 'pending',
+                    date: new Date(),
+                });
+            }
         }
     }, [invoiceToEdit, isFormOpen, form]);
 
@@ -75,25 +78,24 @@ export default function InvoicesPage() {
     };
 
     const onSubmit = (data: InvoiceFormData) => {
-        const customer = customers.find(c => c.id === data.customerId);
-        if (!customer) return;
+        const customer = data.customerId ? customers.find(c => c.id === data.customerId) : undefined;
 
         if (invoiceToEdit) {
-            // Update existing invoice
             setInvoices(invoices.map(inv => inv.id === invoiceToEdit.id ? {
                 ...inv,
                 ...data,
                 date: format(data.date, 'yyyy-MM-dd'),
-                customerName: customer.name,
+                customerName: customer?.name,
+                customerId: customer?.id,
             } : inv));
             toast({ title: "Invoice Updated", description: `Invoice ${invoiceToEdit.id} has been updated.` });
         } else {
-            // Create new invoice
             const newInvoice: Invoice = {
                 id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
                 ...data,
                 date: format(data.date, 'yyyy-MM-dd'),
-                customerName: customer.name,
+                customerName: customer?.name,
+                customerId: customer?.id,
             };
             setInvoices([newInvoice, ...invoices]);
             toast({ title: "Invoice Created", description: `Invoice ${newInvoice.id} has been successfully created.` });
@@ -129,7 +131,7 @@ export default function InvoicesPage() {
                 {invoices.map(invoice => (
                     <TableRow key={invoice.id}>
                         <TableCell className="font-medium">{invoice.id}</TableCell>
-                        <TableCell>{invoice.customerName}</TableCell>
+                        <TableCell>{invoice.customerName || 'N/A'}</TableCell>
                         <TableCell>${invoice.amount.toFixed(2)}</TableCell>
                         <TableCell><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status}</Badge></TableCell>
                         <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
@@ -198,16 +200,17 @@ export default function InvoicesPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
                             <FormField
                                 control={form.control}
                                 name="customerId"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Customer</FormLabel>
+                                        <FormLabel>Customer (Optional)</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl><SelectTrigger><SelectValue placeholder="Select a customer" /></SelectTrigger></FormControl>
                                             <SelectContent>
+                                                <SelectItem value="">None</SelectItem>
                                                 {customers.map(customer => (
                                                     <SelectItem key={customer.id} value={customer.id}>{customer.name}</SelectItem>
                                                 ))}
@@ -278,7 +281,7 @@ export default function InvoicesPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

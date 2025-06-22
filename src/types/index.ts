@@ -8,8 +8,8 @@ export type Customer = {
 
 export type Invoice = {
   id: string;
-  customerId: string;
-  customerName: string;
+  customerId?: string;
+  customerName?: string;
   amount: number;
   status: 'paid' | 'pending' | 'overdue';
   date: string;
