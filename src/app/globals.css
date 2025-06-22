@@ -92,31 +92,44 @@ body {
     visibility: hidden;
   }
 
-  .printable-area,
-  .printable-area * {
+  .printable-receipt-area,
+  .printable-receipt-area *,
+  .printable-invoice-area,
+  .printable-invoice-area * {
     visibility: visible;
   }
 
-  .printable-area {
+  .printable-receipt-area {
     position: absolute;
     left: 50%;
     top: 0;
     transform: translateX(-50%);
     width: 100%;
     max-width: 80mm; /* Standard thermal receipt width */
-    height: auto;
+    padding: 0.5rem;
+    margin: 0;
+    background: white !important;
+    color: black !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-family: monospace;
+    font-size: 9pt;
+    line-height: 1.4;
+  }
+  
+  .printable-invoice-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     padding: 1rem;
     margin: 0;
     background: white !important;
     color: black !important;
     border: none !important;
     box-shadow: none !important;
-    font-size: 9pt;
-    line-height: 1.4;
-  }
-
-  .printable-area h2 {
-    font-size: 1rem;
+    font-size: 12pt;
   }
 
   .non-printable {

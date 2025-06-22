@@ -19,11 +19,11 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
 
     return (
         <DialogContent className="sm:max-w-sm p-0">
-            <div className="printable-area p-4 font-mono text-xs">
+            <div className="printable-receipt-area p-4">
                 <div className="text-center mb-4">
                     <StoreIcon className="mx-auto h-10 w-10 mb-2" />
                     <h2 className="text-lg font-bold">{currentStore?.name}</h2>
-                    <p className="text-xs">{currentStore?.address}</p>
+                    <p>{currentStore?.address}</p>
                 </div>
                 <div className="border-t border-dashed my-2"></div>
                 <div className="flex justify-between">
@@ -82,7 +82,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                     <span>${invoice.amount.toFixed(2)}</span>
                 </div>
 
-                <div className="text-center mt-6 text-xs">
+                <div className="text-center mt-6">
                     Thank you for your business!
                 </div>
             </div>

@@ -26,7 +26,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
 
     return (
         <DialogContent className="sm:max-w-4xl p-0">
-            <div className="printable-area bg-white text-black p-8">
+            <div className="printable-invoice-area bg-white text-black p-8">
                 <header className="flex justify-between items-start mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
