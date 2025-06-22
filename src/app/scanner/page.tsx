@@ -1,112 +1,105 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import jsQR from 'jsqr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAppContext } from '@/context/AppContext';
 import type { Product } from '@/types';
 import { Barcode, Video, VideoOff, CheckCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function ScannerPage() {
   const { products } = useAppContext();
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const animationFrameId = useRef<number>();
+  
+  const [isScanning, setIsScanning] = useState(false);
   const [scannedProduct, setScannedProduct] = useState<Product | null>(null);
-  const [isScanning, setIsScanning] = useState<boolean>(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
 
-  const getCameraPermission = async () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+  const stopScanning = useCallback(() => {
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = undefined;
     }
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      setStream(mediaStream);
-      setHasCameraPermission(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsScanning(false);
+  }, []);
+
+  const scan = useCallback(() => {
+    if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+
+      if (context) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        
+        if (code) {
+          const product = products.find(p => p.id === code.data);
+          if (product) {
+            setScannedProduct(product);
+            toast({ title: 'Product Found!', description: product.name });
+            stopScanning();
+            return;
+          }
+        }
       }
-      setIsScanning(true);
+    }
+    animationFrameId.current = requestAnimationFrame(scan);
+  }, [products, toast, stopScanning]);
+
+
+  const startScanning = useCallback(async () => {
+    setScannedProduct(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.oncanplay = () => {
+          setIsScanning(true);
+        }
+      }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      setHasCameraPermission(false);
       toast({
         variant: 'destructive',
         title: 'Camera Access Denied',
         description: 'Please enable camera permissions in your browser settings.',
       });
     }
-  };
-
-  const stopScanning = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    setIsScanning(false);
-    setStream(null);
-    setScannedProduct(null);
-  }
-
-  useEffect(() => {
-    let animationFrameId: number;
-
-    const tick = () => {
-      if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-
-        if (context) {
-          canvas.height = video.videoHeight;
-          canvas.width = video.videoWidth;
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-          
-          if (code) {
-            const product = products.find(p => p.id === code.data);
-            if (product) {
-              setScannedProduct(product);
-              setIsScanning(false);
-              toast({ title: 'Product Found!', description: product.name });
-               if (stream) stream.getTracks().forEach(track => track.stop());
-               setStream(null);
-            } else {
-                toast({ variant: 'destructive', title: 'Product Not Found', description: `No product found for barcode: ${code.data}` });
-            }
-          }
-        }
-      }
-      if (isScanning) {
-        animationFrameId = requestAnimationFrame(tick);
-      }
-    };
-
-    if (isScanning) {
-      animationFrameId = requestAnimationFrame(tick);
-    }
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [isScanning, products, toast, stream]);
+  }, [toast]);
   
   useEffect(() => {
-    // Cleanup stream on component unmount
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+    if (isScanning) {
+      animationFrameId.current = requestAnimationFrame(scan);
     }
-  }, [stream]);
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, [isScanning, scan]);
+
+  useEffect(() => {
+    return () => stopScanning();
+  }, [stopScanning]);
 
   return (
     <div className="flex flex-col h-full">
@@ -121,9 +114,8 @@ export default function ScannerPage() {
           </CardHeader>
           <CardContent>
             <div className="relative aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
-              {isScanning && hasCameraPermission ? (
-                <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-              ) : (
+              <video ref={videoRef} className={cn("w-full h-full object-cover", !isScanning && "hidden")} autoPlay muted playsInline />
+              {!isScanning && (
                 <div className="text-center text-muted-foreground">
                   <Barcode className="h-16 w-16 mx-auto" />
                   <p>Camera is off</p>
@@ -131,15 +123,6 @@ export default function ScannerPage() {
               )}
               <canvas ref={canvasRef} className="hidden" />
             </div>
-
-            {hasCameraPermission === false && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertTitle>Camera Access Required</AlertTitle>
-                <AlertDescription>
-                  Please allow camera access in your browser to use this feature.
-                </AlertDescription>
-              </Alert>
-            )}
 
             {scannedProduct && (
               <Card className="mt-4 bg-primary/10">
@@ -156,7 +139,7 @@ export default function ScannerPage() {
           </CardContent>
           <CardFooter className="flex justify-center gap-4">
             {!isScanning ? (
-                <Button size="lg" onClick={getCameraPermission}><Video className="mr-2"/>Start Scanning</Button>
+                <Button size="lg" onClick={startScanning}><Video className="mr-2"/>Start Scanning</Button>
             ) : (
                 <Button size="lg" variant="destructive" onClick={stopScanning}><VideoOff className="mr-2"/>Stop Scanning</Button>
             )}
