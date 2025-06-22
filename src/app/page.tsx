@@ -6,7 +6,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent }
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, Activity, PlusCircle } from "lucide-react";
+import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const { invoices, customers, currentStore } = useAppContext();
   
   const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
+  const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
 
   const chartConfig = {
     revenue: {
@@ -23,9 +24,15 @@ export default function DashboardPage() {
     },
   };
 
-  const totalRevenue = storeInvoices
-    .filter(i => i.status === 'paid')
-    .reduce((sum, inv) => sum + inv.amount, 0);
+  const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+
+  const totalCost = paidInvoices.reduce((total, invoice) => {
+    return total + invoice.items.reduce((invoiceTotalCost, item) => {
+      return invoiceTotalCost + (item.cost * item.quantity);
+    }, 0);
+  }, 0);
+
+  const totalProfit = totalRevenue - totalCost;
 
   return (
     <div className="flex flex-col h-full">
@@ -51,12 +58,12 @@ export default function DashboardPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Customers</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Total Profit</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+{customers.length}</div>
-              <p className="text-xs text-muted-foreground">Global count</p>
+              <div className="text-2xl font-bold">${totalProfit.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">+18.3% from last month</p>
             </CardContent>
           </Card>
           <Card>
@@ -65,18 +72,18 @@ export default function DashboardPage() {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+{storeInvoices.filter(i => i.status === 'paid').length}</div>
+              <div className="text-2xl font-bold">+{paidInvoices.length}</div>
               <p className="text-xs text-muted-foreground">+19% from last month (this store)</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Customers</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+573</div>
-              <p className="text-xs text-muted-foreground">+201 since last hour</p>
+              <div className="text-2xl font-bold">+{customers.length}</div>
+              <p className="text-xs text-muted-foreground">Global count</p>
             </CardContent>
           </Card>
         </div>
@@ -101,7 +108,7 @@ export default function DashboardPage() {
           <Card className="lg:col-span-3">
             <CardHeader>
               <CardTitle>Recent Sales</CardTitle>
-              <p className="text-sm text-muted-foreground">You made {storeInvoices.filter(i => i.status === 'paid').length} sales this month.</p>
+              <p className="text-sm text-muted-foreground">You made {paidInvoices.length} sales this month.</p>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

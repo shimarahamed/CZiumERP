@@ -31,8 +31,13 @@ export type Vendor = {
 export type Product = {
   id: string;
   name: string;
+  sku?: string;
+  category?: string;
+  description?: string;
   price: number;
+  cost: number;
   stock: number;
+  supplier?: string;
 };
 
 // New: InvoiceItem for linking products to invoices
@@ -41,6 +46,7 @@ export type InvoiceItem = {
   productName: string;
   quantity: number;
   price: number; // Price per item at the time of sale
+  cost: number; // Cost per item at the time of sale
 };
 
 export type Invoice = {

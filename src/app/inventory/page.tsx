@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -17,11 +17,16 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Product } from '@/types';
+import { Textarea } from '@/components/ui/textarea';
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required."),
   price: z.coerce.number().positive("Price must be a positive number."),
+  cost: z.coerce.number().min(0, "Cost must be a non-negative number."),
   stock: z.coerce.number().int().min(0, "Stock cannot be negative."),
+  sku: z.string().optional(),
+  category: z.string().optional(),
+  description: z.string().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -35,6 +40,15 @@ export default function InventoryPage() {
 
     const form = useForm<ProductFormData>({
         resolver: zodResolver(productSchema),
+        defaultValues: {
+            name: '',
+            price: 0,
+            cost: 0,
+            stock: 0,
+            sku: '',
+            category: '',
+            description: '',
+        }
     });
 
     const handleOpenForm = (product: Product | null = null) => {
@@ -42,7 +56,7 @@ export default function InventoryPage() {
         if (product) {
             form.reset(product);
         } else {
-            form.reset({ name: '', price: 0, stock: 0 });
+            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '' });
         }
         setIsFormOpen(true);
     };
@@ -77,15 +91,15 @@ export default function InventoryPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title="Inventory" />
-            <main className="flex-1 overflow-auto p-6">
+            <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Product Inventory</CardTitle>
-                                <CardDescription>Manage your products and stock levels.</CardDescription>
+                                <CardDescription>Manage your products, stock levels, and costs.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" />
                                 Add Product
                             </Button>
@@ -96,7 +110,9 @@ export default function InventoryPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Product Name</TableHead>
+                                    <TableHead className="hidden md:table-cell">Category</TableHead>
                                     <TableHead>Price</TableHead>
+                                    <TableHead className="hidden md:table-cell">Cost</TableHead>
                                     <TableHead>Stock</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
@@ -105,7 +121,9 @@ export default function InventoryPage() {
                                 {products.map(product => (
                                     <TableRow key={product.id}>
                                         <TableCell className="font-medium">{product.name}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{product.category}</TableCell>
                                         <TableCell>${product.price.toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell">${product.cost.toFixed(2)}</TableCell>
                                         <TableCell>{product.stock}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
@@ -131,7 +149,7 @@ export default function InventoryPage() {
             </main>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>{productToEdit ? 'Edit Product' : 'Add New Product'}</DialogTitle>
                         <DialogDescription>
@@ -139,17 +157,33 @@ export default function InventoryPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                            <FormField control={form.control} name="name" render={({ field }) => (
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-2">
+                             <FormField control={form.control} name="name" render={({ field }) => (
                                 <FormItem><FormLabel>Product Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                            <FormField control={form.control} name="price" render={({ field }) => (
-                                <FormItem><FormLabel>Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormField control={form.control} name="description" render={({ field }) => (
+                                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the product..." {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                            <FormField control={form.control} name="stock" render={({ field }) => (
-                                <FormItem><FormLabel>Stock Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                            )} />
-                            <DialogFooter>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="sku" render={({ field }) => (
+                                    <FormItem><FormLabel>SKU (Stock Keeping Unit)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="category" render={({ field }) => (
+                                    <FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormField control={form.control} name="price" render={({ field }) => (
+                                    <FormItem><FormLabel>Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="cost" render={({ field }) => (
+                                    <FormItem><FormLabel>Cost</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="stock" render={({ field }) => (
+                                    <FormItem><FormLabel>Stock Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
+                            <DialogFooter className="pt-4">
                                 <Button type="submit">{productToEdit ? 'Save Changes' : 'Add Product'}</Button>
                             </DialogFooter>
                         </form>

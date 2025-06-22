@@ -111,6 +111,7 @@ export default function InvoicesPage() {
                 productName: product.name,
                 quantity: item.quantity,
                 price: product.price,
+                cost: product.cost,
             };
         });
 

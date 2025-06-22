@@ -15,11 +15,11 @@ export const customers: Customer[] = [
 ];
 
 export const initialProducts: Product[] = [
-  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, stock: 15 },
-  { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, stock: 30 },
-  { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, stock: 100 },
-  { id: 'prod-4', name: 'Milk Frother', price: 75.00, stock: 45 },
-  { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, stock: 60 },
+  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 15, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.' },
+  { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, cost: 80.00, stock: 30, sku: 'CG-129', category: 'Appliances', description: 'A conical burr grinder for a consistent grind.' },
+  { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, cost: 12.00, stock: 100, sku: 'CB-1KG', category: 'Consumables', description: 'Single-origin beans from Ethiopia.' },
+  { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.' },
+  { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.' },
 ];
 
 export const initialVendors: Vendor[] = [
@@ -35,7 +35,7 @@ export const initialInvoices: Invoice[] = [
     customerId: '1', 
     customerName: 'John Doe', 
     items: [
-      { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99 }
+      { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }
     ],
     amount: 499.99, 
     status: 'paid', 
@@ -47,8 +47,8 @@ export const initialInvoices: Invoice[] = [
     customerId: '2', 
     customerName: 'Jane Smith', 
     items: [
-      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 2, price: 22.00 },
-      { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00 }
+      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 2, price: 22.00, cost: 12.00 },
+      { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00, cost: 20.00 }
     ],
     amount: 84.00, 
     status: 'pending', 
@@ -60,7 +60,7 @@ export const initialInvoices: Invoice[] = [
     customerId: '3', 
     customerName: 'Sam Wilson', 
     items: [
-      { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 1, price: 129.50 }
+      { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 1, price: 129.50, cost: 80.00 }
     ],
     amount: 129.50, 
     status: 'overdue', 
@@ -72,8 +72,8 @@ export const initialInvoices: Invoice[] = [
     customerId: '1', 
     customerName: 'John Doe', 
     items: [
-      { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00 },
-      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00 }
+      { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
+      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00, cost: 12.00 }
     ],
     amount: 185.00, 
     status: 'paid', 
@@ -85,7 +85,7 @@ export const initialInvoices: Invoice[] = [
     customerName: 'Alice Johnson', 
     customerId: '4', 
     items: [
-      { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 2, price: 40.00 }
+      { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 2, price: 40.00, cost: 20.00 }
     ],
     amount: 80.00, 
     status: 'pending', 
@@ -95,7 +95,7 @@ export const initialInvoices: Invoice[] = [
     id: 'INV-006',
     storeId: 'store-3',
     items: [
-      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00 }
+      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00, cost: 12.00 }
     ],
     amount: 22.00, 
     status: 'pending', 
