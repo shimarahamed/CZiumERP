@@ -35,7 +35,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function CustomersPage() {
-    const { customers, setCustomers, invoices } = useAppContext();
+    const { customers, setCustomers, invoices, addActivityLog } = useAppContext();
     const { toast } = useToast();
     
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -66,6 +66,7 @@ export default function CustomersPage() {
             );
             setCustomers(updatedCustomers);
             toast({ title: "Customer Updated", description: `${data.name}'s details have been updated.` });
+            addActivityLog('Customer Updated', `Updated customer: ${data.name} (ID: ${customerToEdit.id})`);
         } else {
             const newCustomer: Customer = {
                 id: `cust-${Date.now()}`,
@@ -74,6 +75,7 @@ export default function CustomersPage() {
             };
             setCustomers([newCustomer, ...customers]);
             toast({ title: "Customer Added", description: `${data.name} has been added.` });
+            addActivityLog('Customer Added', `Added new customer: ${data.name}`);
         }
         setIsFormOpen(false);
         setCustomerToEdit(null);
@@ -81,6 +83,7 @@ export default function CustomersPage() {
 
     const handleDelete = () => {
         if (!customerToDelete) return;
+        addActivityLog('Customer Deleted', `Deleted customer: ${customerToDelete.name} (ID: ${customerToDelete.id})`);
         setCustomers(customers.filter(c => c.id !== customerToDelete.id));
         toast({ title: "Customer Deleted", description: `${customerToDelete.name} has been deleted.` });
         setCustomerToDelete(null);

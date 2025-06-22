@@ -14,7 +14,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { Invoice } from "@/types";
 
 export default function PaymentsPage() {
-  const { invoices, setInvoices, customers } = useAppContext();
+  const { invoices, setInvoices, customers, addActivityLog } = useAppContext();
   const [unpaidInvoices, setUnpaidInvoices] = useState<Invoice[]>([]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
   const [amount, setAmount] = useState<number | string>('');
@@ -52,7 +52,8 @@ export default function PaymentsPage() {
         return;
     }
     
-    // Update the invoice status to 'paid' in the global state
+    addActivityLog('Payment Processed', `Processed payment of $${amount} for invoice ${selectedInvoiceId}.`);
+
     setInvoices(currentInvoices => 
         currentInvoices.map(inv => 
             inv.id === selectedInvoiceId ? { ...inv, status: 'paid' } : inv

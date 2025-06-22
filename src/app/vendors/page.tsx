@@ -28,7 +28,7 @@ const vendorSchema = z.object({
 type VendorFormData = z.infer<typeof vendorSchema>;
 
 export default function VendorsPage() {
-    const { vendors, setVendors } = useAppContext();
+    const { vendors, setVendors, addActivityLog } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [vendorToEdit, setVendorToEdit] = useState<Vendor | null>(null);
@@ -53,6 +53,7 @@ export default function VendorsPage() {
             const updatedVendors = vendors.map(v => v.id === vendorToEdit.id ? { ...v, ...data } : v);
             setVendors(updatedVendors);
             toast({ title: "Vendor Updated", description: `${data.name} has been updated.` });
+            addActivityLog('Vendor Updated', `Updated vendor: ${data.name} (ID: ${vendorToEdit.id})`);
         } else {
             const newVendor: Vendor = {
                 id: `vend-${Date.now()}`,
@@ -60,6 +61,7 @@ export default function VendorsPage() {
             };
             setVendors([newVendor, ...vendors]);
             toast({ title: "Vendor Added", description: `${data.name} has been added.` });
+            addActivityLog('Vendor Added', `Added new vendor: ${data.name}`);
         }
         setIsFormOpen(false);
         setVendorToEdit(null);
@@ -67,6 +69,7 @@ export default function VendorsPage() {
     
     const handleDelete = () => {
         if (!vendorToDelete) return;
+        addActivityLog('Vendor Deleted', `Deleted vendor: ${vendorToDelete.name} (ID: ${vendorToDelete.id})`);
         setVendors(vendors.filter(v => v.id !== vendorToDelete.id));
         toast({ title: "Vendor Deleted", description: `${vendorToDelete.name} has been deleted.` });
         setVendorToDelete(null);

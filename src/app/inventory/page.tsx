@@ -27,7 +27,7 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 
 export default function InventoryPage() {
-    const { products, setProducts } = useAppContext();
+    const { products, setProducts, addActivityLog } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
@@ -52,6 +52,7 @@ export default function InventoryPage() {
             const updatedProducts = products.map(p => p.id === productToEdit.id ? { ...p, ...data } : p);
             setProducts(updatedProducts);
             toast({ title: "Product Updated", description: `${data.name} has been updated.` });
+            addActivityLog('Product Updated', `Updated product: ${data.name} (ID: ${productToEdit.id})`);
         } else {
             const newProduct: Product = {
                 id: `prod-${Date.now()}`,
@@ -59,6 +60,7 @@ export default function InventoryPage() {
             };
             setProducts([newProduct, ...products]);
             toast({ title: "Product Added", description: `${data.name} has been added to inventory.` });
+            addActivityLog('Product Added', `Added new product: ${data.name}`);
         }
         setIsFormOpen(false);
         setProductToEdit(null);
@@ -66,6 +68,7 @@ export default function InventoryPage() {
     
     const handleDelete = () => {
         if (!productToDelete) return;
+        addActivityLog('Product Deleted', `Deleted product: ${productToDelete.name} (ID: ${productToDelete.id})`);
         setProducts(products.filter(p => p.id !== productToDelete.id));
         toast({ title: "Product Deleted", description: `${productToDelete.name} has been deleted.` });
         setProductToDelete(null);

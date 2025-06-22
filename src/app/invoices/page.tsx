@@ -46,7 +46,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, products, setProducts } = useAppContext();
+    const { invoices, setInvoices, customers, products, setProducts, addActivityLog } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
@@ -153,6 +153,7 @@ export default function InvoicesPage() {
                 amount: newAmount,
             } : inv));
             toast({ title: "Invoice Updated" });
+            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: $${newAmount.toFixed(2)}`);
         } else {
             const newInvoice: Invoice = {
                 id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
@@ -165,6 +166,7 @@ export default function InvoicesPage() {
             };
             setInvoices([newInvoice, ...invoices]);
             toast({ title: "Invoice Created" });
+            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for $${newAmount.toFixed(2)}`);
         }
         setIsFormOpen(false);
         setInvoiceToEdit(null);
@@ -172,6 +174,7 @@ export default function InvoicesPage() {
     
     const handleDelete = () => {
         if (!invoiceToDelete) return;
+        addActivityLog('Invoice Deleted', `Deleted invoice #${invoiceToDelete.id}.`);
         setInvoices(invoices.filter(inv => inv.id !== invoiceToDelete.id));
         toast({ title: "Invoice Deleted" });
         setInvoiceToDelete(null);

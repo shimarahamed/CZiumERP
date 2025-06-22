@@ -51,3 +51,11 @@ export type Sale = {
   month: string;
   revenue: number;
 };
+
+export type ActivityLog = {
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  details: string;
+};

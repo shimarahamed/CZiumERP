@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor } from '@/types';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog } from '@/types';
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors } from '@/lib/data';
 
 interface AppContextType {
@@ -17,6 +17,8 @@ interface AppContextType {
   user: User | null;
   login: (email: string, pass: string) => boolean;
   logout: () => void;
+  activityLogs: ActivityLog[];
+  addActivityLog: (action: string, details: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -42,10 +45,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const addActivityLog = (action: string, details: string) => {
+    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@bizflow.com', avatar: '' } : null);
+    if (!currentUser) return;
+
+    const newLog: ActivityLog = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      user: currentUser.email,
+      action,
+      details,
+    };
+    setActivityLogs(prevLogs => [newLog, ...prevLogs]);
+  };
+
   const login = (email: string, pass: string): boolean => {
-    // Hardcoded credentials for demo purposes
     if (email === 'admin@bizflow.com') {
-      const loggedInUser = {
+      const loggedInUser: User = {
         name: 'Admin User',
         email: 'admin@bizflow.com',
         avatar: 'https://placehold.co/40x40'
@@ -53,12 +69,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
       setUser(loggedInUser);
       localStorage.setItem('isAuthenticated', 'true');
+      
+      const newLog: ActivityLog = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        user: loggedInUser.email,
+        action: 'User Login',
+        details: `User ${loggedInUser.email} logged in.`,
+      };
+      setActivityLogs(prevLogs => [newLog, ...prevLogs]);
+
       return true;
     }
     return false;
   };
 
   const logout = () => {
+    if(user) {
+        addActivityLog('User Logout', `User ${user.email} logged out.`);
+    }
     setIsAuthenticated(false);
     setUser(null);
     localStorage.removeItem('isAuthenticated');
@@ -71,7 +100,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       customers, setCustomers,
       products, setProducts,
       vendors, setVendors,
-      isAuthenticated, user, login, logout
+      isAuthenticated, user, login, logout,
+      activityLogs, addActivityLog
     }}>
       {children}
     </AppContext.Provider>
