@@ -91,14 +91,28 @@ body {
   body * {
     visibility: hidden;
   }
-  .printable-area, .printable-area * {
+
+  .printable-area,
+  .printable-area * {
     visibility: visible;
   }
+
   .printable-area {
-    position: absolute;
-    left: 0;
+    position: fixed;
     top: 0;
-    width: 100%;
-    height: 100%;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 1rem;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    background: white;
+    color: black;
+    z-index: 9999;
+  }
+
+  .non-printable {
+    display: none !important;
   }
 }

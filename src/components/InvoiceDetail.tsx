@@ -20,19 +20,12 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 
 const InvoiceDetail = React.forwardRef<HTMLDivElement, InvoiceDetailProps>(({ invoice }, ref) => {
     const handlePrint = () => {
-        const printContent = document.getElementById(`invoice-print-area-${invoice.id}`);
-        if (printContent) {
-            const originalContents = document.body.innerHTML;
-            document.body.innerHTML = printContent.innerHTML;
-            window.print();
-            document.body.innerHTML = originalContents;
-            window.location.reload(); // To restore event listeners
-        }
+        window.print();
     };
 
     return (
-        <DialogContent className="sm:max-w-3xl">
-            <div ref={ref} id={`invoice-print-area-${invoice.id}`}>
+        <DialogContent className="sm:max-w-3xl printable-area" ref={ref}>
+            <div>
                 <DialogHeader>
                     <DialogTitle className="flex justify-between items-center">
                         <span>Invoice {invoice.id}</span>
