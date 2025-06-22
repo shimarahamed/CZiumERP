@@ -22,6 +22,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import InvoiceDetail from "@/components/InvoiceDetail";
+import FullInvoice from "@/components/FullInvoice";
 import { useAppContext } from "@/context/AppContext";
 import type { Invoice, InvoiceItem } from "@/types";
 
@@ -51,6 +52,7 @@ export default function InvoicesPage() {
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
     const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
+    const [viewingFullInvoice, setViewingFullInvoice] = useState<Invoice | null>(null);
     const { toast } = useToast();
 
     const form = useForm<InvoiceFormData>({
@@ -183,7 +185,7 @@ export default function InvoicesPage() {
         setInvoiceToDelete(null);
     };
 
-    const InvoiceTable = ({ invoices, onEdit, onDelete, onView }: { invoices: Invoice[], onEdit: (invoice: Invoice) => void, onDelete: (invoice: Invoice) => void, onView: (invoice: Invoice) => void }) => (
+    const InvoiceTable = ({ invoices, onEdit, onDelete, onView, onViewFull }: { invoices: Invoice[], onEdit: (invoice: Invoice) => void, onDelete: (invoice: Invoice) => void, onView: (invoice: Invoice) => void, onViewFull: (invoice: Invoice) => void }) => (
         <Table>
             <TableHeader>
                 <TableRow>
@@ -218,7 +220,8 @@ export default function InvoicesPage() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => onView(invoice)}>View Details</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onView(invoice)}>View Receipt</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onViewFull(invoice)}>View Full Invoice</DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => onEdit(invoice)}>Edit</DropdownMenuItem>
                                     <DropdownMenuItem className="text-destructive" onClick={() => onDelete(invoice)}>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -251,10 +254,10 @@ export default function InvoicesPage() {
                                 <TabsTrigger value="pending">Pending</TabsTrigger>
                                 <TabsTrigger value="overdue">Overdue</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="all"><InvoiceTable invoices={storeInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
-                            <TabsContent value="paid"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
-                            <TabsContent value="pending"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
-                            <TabsContent value="overdue"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} /></TabsContent>
+                            <TabsContent value="all"><InvoiceTable invoices={storeInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="paid"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="pending"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="overdue"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                         </Tabs>
                     </CardContent>
                 </Card>
@@ -330,6 +333,10 @@ export default function InvoicesPage() {
 
             <Dialog open={!!viewingInvoice} onOpenChange={(open) => !open && setViewingInvoice(null)}>
                 {viewingInvoice && <InvoiceDetail invoice={viewingInvoice} />}
+            </Dialog>
+
+             <Dialog open={!!viewingFullInvoice} onOpenChange={(open) => !open && setViewingFullInvoice(null)}>
+                {viewingFullInvoice && <FullInvoice invoice={viewingFullInvoice} />}
             </Dialog>
 
             <AlertDialog open={!!invoiceToDelete} onOpenChange={(open) => !open && setInvoiceToDelete(null)}>
