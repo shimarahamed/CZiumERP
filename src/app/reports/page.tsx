@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import { Download } from "lucide-react";
-import { invoices, customers, salesData } from '@/lib/data';
+import { initialInvoices as invoices, customers, salesData } from '@/lib/data';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 
 const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {

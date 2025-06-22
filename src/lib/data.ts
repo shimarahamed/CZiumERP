@@ -8,7 +8,7 @@ export const customers: Customer[] = [
   { id: '5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40' },
 ];
 
-export const invoices: Invoice[] = [
+export const initialInvoices: Invoice[] = [
   { id: 'INV-001', customerId: '1', customerName: 'John Doe', amount: 250.00, status: 'paid', date: '2023-10-25' },
   { id: 'INV-002', customerId: '2', customerName: 'Jane Smith', amount: 150.75, status: 'pending', date: '2023-10-26' },
   { id: 'INV-003', customerId: '3', customerName: 'Sam Wilson', amount: 350.00, status: 'overdue', date: '2023-09-15' },

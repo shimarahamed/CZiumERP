@@ -4,10 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
-import { invoices, salesData, customers } from "@/lib/data";
+import { initialInvoices as invoices, salesData, customers } from "@/lib/data";
 import Header from "@/components/Header";
 import { DollarSign, Users, CreditCard, Activity, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const chartConfig = {
@@ -20,9 +21,11 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
       <Header title="Dashboard">
-        <Button>
-          <PlusCircle className="h-4 w-4" />
-          Generate Sales Invoice
+        <Button asChild>
+          <Link href="/invoices">
+            <PlusCircle className="h-4 w-4" />
+            Generate Sales Invoice
+          </Link>
         </Button>
       </Header>
       <main className="flex-1 overflow-auto p-6">
