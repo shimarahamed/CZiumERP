@@ -11,15 +11,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import type { Customer } from '@/types';
+import type { Customer, Invoice } from '@/types';
 import { useAppContext } from '@/context/AppContext';
+import { Badge } from '@/components/ui/badge';
+
+const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' } = {
+    paid: 'default',
+    pending: 'secondary',
+    overdue: 'destructive'
+};
 
 export default function CustomersPage() {
-    // Note: This page manages customers separately. For a real app, customer management would also be in the context.
-    const { customers: initialCustomers } = useAppContext();
+    const { customers: initialCustomers, invoices } = useAppContext();
     const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
     const [open, setOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
 
     const handleAddCustomer = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -39,6 +46,8 @@ export default function CustomersPage() {
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const customerInvoices = historyCustomer ? invoices.filter(invoice => invoice.customerId === historyCustomer.id) : [];
 
     return (
         <div className="flex flex-col h-full">
@@ -130,7 +139,7 @@ export default function CustomersPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => setHistoryCustomer(customer)}>View Purchase History</DropdownMenuItem>
                                                     <DropdownMenuItem>Create Invoice</DropdownMenuItem>
                                                     <DropdownMenuItem>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -143,6 +152,46 @@ export default function CustomersPage() {
                     </CardContent>
                 </Card>
             </main>
+
+            <Dialog open={!!historyCustomer} onOpenChange={(open) => !open && setHistoryCustomer(null)}>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Purchase History for {historyCustomer?.name}</DialogTitle>
+                        <DialogDescription>A list of all invoices for this customer.</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        {customerInvoices.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Invoice ID</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Status</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {customerInvoices.map(invoice => (
+                                        <TableRow key={invoice.id}>
+                                            <TableCell className="font-medium">{invoice.id}</TableCell>
+                                            <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
+                                            <TableCell>${invoice.amount.toFixed(2)}</TableCell>
+                                            <TableCell>
+                                                <Badge variant={statusVariant[invoice.status]} className="capitalize">
+                                                    {invoice.status}
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p className="text-center text-muted-foreground">No invoices found for this customer.</p>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }
