@@ -1,12 +1,12 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { invoices, salesData, customers } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, Activity, ArrowUpRight } from "lucide-react";
+import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
 
 export default function DashboardPage() {
   const chartConfig = {
