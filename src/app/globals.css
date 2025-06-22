@@ -98,18 +98,17 @@ body {
   }
 
   .printable-area {
-    position: fixed;
-    top: 0;
+    position: absolute;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0;
+    width: 100%;
+    height: auto;
     padding: 1rem;
     margin: 0;
-    border: none;
-    box-shadow: none;
-    background: white;
-    color: black;
-    z-index: 9999;
+    background: white !important;
+    color: black !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .non-printable {

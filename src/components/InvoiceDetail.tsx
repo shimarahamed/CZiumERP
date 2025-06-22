@@ -18,14 +18,14 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
     overdue: 'destructive'
 };
 
-const InvoiceDetail = React.forwardRef<HTMLDivElement, InvoiceDetailProps>(({ invoice }, ref) => {
+const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
     const handlePrint = () => {
         window.print();
     };
 
     return (
-        <DialogContent className="sm:max-w-3xl printable-area" ref={ref}>
-            <div>
+        <DialogContent className="sm:max-w-3xl">
+            <div className="printable-area">
                 <DialogHeader>
                     <DialogTitle className="flex justify-between items-center">
                         <span>Invoice {invoice.id}</span>
@@ -80,7 +80,6 @@ const InvoiceDetail = React.forwardRef<HTMLDivElement, InvoiceDetailProps>(({ in
             </DialogFooter>
         </DialogContent>
     );
-});
-InvoiceDetail.displayName = "InvoiceDetail";
+};
 
 export default InvoiceDetail;
