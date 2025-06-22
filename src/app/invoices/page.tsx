@@ -59,11 +59,11 @@ export default function InvoicesPage() {
                     ...invoiceToEdit,
                     date: new Date(invoiceToEdit.date),
                     amount: invoiceToEdit.amount,
-                    customerId: invoiceToEdit.customerId || '',
+                    customerId: invoiceToEdit.customerId || 'none',
                 });
             } else {
                 form.reset({
-                    customerId: '',
+                    customerId: 'none',
                     amount: 0,
                     status: 'pending',
                     date: new Date(),
@@ -78,7 +78,9 @@ export default function InvoicesPage() {
     };
 
     const onSubmit = (data: InvoiceFormData) => {
-        const customer = data.customerId ? customers.find(c => c.id === data.customerId) : undefined;
+        const isNoneCustomer = data.customerId === 'none';
+        const customerId = isNoneCustomer ? undefined : data.customerId;
+        const customer = customerId ? customers.find(c => c.id === customerId) : undefined;
 
         if (invoiceToEdit) {
             setInvoices(invoices.map(inv => inv.id === invoiceToEdit.id ? {
@@ -86,7 +88,7 @@ export default function InvoicesPage() {
                 ...data,
                 date: format(data.date, 'yyyy-MM-dd'),
                 customerName: customer?.name,
-                customerId: customer?.id,
+                customerId: customerId,
             } : inv));
             toast({ title: "Invoice Updated", description: `Invoice ${invoiceToEdit.id} has been updated.` });
         } else {
@@ -95,7 +97,7 @@ export default function InvoicesPage() {
                 ...data,
                 date: format(data.date, 'yyyy-MM-dd'),
                 customerName: customer?.name,
-                customerId: customer?.id,
+                customerId: customerId,
             };
             setInvoices([newInvoice, ...invoices]);
             toast({ title: "Invoice Created", description: `Invoice ${newInvoice.id} has been successfully created.` });
@@ -210,7 +212,7 @@ export default function InvoicesPage() {
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl><SelectTrigger><SelectValue placeholder="Select a customer" /></SelectTrigger></FormControl>
                                             <SelectContent>
-                                                <SelectItem value="">None</SelectItem>
+                                                <SelectItem value="none">None</SelectItem>
                                                 {customers.map(customer => (
                                                     <SelectItem key={customer.id} value={customer.id}>{customer.name}</SelectItem>
                                                 ))}
