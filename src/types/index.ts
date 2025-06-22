@@ -6,11 +6,28 @@ export type Customer = {
   avatar: string;
 };
 
+// New: Product type for inventory
+export type Product = {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+};
+
+// New: InvoiceItem for linking products to invoices
+export type InvoiceItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number; // Price per item at the time of sale
+};
+
 export type Invoice = {
   id: string;
   customerId?: string;
   customerName?: string;
-  amount: number;
+  items: InvoiceItem[]; // Replaces single amount
+  amount: number; // Will be calculated from items
   status: 'paid' | 'pending' | 'overdue';
   date: string;
 };

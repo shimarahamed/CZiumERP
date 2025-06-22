@@ -11,10 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import { customers } from '@/lib/data';
 import { getUpsellRecommendations } from '@/ai/flows/upsell-recommendations';
 import type { UpsellRecommendationsOutput } from '@/ai/flows/upsell-recommendations';
 import { Lightbulb, Loader2, Sparkles } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
 
 const formSchema = z.object({
   customerId: z.string().min(1, { message: "Please select a customer." }),
@@ -23,6 +23,7 @@ const formSchema = z.object({
 });
 
 export default function UpsellingPage() {
+  const { customers } = useAppContext();
   const [recommendations, setRecommendations] = useState<UpsellRecommendationsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();

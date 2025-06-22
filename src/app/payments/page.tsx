@@ -9,11 +9,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
 import { DollarSign, CreditCard, Smartphone, Landmark } from "lucide-react";
-import { customers, initialInvoices } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
+import { useAppContext } from "@/context/AppContext";
 import type { Invoice } from "@/types";
 
 export default function PaymentsPage() {
+  const { invoices, setInvoices, customers } = useAppContext();
   const [unpaidInvoices, setUnpaidInvoices] = useState<Invoice[]>([]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
   const [amount, setAmount] = useState<number | string>('');
@@ -21,9 +22,8 @@ export default function PaymentsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, you'd fetch this data.
-    setUnpaidInvoices(initialInvoices.filter(inv => inv.status === 'pending' || inv.status === 'overdue'));
-  }, []);
+    setUnpaidInvoices(invoices.filter(inv => inv.status === 'pending' || inv.status === 'overdue'));
+  }, [invoices]);
 
   const handleInvoiceChange = (invoiceId: string) => {
     setSelectedInvoiceId(invoiceId);
@@ -33,11 +33,11 @@ export default function PaymentsPage() {
       if (invoice.customerId) {
         setSelectedCustomerId(invoice.customerId);
       } else {
-        setSelectedCustomerId('');
+        setSelectedCustomerId('none');
       }
     } else {
       setAmount('');
-      setSelectedCustomerId('');
+      setSelectedCustomerId('none');
     }
   };
 
@@ -51,17 +51,23 @@ export default function PaymentsPage() {
         });
         return;
     }
+    
+    // Update the invoice status to 'paid' in the global state
+    setInvoices(currentInvoices => 
+        currentInvoices.map(inv => 
+            inv.id === selectedInvoiceId ? { ...inv, status: 'paid' } : inv
+        )
+    );
 
     toast({
         title: "Payment Processed",
         description: `Payment of $${amount} for invoice ${selectedInvoiceId} has been successfully processed.`,
     });
 
-    // Here you would typically update the invoice status and persist the changes.
-    // For this prototype, we'll just clear the form.
+    // Clear the form
     setSelectedInvoiceId('');
     setAmount('');
-    setSelectedCustomerId('');
+    setSelectedCustomerId('none');
   };
 
 
@@ -92,8 +98,8 @@ export default function PaymentsPage() {
                 </div>
 
                 <div className="grid gap-3">
-                  <Label htmlFor="customer">Customer (Optional)</Label>
-                  <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+                  <Label htmlFor="customer">Customer (from invoice)</Label>
+                  <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId} disabled>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a customer" />
                     </SelectTrigger>
@@ -110,7 +116,7 @@ export default function PaymentsPage() {
                   <Label htmlFor="amount">Amount</Label>
                   <div className="relative">
                     <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input id="amount" type="number" placeholder="0.00" className="pl-8" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                    <Input id="amount" type="number" placeholder="0.00" className="pl-8" value={amount} onChange={(e) => setAmount(e.target.value)} readOnly/>
                   </div>
                 </div>
                 <div className="grid gap-3">
@@ -148,7 +154,7 @@ export default function PaymentsPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                <Button type="submit" size="lg" className="w-full">
+                <Button type="submit" size="lg" className="w-full" disabled={!selectedInvoiceId}>
                   Process Payment
                 </Button>
               </div>

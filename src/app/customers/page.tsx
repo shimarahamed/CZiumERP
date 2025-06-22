@@ -9,12 +9,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { customers as initialCustomers } from "@/lib/data";
 import Header from "@/components/Header";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Customer } from '@/types';
+import { useAppContext } from '@/context/AppContext';
 
 export default function CustomersPage() {
+    // Note: This page manages customers separately. For a real app, customer management would also be in the context.
+    const { customers: initialCustomers } = useAppContext();
     const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
     const [open, setOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');

@@ -2,13 +2,14 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package } from 'lucide-react'; // Add Package
 import Link from 'next/link';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/customers', label: 'Customers', icon: Users },
   { href: '/invoices', label: 'Invoices', icon: FileText },
+  { href: '/inventory', label: 'Inventory', icon: Package }, // Add inventory link
   { href: '/payments', label: 'Payments', icon: CreditCard },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },

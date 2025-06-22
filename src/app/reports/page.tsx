@@ -2,17 +2,19 @@
 
 import React, { useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import { Download } from "lucide-react";
-import { initialInvoices as invoices, customers, salesData } from '@/lib/data';
+import { salesData } from '@/lib/data';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { useAppContext } from '@/context/AppContext';
 
 const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
+    const { invoices } = useAppContext();
     const totalRevenue = invoices.reduce((acc, inv) => acc + inv.amount, 0);
     const totalInvoices = invoices.length;
-    const uniqueCustomers = new Set(invoices.map(inv => inv.customerId)).size;
+    const uniqueCustomers = new Set(invoices.map(inv => inv.customerId).filter(Boolean)).size;
 
     return (
         <div ref={ref} className="printable-area bg-white text-black p-8">
@@ -64,7 +66,7 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
                         {invoices.slice(0,10).map(invoice => (
                             <TableRow key={invoice.id}>
                                 <TableCell>{invoice.id}</TableCell>
-                                <TableCell>{invoice.customerName}</TableCell>
+                                <TableCell>{invoice.customerName || 'Walk-in Customer'}</TableCell>
                                 <TableCell>${invoice.amount.toFixed(2)}</TableCell>
                                 <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
                             </TableRow>
