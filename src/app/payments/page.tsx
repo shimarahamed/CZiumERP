@@ -74,7 +74,7 @@ export default function PaymentsPage() {
   return (
     <div className="flex flex-col h-full">
       <Header title="Process Payment" />
-      <main className="flex-1 overflow-auto p-6 flex justify-center items-start">
+      <main className="flex-1 overflow-auto p-4 md:p-6 flex justify-center items-start">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>New Transaction</CardTitle>

@@ -181,11 +181,11 @@ export default function InvoicesPage() {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Invoice ID</TableHead>
+                    <TableHead className="w-[100px]">Invoice ID</TableHead>
                     <TableHead>Customer</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden md:table-cell">Amount</TableHead>
+                    <TableHead className="hidden md:table-cell">Status</TableHead>
+                    <TableHead className="hidden lg:table-cell">Date</TableHead>
                     <TableHead><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
             </TableHeader>
@@ -193,10 +193,15 @@ export default function InvoicesPage() {
                 {invoices.map(invoice => (
                     <TableRow key={invoice.id} onClick={() => onView(invoice)} className="cursor-pointer">
                         <TableCell className="font-medium">{invoice.id}</TableCell>
-                        <TableCell>{invoice.customerName || 'N/A'}</TableCell>
-                        <TableCell>${invoice.amount.toFixed(2)}</TableCell>
-                        <TableCell><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status}</Badge></TableCell>
-                        <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                            <div>{invoice.customerName || 'N/A'}</div>
+                            <div className="text-sm text-muted-foreground md:hidden">
+                                ${invoice.amount.toFixed(2)}
+                            </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">${invoice.amount.toFixed(2)}</TableCell>
+                        <TableCell className="hidden md:table-cell"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status}</Badge></TableCell>
+                        <TableCell className="hidden lg:table-cell">{new Date(invoice.date).toLocaleDateString()}</TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -222,19 +227,19 @@ export default function InvoicesPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title="Invoices" />
-            <main className="flex-1 overflow-auto p-6">
+            <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div><CardTitle>Invoices</CardTitle><CardDescription>Manage and track all your customer invoices.</CardDescription></div>
-                            <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" /> Create Invoice
                             </Button>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="all">
-                            <TabsList>
+                            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
                                 <TabsTrigger value="all">All</TabsTrigger>
                                 <TabsTrigger value="paid">Paid</TabsTrigger>
                                 <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -257,7 +262,7 @@ export default function InvoicesPage() {
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField control={form.control} name="customerId" render={({ field }) => (
                                     <FormItem><FormLabel>Customer</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a customer" /></SelectTrigger></FormControl>
@@ -281,9 +286,9 @@ export default function InvoicesPage() {
                                 <FormLabel>Invoice Items</FormLabel>
                                 <div className="space-y-2 rounded-lg border p-2">
                                 {fields.map((field, index) => (
-                                    <div key={field.id} className="flex items-end gap-2">
+                                    <div key={field.id} className="flex flex-wrap items-end gap-2">
                                         <FormField control={form.control} name={`items.${index}.productId`} render={({ field }) => (
-                                            <FormItem className="flex-1"><FormControl>
+                                            <FormItem className="flex-1 min-w-[150px]"><FormControl>
                                                 <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Select product" /></SelectTrigger>
                                                     <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                                                 </Select>

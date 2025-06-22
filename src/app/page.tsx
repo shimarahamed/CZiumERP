@@ -35,8 +35,8 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </Header>
-      <main className="flex-1 overflow-auto p-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <main className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -78,7 +78,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-        <div className="grid gap-6 mt-6 md:grid-cols-2 lg:grid-cols-7">
+        <div className="grid gap-4 mt-6 md:grid-cols-2 lg:grid-cols-7">
           <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle>Overview</CardTitle>

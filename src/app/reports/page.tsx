@@ -17,13 +17,13 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
     const uniqueCustomers = new Set(invoices.map(inv => inv.customerId).filter(Boolean)).size;
 
     return (
-        <div ref={ref} className="printable-area bg-white text-black p-8">
+        <div ref={ref} className="printable-area bg-white text-black p-4 sm:p-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Sales Report</h1>
                 <p className="text-gray-600">Generated on: {new Date().toLocaleDateString()}</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="p-4 border rounded-lg">
                     <h3 className="text-gray-500 text-sm font-medium">Total Revenue</h3>
                     <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
@@ -94,22 +94,22 @@ export default function ReportsPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title="Sales Reports" />
-            <main className="flex-1 overflow-auto p-6">
+            <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Sales Report</CardTitle>
                                 <CardDescription>An overview of your business sales performance.</CardDescription>
                             </div>
-                             <Button onClick={handlePrint} size="sm" className="gap-1">
+                             <Button onClick={handlePrint} size="sm" className="gap-1 w-full md:w-auto">
                                 <Download className="h-4 w-4" />
                                 Download PDF
                             </Button>
                         </div>
                     </CardHeader>
                     <CardContent>
-                       <div className="border rounded-lg p-4 bg-white shadow-sm">
+                       <div className="border rounded-lg p-0 sm:p-4 bg-white shadow-sm">
                          <SalesReport ref={reportRef} />
                        </div>
                     </CardContent>

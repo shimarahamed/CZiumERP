@@ -52,17 +52,17 @@ export default function CustomersPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title="Customers" />
-            <main className="flex-1 overflow-auto p-6">
+            <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Customers</CardTitle>
                                 <CardDescription>Manage your customers and view their sales history.</CardDescription>
                             </div>
                             <Dialog open={open} onOpenChange={setOpen}>
                                 <DialogTrigger asChild>
-                                    <Button size="sm" className="gap-1">
+                                    <Button size="sm" className="gap-1 w-full md:w-auto">
                                         <PlusCircle className="h-4 w-4" />
                                         Add Customer
                                     </Button>
@@ -74,17 +74,17 @@ export default function CustomersPage() {
                                             <DialogDescription>Fill in the details to add a new customer.</DialogDescription>
                                         </DialogHeader>
                                         <div className="grid gap-4 py-4">
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label htmlFor="name" className="text-right">Name</Label>
-                                                <Input id="name" name="name" className="col-span-3" required />
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="name">Name</Label>
+                                                <Input id="name" name="name" required />
                                             </div>
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label htmlFor="email" className="text-right">Email</Label>
-                                                <Input id="email" name="email" type="email" className="col-span-3" required />
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="email">Email</Label>
+                                                <Input id="email" name="email" type="email" required />
                                             </div>
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label htmlFor="phone" className="text-right">Phone</Label>
-                                                <Input id="phone" name="phone" className="col-span-3" />
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="phone">Phone</Label>
+                                                <Input id="phone" name="phone" />
                                             </div>
                                         </div>
                                         <DialogFooter>
@@ -99,7 +99,7 @@ export default function CustomersPage() {
                                 placeholder="Search customers..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-sm"
+                                className="max-w-full md:max-w-sm"
                             />
                         </div>
                     </CardHeader>
@@ -108,8 +108,8 @@ export default function CustomersPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Customer</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Phone</TableHead>
+                                    <TableHead className="hidden md:table-cell">Email</TableHead>
+                                    <TableHead className="hidden md:table-cell">Phone</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
@@ -124,11 +124,14 @@ export default function CustomersPage() {
                                                     <AvatarImage src={customer.avatar} alt={customer.name} data-ai-hint="person user" />
                                                     <AvatarFallback>{customer.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                                                 </Avatar>
-                                                {customer.name}
+                                                <div className="flex flex-col">
+                                                   {customer.name}
+                                                   <span className="text-muted-foreground md:hidden">{customer.email}</span>
+                                                </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{customer.email}</TableCell>
-                                        <TableCell>{customer.phone}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{customer.phone}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
