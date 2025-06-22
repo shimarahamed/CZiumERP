@@ -1,19 +1,32 @@
 'use client'
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Customer, Invoice } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+
+const customerSchema = z.object({
+    name: z.string().min(1, "Name is required."),
+    email: z.string().email("Invalid email address."),
+    phone: z.string().min(1, "Phone number is required."),
+});
+
+type CustomerFormData = z.infer<typeof customerSchema>;
 
 const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' } = {
     paid: 'default',
@@ -22,24 +35,55 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function CustomersPage() {
-    const { customers: initialCustomers, invoices } = useAppContext();
-    const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-    const [open, setOpen] = useState(false);
+    const { customers, setCustomers, invoices } = useAppContext();
+    const { toast } = useToast();
+    
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [customerToEdit, setCustomerToEdit] = useState<Customer | null>(null);
+    const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
 
-    const handleAddCustomer = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const newCustomer: Customer = {
-            id: (customers.length + 1).toString(),
-            name: formData.get('name') as string,
-            email: formData.get('email') as string,
-            phone: formData.get('phone') as string,
-            avatar: `https://placehold.co/40x40`
-        };
-        setCustomers([...customers, newCustomer]);
-        setOpen(false);
+    const form = useForm<CustomerFormData>({
+        resolver: zodResolver(customerSchema),
+    });
+
+    const handleOpenForm = (customer: Customer | null = null) => {
+        setCustomerToEdit(customer);
+        if (customer) {
+            form.reset(customer);
+        } else {
+            form.reset({ name: '', email: '', phone: '' });
+        }
+        setIsFormOpen(true);
+    };
+
+    const onSubmit = (data: CustomerFormData) => {
+        if (customerToEdit) {
+            const updatedCustomers = customers.map(c => 
+                c.id === customerToEdit.id ? { ...c, ...data } : c
+            );
+            setCustomers(updatedCustomers);
+            toast({ title: "Customer Updated", description: `${data.name}'s details have been updated.` });
+        } else {
+            const newCustomer: Customer = {
+                id: `cust-${Date.now()}`,
+                avatar: `https://placehold.co/40x40`,
+                ...data,
+            };
+            setCustomers([newCustomer, ...customers]);
+            toast({ title: "Customer Added", description: `${data.name} has been added.` });
+        }
+        setIsFormOpen(false);
+        setCustomerToEdit(null);
+    };
+
+    const handleDelete = () => {
+        if (!customerToDelete) return;
+        setCustomers(customers.filter(c => c.id !== customerToDelete.id));
+        toast({ title: "Customer Deleted", description: `${customerToDelete.name} has been deleted.` });
+        setCustomerToDelete(null);
     };
 
     const filteredCustomers = customers.filter(customer =>
@@ -60,39 +104,10 @@ export default function CustomersPage() {
                                 <CardTitle>Customers</CardTitle>
                                 <CardDescription>Manage your customers and view their sales history.</CardDescription>
                             </div>
-                            <Dialog open={open} onOpenChange={setOpen}>
-                                <DialogTrigger asChild>
-                                    <Button size="sm" className="gap-1 w-full md:w-auto">
-                                        <PlusCircle className="h-4 w-4" />
-                                        Add Customer
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <form onSubmit={handleAddCustomer}>
-                                        <DialogHeader>
-                                            <DialogTitle>Add New Customer</DialogTitle>
-                                            <DialogDescription>Fill in the details to add a new customer.</DialogDescription>
-                                        </DialogHeader>
-                                        <div className="grid gap-4 py-4">
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="name">Name</Label>
-                                                <Input id="name" name="name" required />
-                                            </div>
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="email">Email</Label>
-                                                <Input id="email" name="email" type="email" required />
-                                            </div>
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="phone">Phone</Label>
-                                                <Input id="phone" name="phone" />
-                                            </div>
-                                        </div>
-                                        <DialogFooter>
-                                            <Button type="submit">Save Customer</Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
+                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
+                                <PlusCircle className="h-4 w-4" />
+                                Add Customer
+                            </Button>
                         </div>
                         <div className="mt-4">
                             <Input
@@ -143,8 +158,8 @@ export default function CustomersPage() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => setHistoryCustomer(customer)}>View Purchase History</DropdownMenuItem>
-                                                    <DropdownMenuItem>Create Invoice</DropdownMenuItem>
-                                                    <DropdownMenuItem>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleOpenForm(customer)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => setCustomerToDelete(customer)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -156,6 +171,46 @@ export default function CustomersPage() {
                 </Card>
             </main>
 
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{customerToEdit ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+                        <DialogDescription>
+                            {customerToEdit ? 'Update customer details.' : 'Fill in the details to add a new customer.'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                            <FormField control={form.control} name="name" render={({ field }) => (
+                                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name="phone" render={({ field }) => (
+                                <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <DialogFooter>
+                                <Button type="submit">{customerToEdit ? 'Save Changes' : 'Add Customer'}</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={!!customerToDelete} onOpenChange={(open) => !open && setCustomerToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>This action cannot be undone. This will permanently delete the customer.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            
             <Dialog open={!!historyCustomer} onOpenChange={(open) => !open && setHistoryCustomer(null)}>
                 <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>

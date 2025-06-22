@@ -12,6 +12,15 @@ export type Customer = {
   avatar: string;
 };
 
+// New: Vendor type
+export type Vendor = {
+  id: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+};
+
 // New: Product type for inventory
 export type Product = {
   id: string;

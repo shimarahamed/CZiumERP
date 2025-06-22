@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2 } from 'lucide-react';
 import Link from 'next/link';
 
 const links = [
@@ -10,6 +10,7 @@ const links = [
   { href: '/customers', label: 'Customers', icon: Users },
   { href: '/invoices', label: 'Invoices', icon: FileText },
   { href: '/inventory', label: 'Inventory', icon: Package },
+  { href: '/vendors', label: 'Vendors', icon: Building2 },
   { href: '/scanner', label: 'Barcode Scanner', icon: ScanLine },
   { href: '/payments', label: 'Payments', icon: CreditCard },
   { href: '/reports', label: 'Reports', icon: BarChart3 },

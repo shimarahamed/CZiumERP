@@ -1,4 +1,4 @@
-import type { Customer, Invoice, Sale, Product } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor } from '@/types';
 
 export const customers: Customer[] = [
   { id: '1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40' },
@@ -14,6 +14,12 @@ export const initialProducts: Product[] = [
   { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, stock: 100 },
   { id: 'prod-4', name: 'Milk Frother', price: 75.00, stock: 45 },
   { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, stock: 60 },
+];
+
+export const initialVendors: Vendor[] = [
+  { id: 'vend-1', name: 'Beans & Co.', contactPerson: 'Mark R.', email: 'mark@beans.co', phone: '987-654-3210' },
+  { id: 'vend-2', name: 'Cup Supplies Inc.', contactPerson: 'Susan B.', email: 'susan@cups.inc', phone: '876-543-2109' },
+  { id: 'vend-3', name: 'Machinery Masters', contactPerson: 'Leo P.', email: 'leo@machinery.com', phone: '765-432-1098' },
 ];
 
 export const initialInvoices: Invoice[] = [

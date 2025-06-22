@@ -1,15 +1,18 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors } from '@/lib/data';
 
 interface AppContextType {
   invoices: Invoice[];
   setInvoices: React.Dispatch<React.SetStateAction<Invoice[]>>;
   customers: Customer[];
+  setCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  vendors: Vendor[];
+  setVendors: React.Dispatch<React.SetStateAction<Vendor[]>>;
   isAuthenticated: boolean;
   user: User | null;
   login: (email: string, pass: string) => boolean;
@@ -20,8 +23,9 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
-  const [customers] = useState<Customer[]>(initialCustomers);
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -64,8 +68,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AppContext.Provider value={{ 
       invoices, setInvoices, 
-      customers, 
+      customers, setCustomers,
       products, setProducts,
+      vendors, setVendors,
       isAuthenticated, user, login, logout
     }}>
       {children}
