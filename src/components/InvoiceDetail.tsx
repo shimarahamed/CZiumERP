@@ -1,85 +1,95 @@
-'use client'
+'use client';
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DialogContent, DialogFooter } from "@/components/ui/dialog";
 import type { Invoice } from '@/types';
-import { Badge } from './ui/badge';
-import { Printer } from 'lucide-react';
+import { Printer, Store as StoreIcon } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
 
 interface InvoiceDetailProps {
     invoice: Invoice;
 }
 
-const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' } = {
-    paid: 'default',
-    pending: 'secondary',
-    overdue: 'destructive'
-};
-
 const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
+    const { currentStore } = useAppContext();
     const handlePrint = () => {
         window.print();
     };
 
     return (
-        <DialogContent className="sm:max-w-3xl p-0">
-            <div className="printable-area p-6">
-                <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <h2 className="text-2xl font-bold">Invoice</h2>
-                        <p className="text-muted-foreground">#{invoice.id}</p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Date: {new Date(invoice.date).toLocaleDateString()}</p>
-                        <Badge variant={statusVariant[invoice.status]} className="capitalize text-base mt-1">{invoice.status}</Badge>
-                    </div>
+        <DialogContent className="sm:max-w-sm p-0">
+            <div className="printable-area p-4 font-mono text-xs">
+                <div className="text-center mb-4">
+                    <StoreIcon className="mx-auto h-10 w-10 mb-2" />
+                    <h2 className="text-lg font-bold">{currentStore?.name}</h2>
+                    <p className="text-xs">{currentStore?.address}</p>
                 </div>
+                <div className="border-t border-dashed my-2"></div>
+                <div className="flex justify-between">
+                    <span>Invoice #:</span>
+                    <span>{invoice.id}</span>
+                </div>
+                <div className="flex justify-between">
+                    <span>Date:</span>
+                    <span>{new Date(invoice.date).toLocaleString()}</span>
+                </div>
+                 <div className="flex justify-between">
+                    <span>Status:</span>
+                    <span className="capitalize">{invoice.status}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                    <span>Customer:</span>
+                    <span className="truncate">{invoice.customerName || 'Walk-in Customer'}</span>
+                </div>
+                <div className="border-t border-dashed my-2"></div>
                 
-                <div className="mb-8">
-                    <h4 className="font-semibold mb-2">Billed To:</h4>
-                    <p className="text-muted-foreground">{invoice.customerName || 'Walk-in Customer'}</p>
+                <div>
+                    <div className="flex font-bold">
+                        <div className="flex-1">Item</div>
+                        <div className="w-8 text-center">Qty</div>
+                        <div className="w-16 text-right">Price</div>
+                        <div className="w-16 text-right">Total</div>
+                    </div>
+                    <div className="border-b border-dashed my-1"></div>
+                    {invoice.items.map((item, index) => (
+                         <div key={index} className="flex my-1">
+                            <div className="flex-1 w-0 truncate pr-1">{item.productName}</div>
+                            <div className="w-8 shrink-0 text-center">{item.quantity}</div>
+                            <div className="w-16 shrink-0 text-right">${item.price.toFixed(2)}</div>
+                            <div className="w-16 shrink-0 text-right">${(item.quantity * item.price).toFixed(2)}</div>
+                        </div>
+                    ))}
                 </div>
 
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Item</TableHead>
-                            <TableHead className="text-center">Quantity</TableHead>
-                            <TableHead className="text-right">Price</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {invoice.items.map((item, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{item.productName}</TableCell>
-                                <TableCell className="text-center">{item.quantity}</TableCell>
-                                <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                                <TableCell className="text-right">${(item.quantity * item.price).toFixed(2)}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-
-                <div className="flex justify-end mt-6">
-                    <div className="w-full max-w-xs">
-                        <div className="flex justify-between py-2 border-t border-dashed">
-                            <span className="font-medium">Subtotal</span>
-                            <span>${invoice.amount.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                            <span>Total</span>
-                            <span>${invoice.amount.toFixed(2)}</span>
-                        </div>
+                <div className="border-t border-dashed my-2"></div>
+                
+                <div className="space-y-1">
+                    <div className="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>${invoice.amount.toFixed(2)}</span>
                     </div>
+                    <div className="flex justify-between">
+                        <span>Taxes (0%)</span>
+                        <span>$0.00</span>
+                    </div>
+                </div>
+
+                <div className="border-t-2 border-dashed my-2"></div>
+
+                <div className="flex justify-between font-bold text-base">
+                    <span>TOTAL</span>
+                    <span>${invoice.amount.toFixed(2)}</span>
+                </div>
+
+                <div className="text-center mt-6 text-xs">
+                    Thank you for your business!
                 </div>
             </div>
-            <DialogFooter className="non-printable p-6 border-t">
-                <Button onClick={handlePrint} variant="outline">
+            <DialogFooter className="non-printable p-4 border-t">
+                <Button onClick={handlePrint} variant="outline" className="w-full">
                     <Printer className="mr-2 h-4 w-4" />
-                    Print Invoice
+                    Print Receipt
                 </Button>
             </DialogFooter>
         </DialogContent>

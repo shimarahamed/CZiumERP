@@ -99,9 +99,11 @@ body {
 
   .printable-area {
     position: absolute;
-    left: 0;
+    left: 50%;
     top: 0;
+    transform: translateX(-50%);
     width: 100%;
+    max-width: 80mm; /* Standard thermal receipt width */
     height: auto;
     padding: 1rem;
     margin: 0;
@@ -109,6 +111,12 @@ body {
     color: black !important;
     border: none !important;
     box-shadow: none !important;
+    font-size: 9pt;
+    line-height: 1.4;
+  }
+
+  .printable-area h2 {
+    font-size: 1rem;
   }
 
   .non-printable {
