@@ -19,13 +19,18 @@ const links = [
 export default function Nav() {
   const pathname = usePathname();
 
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  }
+
   return (
     <SidebarMenu className="p-2">
       {links.map((link) => (
         <SidebarMenuItem key={link.href}>
           <SidebarMenuButton
             asChild
-            isActive={pathname === link.href}
+            isActive={isActive(link.href)}
             className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/10 data-[active=true]:bg-primary/90 data-[active=true]:text-primary-foreground"
           >
             <Link href={link.href}>

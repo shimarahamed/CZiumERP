@@ -4,19 +4,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
-import { initialInvoices as invoices, salesData, customers } from "@/lib/data";
+import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
 import { DollarSign, Users, CreditCard, Activity, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAppContext } from "@/context/AppContext";
 
 export default function DashboardPage() {
+  const { invoices, customers } = useAppContext();
+
   const chartConfig = {
     revenue: {
       label: "Revenue",
       color: "hsl(var(--primary))",
     },
   };
+
+  const totalRevenue = invoices
+    .filter(i => i.status === 'paid')
+    .reduce((sum, inv) => sum + inv.amount, 0);
 
   return (
     <div className="flex flex-col h-full">
@@ -36,7 +43,7 @@ export default function DashboardPage() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$45,231.89</div>
+              <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">+20.1% from last month</p>
             </CardContent>
           </Card>
@@ -100,7 +107,7 @@ export default function DashboardPage() {
                   <div key={invoice.id} className="flex items-center">
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={`https://placehold.co/40x40`} alt="Avatar" data-ai-hint="person user" />
-                      <AvatarFallback>{invoice.customerName ? invoice.customerName.charAt(0) : "WI"}</AvatarFallback>
+                      <AvatarFallback>{invoice.customerName ? invoice.customerName.slice(0,2).toUpperCase() : "WI"}</AvatarFallback>
                     </Avatar>
                     <div className="ml-4 space-y-1">
                       <p className="text-sm font-medium leading-none">{invoice.customerName || "Walk-in Customer"}</p>
