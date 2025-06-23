@@ -12,7 +12,7 @@ import { Barcode, Video, VideoOff, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ScannerPage() {
-  const { products } = useAppContext();
+  const { products, currencySymbol } = useAppContext();
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -131,7 +131,7 @@ export default function ScannerPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-lg font-bold">{scannedProduct.name}</p>
-                    <p className="text-muted-foreground">Price: ${scannedProduct.price.toFixed(2)}</p>
+                    <p className="text-muted-foreground">Price: {currencySymbol}{scannedProduct.price.toFixed(2)}</p>
                     <p className="text-muted-foreground">Stock: {scannedProduct.stock}</p>
                 </CardContent>
               </Card>

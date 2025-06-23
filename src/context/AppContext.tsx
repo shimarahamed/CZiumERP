@@ -1,8 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store } from '@/types';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols } from '@/types';
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores } from '@/lib/data';
+
+const currencySymbols: CurrencySymbols = {
+  USD: '$',
+  EUR: '€',
+  JPY: '¥',
+  GBP: '£',
+};
 
 interface AppContextType {
   invoices: Invoice[];
@@ -22,6 +29,10 @@ interface AppContextType {
   logout: () => void;
   activityLogs: ActivityLog[];
   addActivityLog: (action: string, details: string) => void;
+  currency: Currency;
+  setCurrency: React.Dispatch<React.SetStateAction<Currency>>;
+  currencySymbol: string;
+  currencySymbols: CurrencySymbols;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -37,10 +48,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
+  const [currency, setCurrency] = useState<Currency>('USD');
+  const [currencySymbol, setCurrencySymbol] = useState<string>('$');
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('isAuthenticated');
     const storedStoreId = localStorage.getItem('currentStoreId');
+    const storedCurrency = localStorage.getItem('currency') as Currency;
+
+    if (storedCurrency && currencySymbols[storedCurrency]) {
+      setCurrency(storedCurrency);
+      setCurrencySymbol(currencySymbols[storedCurrency]);
+    }
+
     if (storedAuth === 'true') {
       setIsAuthenticated(true);
       setUser({
@@ -54,6 +74,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [stores]);
+
+  const handleSetCurrency = (newCurrency: Currency) => {
+    if (currencySymbols[newCurrency]) {
+      setCurrency(newCurrency);
+      setCurrencySymbol(currencySymbols[newCurrency]);
+      localStorage.setItem('currency', newCurrency);
+      addActivityLog('Settings Updated', `Currency changed to ${newCurrency}`);
+    }
+  };
 
   const addActivityLog = (action: string, details: string) => {
     const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@bizflow.com', avatar: '' } : null);
@@ -119,7 +148,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       currentStore,
       selectStore,
       isAuthenticated, user, login, logout,
-      activityLogs, addActivityLog
+      activityLogs, addActivityLog,
+      currency,
+      setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
+      currencySymbol,
+      currencySymbols
     }}>
       {children}
     </AppContext.Provider>

@@ -32,7 +32,7 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 
 export default function InventoryPage() {
-    const { products, setProducts, addActivityLog } = useAppContext();
+    const { products, setProducts, addActivityLog, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
@@ -122,8 +122,8 @@ export default function InventoryPage() {
                                     <TableRow key={product.id}>
                                         <TableCell className="font-medium">{product.name}</TableCell>
                                         <TableCell className="hidden md:table-cell">{product.category}</TableCell>
-                                        <TableCell>${product.price.toFixed(2)}</TableCell>
-                                        <TableCell className="hidden md:table-cell">${product.cost.toFixed(2)}</TableCell>
+                                        <TableCell>{currencySymbol}{product.price.toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{currencySymbol}{product.cost.toFixed(2)}</TableCell>
                                         <TableCell>{product.stock}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>

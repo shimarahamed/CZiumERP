@@ -47,7 +47,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, products, setProducts, addActivityLog, currentStore } = useAppContext();
+    const { invoices, setInvoices, customers, products, setProducts, addActivityLog, currentStore, currencySymbol } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
@@ -158,7 +158,7 @@ export default function InvoicesPage() {
                 amount: newAmount,
             } : inv));
             toast({ title: "Invoice Updated" });
-            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: $${newAmount.toFixed(2)}`);
+            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: ${currencySymbol}${newAmount.toFixed(2)}`);
         } else {
             const newInvoice: Invoice = {
                 id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
@@ -172,7 +172,7 @@ export default function InvoicesPage() {
             };
             setInvoices([newInvoice, ...invoices]);
             toast({ title: "Invoice Created" });
-            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for $${newAmount.toFixed(2)}`);
+            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for ${currencySymbol}${newAmount.toFixed(2)}`);
         }
         setIsFormOpen(false);
         setInvoiceToEdit(null);
@@ -205,10 +205,10 @@ export default function InvoicesPage() {
                         <TableCell>
                             <div>{invoice.customerName || 'N/A'}</div>
                             <div className="text-sm text-muted-foreground md:hidden">
-                                ${invoice.amount.toFixed(2)}
+                                {currencySymbol}{invoice.amount.toFixed(2)}
                             </div>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">${invoice.amount.toFixed(2)}</TableCell>
+                        <TableCell className="hidden md:table-cell">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
                         <TableCell className="hidden md:table-cell"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status}</Badge></TableCell>
                         <TableCell className="hidden lg:table-cell">{new Date(invoice.date).toLocaleDateString()}</TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
@@ -320,7 +320,7 @@ export default function InvoicesPage() {
                             <div className="flex justify-end pt-4">
                                 <div className="text-right">
                                     <p className="text-muted-foreground">Total Amount</p>
-                                    <p className="text-2xl font-bold">${totalAmount.toFixed(2)}</p>
+                                    <p className="text-2xl font-bold">{currencySymbol}{totalAmount.toFixed(2)}</p>
                                 </div>
                             </div>
 

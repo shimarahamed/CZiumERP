@@ -14,7 +14,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { Invoice } from "@/types";
 
 export default function PaymentsPage() {
-  const { invoices, setInvoices, customers, addActivityLog, currentStore } = useAppContext();
+  const { invoices, setInvoices, customers, addActivityLog, currentStore, currencySymbol } = useAppContext();
   const [unpaidInvoices, setUnpaidInvoices] = useState<Invoice[]>([]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
   const [amount, setAmount] = useState<number | string>('');
@@ -55,7 +55,7 @@ export default function PaymentsPage() {
         return;
     }
     
-    addActivityLog('Payment Processed', `Processed payment of $${amount} for invoice ${selectedInvoiceId}.`);
+    addActivityLog('Payment Processed', `Processed payment of ${currencySymbol}${amount} for invoice ${selectedInvoiceId}.`);
 
     setInvoices(currentInvoices => 
         currentInvoices.map(inv => 
@@ -65,7 +65,7 @@ export default function PaymentsPage() {
 
     toast({
         title: "Payment Processed",
-        description: `Payment of $${amount} for invoice ${selectedInvoiceId} has been successfully processed.`,
+        description: `Payment of ${currencySymbol}${amount} for invoice ${selectedInvoiceId} has been successfully processed.`,
     });
 
     // Clear the form
@@ -95,7 +95,7 @@ export default function PaymentsPage() {
                         </SelectTrigger>
                         <SelectContent>
                         {unpaidInvoices.map(invoice => (
-                            <SelectItem key={invoice.id} value={invoice.id}>{invoice.id} - ${invoice.amount.toFixed(2)}</SelectItem>
+                            <SelectItem key={invoice.id} value={invoice.id}>{invoice.id} - {currencySymbol}{invoice.amount.toFixed(2)}</SelectItem>
                         ))}
                         </SelectContent>
                     </Select>
@@ -119,7 +119,7 @@ export default function PaymentsPage() {
                 <div className="grid gap-3">
                   <Label htmlFor="amount">Amount</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <span className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">{currencySymbol}</span>
                     <Input id="amount" type="number" placeholder="0.00" className="pl-8" value={amount} onChange={(e) => setAmount(e.target.value)} readOnly/>
                   </div>
                 </div>

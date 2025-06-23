@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import Nav from '@/components/Nav';
 import { Button } from '@/components/ui/button';
-import { LifeBuoy, Settings, Store } from 'lucide-react';
+import { LifeBuoy, Store } from 'lucide-react';
 import UserNav from './UserNav';
 
 const UNAUTH_ROUTES = ['/login'];
@@ -59,10 +59,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             <Nav />
           </SidebarContent>
           <SidebarFooter className="p-4 space-y-2">
-             <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/10">
-                <Settings className="w-4 h-4" />
-                <span>Settings</span>
-             </Button>
              <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/10">
                 <LifeBuoy className="w-4 h-4" />
                 <span>Support</span>

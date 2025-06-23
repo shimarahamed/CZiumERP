@@ -35,7 +35,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function CustomersPage() {
-    const { customers, setCustomers, invoices, addActivityLog } = useAppContext();
+    const { customers, setCustomers, invoices, addActivityLog, currencySymbol } = useAppContext();
     const { toast } = useToast();
     
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -236,7 +236,7 @@ export default function CustomersPage() {
                                         <TableRow key={invoice.id}>
                                             <TableCell className="font-medium">{invoice.id}</TableCell>
                                             <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
-                                            <TableCell>${invoice.amount.toFixed(2)}</TableCell>
+                                            <TableCell>{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
                                             <TableCell>
                                                 <Badge variant={statusVariant[invoice.status]} className="capitalize">
                                                     {invoice.status}

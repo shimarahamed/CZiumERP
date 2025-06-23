@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 const links = [
@@ -16,6 +16,7 @@ const links = [
   { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/activity', label: 'Activity Logs', icon: History },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function Nav() {

@@ -14,7 +14,7 @@ interface FullInvoiceProps {
 }
 
 const FullInvoice = ({ invoice }: FullInvoiceProps) => {
-    const { currentStore } = useAppContext();
+    const { currentStore, currencySymbol } = useAppContext();
     const handlePrint = () => {
         window.print();
     };
@@ -74,8 +74,8 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell className="font-medium">{item.productName}</TableCell>
                                     <TableCell className="text-center">{item.quantity}</TableCell>
-                                    <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                                    <TableCell className="text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{currencySymbol}{item.price.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{currencySymbol}{(item.price * item.quantity).toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -86,16 +86,16 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <div className="w-full max-w-xs space-y-2">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Subtotal:</span>
-                            <span className="font-medium">${subtotal.toFixed(2)}</span>
+                            <span className="font-medium">{currencySymbol}{subtotal.toFixed(2)}</span>
                         </div>
                          <div className="flex justify-between">
                             <span className="text-muted-foreground">Tax (0%):</span>
-                            <span className="font-medium">${tax.toFixed(2)}</span>
+                            <span className="font-medium">{currencySymbol}{tax.toFixed(2)}</span>
                         </div>
                         <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total:</span>
-                            <span>${total.toFixed(2)}</span>
+                            <span>{currencySymbol}{total.toFixed(2)}</span>
                         </div>
                     </div>
                 </section>

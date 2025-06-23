@@ -11,7 +11,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Toolti
 import { useAppContext } from '@/context/AppContext';
 
 const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
-    const { invoices, currentStore } = useAppContext();
+    const { invoices, currentStore, currencySymbol } = useAppContext();
     
     const storeInvoices = invoices.filter(inv => inv.storeId === currentStore?.id);
 
@@ -29,7 +29,7 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="p-4 border rounded-lg">
                     <h3 className="text-gray-500 text-sm font-medium">Total Revenue</h3>
-                    <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+                    <p className="text-2xl font-bold">{currencySymbol}{totalRevenue.toFixed(2)}</p>
                 </div>
                 <div className="p-4 border rounded-lg">
                     <h3 className="text-gray-500 text-sm font-medium">Total Invoices</h3>
@@ -48,7 +48,7 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip formatter={(value) => `${currencySymbol}${value}`} />
                         <Bar dataKey="revenue" fill="#3F51B5" />
                     </BarChart>
                 </ResponsiveContainer>
@@ -70,7 +70,7 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
                             <TableRow key={invoice.id}>
                                 <TableCell>{invoice.id}</TableCell>
                                 <TableCell>{invoice.customerName || 'Walk-in Customer'}</TableCell>
-                                <TableCell>${invoice.amount.toFixed(2)}</TableCell>
+                                <TableCell>{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
                                 <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
                             </TableRow>
                         ))}

@@ -12,7 +12,7 @@ interface InvoiceDetailProps {
 }
 
 const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
-    const { currentStore } = useAppContext();
+    const { currentStore, currencySymbol } = useAppContext();
     const handlePrint = () => {
         window.print();
     };
@@ -56,8 +56,8 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                          <div key={index} className="flex my-1">
                             <div className="flex-1 w-0 truncate pr-1">{item.productName}</div>
                             <div className="w-8 shrink-0 text-center">{item.quantity}</div>
-                            <div className="w-16 shrink-0 text-right">${item.price.toFixed(2)}</div>
-                            <div className="w-16 shrink-0 text-right">${(item.quantity * item.price).toFixed(2)}</div>
+                            <div className="w-16 shrink-0 text-right">{currencySymbol}{item.price.toFixed(2)}</div>
+                            <div className="w-16 shrink-0 text-right">{currencySymbol}{(item.quantity * item.price).toFixed(2)}</div>
                         </div>
                     ))}
                 </div>
@@ -67,11 +67,11 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                 <div className="space-y-1">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>${invoice.amount.toFixed(2)}</span>
+                        <span>{currencySymbol}{invoice.amount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>Taxes (0%)</span>
-                        <span>$0.00</span>
+                        <span>{currencySymbol}0.00</span>
                     </div>
                 </div>
 
@@ -79,7 +79,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
 
                 <div className="flex justify-between font-bold text-base">
                     <span>TOTAL</span>
-                    <span>${invoice.amount.toFixed(2)}</span>
+                    <span>{currencySymbol}{invoice.amount.toFixed(2)}</span>
                 </div>
 
                 <div className="text-center mt-6">
