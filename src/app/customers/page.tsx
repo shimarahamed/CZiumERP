@@ -142,9 +142,9 @@ export default function CustomersPage() {
                                                     <AvatarImage src={customer.avatar} alt={customer.name} data-ai-hint="person user" />
                                                     <AvatarFallback>{customer.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                                                 </Avatar>
-                                                <div className="flex flex-col">
-                                                   {customer.name}
-                                                   <span className="text-muted-foreground md:hidden">{customer.email}</span>
+                                                <div className="flex flex-col min-w-0">
+                                                   <span className="truncate">{customer.name}</span>
+                                                   <span className="text-muted-foreground md:hidden truncate">{customer.email}</span>
                                                 </div>
                                             </div>
                                         </TableCell>

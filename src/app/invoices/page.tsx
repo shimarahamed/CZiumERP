@@ -203,7 +203,7 @@ export default function InvoicesPage() {
                     <TableRow key={invoice.id} onClick={() => onView(invoice)} className="cursor-pointer">
                         <TableCell className="font-medium">{invoice.id}</TableCell>
                         <TableCell>
-                            <div>{invoice.customerName || 'N/A'}</div>
+                            <div className="truncate">{invoice.customerName || 'N/A'}</div>
                             <div className="text-sm text-muted-foreground md:hidden">
                                 {currencySymbol}{invoice.amount.toFixed(2)}
                             </div>

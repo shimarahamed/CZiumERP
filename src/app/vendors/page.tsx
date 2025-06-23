@@ -106,10 +106,10 @@ export default function VendorsPage() {
                             <TableBody>
                                 {vendors.map(vendor => (
                                     <TableRow key={vendor.id}>
-                                        <TableCell className="font-medium">{vendor.name}</TableCell>
+                                        <TableCell className="font-medium truncate">{vendor.name}</TableCell>
                                         <TableCell>
-                                            <div>{vendor.contactPerson}</div>
-                                            <div className="text-sm text-muted-foreground md:hidden">{vendor.email}</div>
+                                            <div className="truncate">{vendor.contactPerson}</div>
+                                            <div className="text-sm text-muted-foreground md:hidden truncate">{vendor.email}</div>
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell">{vendor.email}</TableCell>
                                         <TableCell className="hidden md:table-cell">{vendor.phone}</TableCell>
