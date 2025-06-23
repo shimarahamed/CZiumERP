@@ -13,8 +13,8 @@ const getStoredState = <T,>(key: string, defaultValue: T): T => {
   const storedValue = localStorage.getItem(key);
   if (storedValue) {
     try {
-      // Don't parse "undefined" or "null" strings from localStorage
-      if (storedValue === "undefined" || storedValue === "null") return defaultValue;
+      // Don't parse "undefined" strings from localStorage
+      if (storedValue === "undefined") return defaultValue;
       return JSON.parse(storedValue);
     } catch (e) {
       console.error(`Error parsing localStorage key "${key}":`, e);
@@ -90,8 +90,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs]);
   useEffect(() => { localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated]);
   useEffect(() => { localStorage.setItem('user', JSON.stringify(user)); }, [user]);
-  useEffect(() => { localStorage.setItem('currentStoreId', currentStore ? JSON.stringify(currentStore.id) : ''); }, [currentStore]);
-  useEffect(() => { localStorage.setItem('currency', currency); }, [currency]);
+  useEffect(() => { localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore]);
+  useEffect(() => { localStorage.setItem('currency', JSON.stringify(currency)); }, [currency]);
 
   // Effect to update currency symbol when currency changes
   useEffect(() => {
