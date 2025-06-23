@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -13,11 +14,9 @@ const getStoredState = <T,>(key: string, defaultValue: T): T => {
   const storedValue = localStorage.getItem(key);
   if (storedValue) {
     try {
-      // Don't parse "undefined" strings from localStorage
-      if (storedValue === "undefined") return defaultValue;
       return JSON.parse(storedValue);
     } catch (e) {
-      console.error(`Error parsing localStorage key "${key}":`, e);
+      console.warn(`Could not parse old data for localStorage key "${key}". Resetting to default.`, e);
       localStorage.removeItem(key); // Clear corrupted data
       return defaultValue;
     }
@@ -162,6 +161,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
     localStorage.removeItem('currentStoreId');
+    localStorage.removeItem('currency');
   };
 
 
