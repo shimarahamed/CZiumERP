@@ -1,7 +1,12 @@
+export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
+
 export type User = {
+  id: string;
   name: string;
   email: string;
   avatar: string;
+  role: Role;
+  password?: string;
 }
 
 export type Store = {

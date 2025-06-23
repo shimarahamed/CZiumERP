@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings } from 'lucide-react';
 import Link from 'next/link';
+import { useAppContext } from '@/context/AppContext';
+import type { Role } from '@/types';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -19,17 +21,31 @@ const links = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
+const navLinksConfig: Record<Role, string[]> = {
+    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
+    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
+    cashier: ['Dashboard', 'Customers', 'Invoices', 'Barcode Scanner', 'Payments', 'AI Upselling'],
+    'inventory-staff': ['Inventory', 'Vendors', 'Barcode Scanner', 'Reports'],
+};
+
+
 export default function Nav() {
   const pathname = usePathname();
+  const { user } = useAppContext();
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   }
 
+  if (!user) return null;
+
+  const allowedLinks = navLinksConfig[user.role] || [];
+  const visibleLinks = links.filter(link => allowedLinks.includes(link.label));
+
   return (
     <SidebarMenu className="p-2">
-      {links.map((link) => (
+      {visibleLinks.map((link) => (
         <SidebarMenuItem key={link.href}>
           <SidebarMenuButton
             asChild

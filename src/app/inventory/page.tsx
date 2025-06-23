@@ -32,7 +32,7 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 
 export default function InventoryPage() {
-    const { products, setProducts, addActivityLog, currencySymbol } = useAppContext();
+    const { products, setProducts, addActivityLog, currencySymbol, user } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
@@ -50,6 +50,8 @@ export default function InventoryPage() {
             description: '',
         }
     });
+    
+    const canManage = user?.role === 'admin' || user?.role === 'manager';
 
     const handleOpenForm = (product: Product | null = null) => {
         setProductToEdit(product);
@@ -99,10 +101,12 @@ export default function InventoryPage() {
                                 <CardTitle>Product Inventory</CardTitle>
                                 <CardDescription>Manage your products, stock levels, and costs.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                <PlusCircle className="h-4 w-4" />
-                                Add Product
-                            </Button>
+                            {canManage && (
+                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
+                                    <PlusCircle className="h-4 w-4" />
+                                    Add Product
+                                </Button>
+                            )}
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -133,7 +137,7 @@ export default function InventoryPage() {
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                    <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
                                                         <MoreHorizontal className="h-4 w-4" />
                                                         <span className="sr-only">Toggle menu</span>
                                                     </Button>

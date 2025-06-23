@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores } from '@/lib/data';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers } from '@/lib/data';
 
 const currencySymbols: CurrencySymbols = {
   USD: '$',
@@ -44,6 +44,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const [users] = useState<User[]>(initialUsers);
   const [stores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
@@ -57,19 +58,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const storedAuth = localStorage.getItem('isAuthenticated');
     const storedStoreId = localStorage.getItem('currentStoreId');
     const storedCurrency = localStorage.getItem('currency') as Currency;
+    const storedUser = localStorage.getItem('user');
 
     if (storedCurrency && currencySymbols[storedCurrency]) {
       setCurrency(storedCurrency);
       setCurrencySymbol(currencySymbols[storedCurrency]);
     }
 
-    if (storedAuth === 'true') {
+    if (storedAuth === 'true' && storedUser) {
       setIsAuthenticated(true);
-      setUser({
-        name: 'Admin User',
-        email: 'admin@bizflow.com',
-        avatar: 'https://placehold.co/40x40'
-      });
+      setUser(JSON.parse(storedUser));
       if (storedStoreId) {
         const store = stores.find(s => s.id === storedStoreId);
         setCurrentStore(store || null);
@@ -87,7 +85,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addActivityLog = (action: string, details: string) => {
-    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@bizflow.com', avatar: '' } : null);
+    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@bizflow.com', avatar: '', role: 'admin' } : null);
     if (!currentUser) return;
 
     const storeInfo = currentStore ? ` (Store: ${currentStore.name})` : '';
@@ -103,15 +101,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = (email: string, pass: string): boolean => {
-    if (email === 'admin@bizflow.com') {
-      const loggedInUser: User = {
-        name: 'Admin User',
-        email: 'admin@bizflow.com',
-        avatar: 'https://placehold.co/40x40'
-      };
+    const foundUser = users.find(u => u.email === email && u.password === pass);
+
+    if (foundUser) {
+      const loggedInUser: User = { ...foundUser };
+      delete loggedInUser.password;
+
       setIsAuthenticated(true);
       setUser(loggedInUser);
       localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('user', JSON.stringify(loggedInUser));
       
       addActivityLog('User Login', `User ${loggedInUser.email} logged in.`);
       return true;
@@ -137,6 +136,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCurrentStore(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('currentStoreId');
+    localStorage.removeItem('user');
   };
 
 

@@ -28,7 +28,7 @@ const vendorSchema = z.object({
 type VendorFormData = z.infer<typeof vendorSchema>;
 
 export default function VendorsPage() {
-    const { vendors, setVendors, addActivityLog } = useAppContext();
+    const { vendors, setVendors, addActivityLog, user } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [vendorToEdit, setVendorToEdit] = useState<Vendor | null>(null);
@@ -37,6 +37,8 @@ export default function VendorsPage() {
     const form = useForm<VendorFormData>({
         resolver: zodResolver(vendorSchema),
     });
+
+    const canManage = user?.role === 'admin' || user?.role === 'manager';
 
     const handleOpenForm = (vendor: Vendor | null = null) => {
         setVendorToEdit(vendor);
@@ -86,10 +88,12 @@ export default function VendorsPage() {
                                 <CardTitle>Vendor Management</CardTitle>
                                 <CardDescription>Manage your product suppliers and vendors.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                <PlusCircle className="h-4 w-4" />
-                                Add Vendor
-                            </Button>
+                            {canManage && (
+                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
+                                    <PlusCircle className="h-4 w-4" />
+                                    Add Vendor
+                                </Button>
+                            )}
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -116,7 +120,7 @@ export default function VendorsPage() {
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                    <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
                                                         <MoreHorizontal className="h-4 w-4" />
                                                         <span className="sr-only">Toggle menu</span>
                                                     </Button>

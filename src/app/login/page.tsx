@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(email, password)) {
-      router.push('/');
+      router.push('/select-store');
     } else {
       toast({
         variant: 'destructive',
@@ -40,7 +40,7 @@ export default function LoginPage() {
                 </div>
             </div>
           <CardTitle className="text-2xl">CZium POS Login</CardTitle>
-          <CardDescription>Enter your credentials to access your dashboard.</CardDescription>
+          <CardDescription>Enter your credentials to access your dashboard. <br/> (Hint: password is "password")</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

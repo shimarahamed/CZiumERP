@@ -35,7 +35,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function CustomersPage() {
-    const { customers, setCustomers, invoices, addActivityLog, currencySymbol } = useAppContext();
+    const { customers, setCustomers, invoices, addActivityLog, currencySymbol, user } = useAppContext();
     const { toast } = useToast();
     
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -48,6 +48,8 @@ export default function CustomersPage() {
     const form = useForm<CustomerFormData>({
         resolver: zodResolver(customerSchema),
     });
+
+    const canManage = user?.role === 'admin' || user?.role === 'manager';
 
     const handleOpenForm = (customer: Customer | null = null) => {
         setCustomerToEdit(customer);
@@ -107,10 +109,12 @@ export default function CustomersPage() {
                                 <CardTitle>Customers</CardTitle>
                                 <CardDescription>Manage your customers and view their sales history.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                <PlusCircle className="h-4 w-4" />
-                                Add Customer
-                            </Button>
+                            {canManage && (
+                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
+                                    <PlusCircle className="h-4 w-4" />
+                                    Add Customer
+                                </Button>
+                            )}
                         </div>
                         <div className="mt-4">
                             <Input
@@ -161,8 +165,8 @@ export default function CustomersPage() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => setHistoryCustomer(customer)}>View Purchase History</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(customer)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => setCustomerToDelete(customer)}>Delete</DropdownMenuItem>
+                                                    {canManage && <DropdownMenuItem onClick={() => handleOpenForm(customer)}>Edit</DropdownMenuItem>}
+                                                    {canManage && <DropdownMenuItem className="text-destructive" onClick={() => setCustomerToDelete(customer)}>Delete</DropdownMenuItem>}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
