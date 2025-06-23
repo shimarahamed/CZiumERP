@@ -5,19 +5,14 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols } from '@/types';
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers } from '@/lib/data';
 
-// Helper to get item from localStorage, with a default value
+// Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
-  // Prevent SSR error
-  if (typeof window === 'undefined') {
-    return defaultValue;
-  }
   const storedValue = localStorage.getItem(key);
-  if (storedValue) {
+  if (storedValue && storedValue !== "undefined") {
     try {
       return JSON.parse(storedValue);
     } catch (e) {
-      console.warn(`Could not parse old data for localStorage key "${key}". Resetting to default.`, e);
-      localStorage.removeItem(key); // Clear corrupted data
+      console.warn(`Could not parse data for localStorage key "${key}". Using default.`, e);
       return defaultValue;
     }
   }
@@ -56,41 +51,57 @@ interface AppContextType {
   setCurrency: React.Dispatch<React.SetStateAction<Currency>>;
   currencySymbol: string;
   currencySymbols: CurrencySymbols;
+  isHydrated: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [invoices, setInvoices] = useState<Invoice[]>(() => getStoredState('invoices', initialInvoices));
-  const [customers, setCustomers] = useState<Customer[]>(() => getStoredState('customers', initialCustomers));
-  const [products, setProducts] = useState<Product[]>(() => getStoredState('products', initialProducts));
-  const [vendors, setVendors] = useState<Vendor[]>(() => getStoredState('vendors', initialVendors));
+  // Initialize with server-safe defaults
+  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   const [users] = useState<User[]>(initialUsers);
   const [stores] = useState<Store[]>(initialStores);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => getStoredState('activityLogs', []));
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => getStoredState('isAuthenticated', false));
-  const [user, setUser] = useState<User | null>(() => getStoredState('user', null));
-  const [currentStore, setCurrentStore] = useState<Store | null>(() => {
-      const storedStoreId = getStoredState('currentStoreId', null);
-      if(storedStoreId){
-          return initialStores.find(s => s.id === storedStoreId) || null;
-      }
-      return null;
-  });
-  const [currency, setCurrency] = useState<Currency>(() => getStoredState('currency', 'USD'));
-  const [currencySymbol, setCurrencySymbol] = useState<string>(() => currencySymbols[getStoredState('currency', 'USD')]);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [currentStore, setCurrentStore] = useState<Store | null>(null);
+  const [currency, setCurrency] = useState<Currency>('USD');
+  const [currencySymbol, setCurrencySymbol] = useState<string>('$');
 
-  // Effects to persist state changes to localStorage
-  useEffect(() => { localStorage.setItem('invoices', JSON.stringify(invoices)); }, [invoices]);
-  useEffect(() => { localStorage.setItem('customers', JSON.stringify(customers)); }, [customers]);
-  useEffect(() => { localStorage.setItem('products', JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem('vendors', JSON.stringify(vendors)); }, [vendors]);
-  useEffect(() => { localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs]);
-  useEffect(() => { localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated]);
-  useEffect(() => { localStorage.setItem('user', JSON.stringify(user)); }, [user]);
-  useEffect(() => { localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore]);
-  useEffect(() => { localStorage.setItem('currency', JSON.stringify(currency)); }, [currency]);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Rehydrate state from localStorage on client-side mount
+  useEffect(() => {
+    setInvoices(getStoredState('invoices', initialInvoices));
+    setCustomers(getStoredState('customers', initialCustomers));
+    setProducts(getStoredState('products', initialProducts));
+    setVendors(getStoredState('vendors', initialVendors));
+    setActivityLogs(getStoredState('activityLogs', []));
+    setIsAuthenticated(getStoredState('isAuthenticated', false));
+    setUser(getStoredState('user', null));
+    const storedStoreId = getStoredState('currentStoreId', null);
+    if(storedStoreId){
+        setCurrentStore(initialStores.find(s => s.id === storedStoreId) || null);
+    }
+    setCurrency(getStoredState('currency', 'USD'));
+    
+    setIsHydrated(true);
+  }, []);
+
+  // Effects to persist state changes to localStorage after hydration
+  useEffect(() => { if (isHydrated) localStorage.setItem('invoices', JSON.stringify(invoices)); }, [invoices, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('customers', JSON.stringify(customers)); }, [customers, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('products', JSON.stringify(products)); }, [products, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('vendors', JSON.stringify(vendors)); }, [vendors, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('currency', JSON.stringify(currency)); }, [currency, isHydrated]);
 
   // Effect to update currency symbol when currency changes
   useEffect(() => {
@@ -179,7 +190,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       currency,
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
       currencySymbol,
-      currencySymbols
+      currencySymbols,
+      isHydrated
     }}>
       {children}
     </AppContext.Provider>

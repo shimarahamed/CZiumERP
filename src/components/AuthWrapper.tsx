@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -20,11 +21,13 @@ const UNAUTH_ROUTES = ['/login'];
 const AUTH_NO_STORE_ROUTES = ['/login', '/select-store'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, currentStore } = useAppContext();
+  const { isAuthenticated, currentStore, isHydrated } = useAppContext();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    if (!isHydrated) return; // Wait for rehydration before running effects
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(registration => {
@@ -34,10 +37,8 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         });
       });
     }
-  }, []);
 
-  useEffect(() => {
-    if (!isAuthenticated && !UNAUTH_ROUTES.includes(pathname)) {
+    if (!isAuthenticated && !UNAUTH_ROUTES.includes(pathname) && !AUTH_NO_STORE_ROUTES.includes(pathname)) {
       router.push('/login');
     } else if (isAuthenticated && pathname === '/login') {
       router.push(currentStore ? '/' : '/select-store');
@@ -46,14 +47,20 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     } else if (isAuthenticated && currentStore && pathname === '/select-store') {
       router.push('/');
     }
-  }, [isAuthenticated, currentStore, pathname, router]);
+  }, [isAuthenticated, currentStore, pathname, router, isHydrated]);
 
-  if (!isAuthenticated && !UNAUTH_ROUTES.includes(pathname)) {
-    return null; // or a loading spinner
+  if (!isHydrated) {
+    return null; // Render nothing until hydration is complete to avoid mismatch
+  }
+  
+  const isPublicPage = AUTH_NO_STORE_ROUTES.includes(pathname);
+
+  if (isPublicPage) {
+    return <>{children}</>;
   }
 
-  if (AUTH_NO_STORE_ROUTES.includes(pathname)) {
-    return <>{children}</>;
+  if (!isAuthenticated) {
+    return null; // App is redirecting, render nothing to avoid content flash
   }
 
 
