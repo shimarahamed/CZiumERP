@@ -40,10 +40,12 @@ const invoiceSchema = z.object({
 
 type InvoiceFormData = z.infer<typeof invoiceSchema>;
 
-const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' } = {
+const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     paid: 'default',
     pending: 'secondary',
-    overdue: 'destructive'
+    overdue: 'destructive',
+    refunded: 'outline',
+    'partially-refunded': 'outline',
 };
 
 export default function InvoicesPage() {
@@ -82,7 +84,7 @@ export default function InvoicesPage() {
         if (isFormOpen && invoiceToEdit) {
             form.reset({
                 customerId: invoiceToEdit.customerId || 'none',
-                status: invoiceToEdit.status,
+                status: invoiceToEdit.status as 'paid' | 'pending' | 'overdue',
                 date: new Date(invoiceToEdit.date),
                 items: invoiceToEdit.items.map(item => ({ productId: item.productId, quantity: item.quantity })),
             });
@@ -209,7 +211,7 @@ export default function InvoicesPage() {
                             </div>
                         </TableCell>
                         <TableCell className="hidden md:table-cell">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
-                        <TableCell className="hidden md:table-cell"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status}</Badge></TableCell>
+                        <TableCell className="hidden md:table-cell"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge></TableCell>
                         <TableCell className="hidden lg:table-cell">{new Date(invoice.date).toLocaleDateString()}</TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu>
@@ -249,16 +251,18 @@ export default function InvoicesPage() {
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="all">
-                            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+                            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
                                 <TabsTrigger value="all">All</TabsTrigger>
                                 <TabsTrigger value="paid">Paid</TabsTrigger>
                                 <TabsTrigger value="pending">Pending</TabsTrigger>
                                 <TabsTrigger value="overdue">Overdue</TabsTrigger>
+                                <TabsTrigger value="refunded">Refunded</TabsTrigger>
                             </TabsList>
                             <TabsContent value="all"><InvoiceTable invoices={storeInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                             <TabsContent value="paid"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                             <TabsContent value="pending"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                             <TabsContent value="overdue"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="refunded"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'refunded' || i.status === 'partially-refunded')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                         </Tabs>
                     </CardContent>
                 </Card>

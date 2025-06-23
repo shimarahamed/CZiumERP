@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings, Undo2 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -16,15 +16,16 @@ const links = [
   { href: '/scanner', label: 'Barcode Scanner', icon: ScanLine },
   { href: '/payments', label: 'Payments', icon: CreditCard },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
+  { href: '/returns', label: 'Returns', icon: Undo2 },
   { href: '/activity', label: 'Activity Logs', icon: History },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
-    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
-    cashier: ['Dashboard', 'Customers', 'Invoices', 'Barcode Scanner', 'Payments', 'AI Upselling'],
+    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
+    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
+    cashier: ['Dashboard', 'Customers', 'Invoices', 'Barcode Scanner', 'Payments', 'Returns', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Vendors', 'Barcode Scanner', 'Reports'],
 };
 

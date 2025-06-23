@@ -23,7 +23,6 @@ export type Customer = {
   avatar: string;
 };
 
-// New: Vendor type
 export type Vendor = {
   id: string;
   name: string;
@@ -32,7 +31,6 @@ export type Vendor = {
   phone: string;
 };
 
-// New: Product type for inventory
 export type Product = {
   id: string;
   name: string;
@@ -45,7 +43,6 @@ export type Product = {
   supplier?: string;
 };
 
-// New: InvoiceItem for linking products to invoices
 export type InvoiceItem = {
   productId: string;
   productName: string;
@@ -59,9 +56,26 @@ export type Invoice = {
   storeId?: string;
   customerId?: string;
   customerName?: string;
-  items: InvoiceItem[]; // Replaces single amount
-  amount: number; // Will be calculated from items
-  status: 'paid' | 'pending' | 'overdue';
+  items: InvoiceItem[];
+  amount: number;
+  status: 'paid' | 'pending' | 'overdue' | 'refunded' | 'partially-refunded';
+  date: string;
+};
+
+export type RefundItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+};
+
+export type Refund = {
+  id: string;
+  invoiceId: string;
+  storeId?: string;
+  items: RefundItem[];
+  amount: number;
+  reason: string;
   date: string;
 };
 
