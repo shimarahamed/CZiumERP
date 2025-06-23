@@ -61,17 +61,22 @@ const SalesReport = React.forwardRef<HTMLDivElement>((props, ref) => {
                         <TableRow>
                             <TableHead>Invoice ID</TableHead>
                             <TableHead>Customer</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Date</TableHead>
+                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead className="hidden md:table-cell text-right">Date</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {storeInvoices.slice(0,10).map(invoice => (
                             <TableRow key={invoice.id}>
-                                <TableCell>{invoice.id}</TableCell>
+                                <TableCell>
+                                    <div>{invoice.id}</div>
+                                    <div className="text-sm text-muted-foreground md:hidden">
+                                        {new Date(invoice.date).toLocaleDateString()}
+                                    </div>
+                                </TableCell>
                                 <TableCell>{invoice.customerName || 'Walk-in Customer'}</TableCell>
-                                <TableCell>{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
-                                <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
+                                <TableCell className="text-right">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
+                                <TableCell className="hidden md:table-cell text-right">{new Date(invoice.date).toLocaleDateString()}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

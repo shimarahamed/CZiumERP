@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { MoreHorizontal, PlusCircle, Building2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -78,15 +78,15 @@ export default function VendorsPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title="Vendors" />
-            <main className="flex-1 overflow-auto p-6">
+            <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Vendor Management</CardTitle>
                                 <CardDescription>Manage your product suppliers and vendors.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" />
                                 Add Vendor
                             </Button>
@@ -96,10 +96,10 @@ export default function VendorsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Vendor Name</TableHead>
+                                    <TableHead>Vendor</TableHead>
                                     <TableHead>Contact Person</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Phone</TableHead>
+                                    <TableHead className="hidden md:table-cell">Email</TableHead>
+                                    <TableHead className="hidden md:table-cell">Phone</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -107,9 +107,12 @@ export default function VendorsPage() {
                                 {vendors.map(vendor => (
                                     <TableRow key={vendor.id}>
                                         <TableCell className="font-medium">{vendor.name}</TableCell>
-                                        <TableCell>{vendor.contactPerson}</TableCell>
-                                        <TableCell>{vendor.email}</TableCell>
-                                        <TableCell>{vendor.phone}</TableCell>
+                                        <TableCell>
+                                            <div>{vendor.contactPerson}</div>
+                                            <div className="text-sm text-muted-foreground md:hidden">{vendor.email}</div>
+                                        </TableCell>
+                                        <TableCell className="hidden md:table-cell">{vendor.email}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{vendor.phone}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>

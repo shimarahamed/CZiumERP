@@ -120,7 +120,7 @@ export default function DashboardPage() {
                     </Avatar>
                     <div className="ml-4 space-y-1">
                       <p className="text-sm font-medium leading-none">{invoice.customerName || "Walk-in Customer"}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground truncate">
                         {invoice.customerId ? customers.find(c => c.id === invoice.customerId)?.email : "N/A"}
                       </p>
                     </div>

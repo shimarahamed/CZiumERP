@@ -111,7 +111,7 @@ export default function InventoryPage() {
                                 <TableRow>
                                     <TableHead>Product Name</TableHead>
                                     <TableHead className="hidden md:table-cell">Category</TableHead>
-                                    <TableHead>Price</TableHead>
+                                    <TableHead className="hidden md:table-cell">Price</TableHead>
                                     <TableHead className="hidden md:table-cell">Cost</TableHead>
                                     <TableHead>Stock</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
@@ -120,9 +120,14 @@ export default function InventoryPage() {
                             <TableBody>
                                 {products.map(product => (
                                     <TableRow key={product.id}>
-                                        <TableCell className="font-medium">{product.name}</TableCell>
+                                        <TableCell className="font-medium">
+                                            <div>{product.name}</div>
+                                            <div className="text-sm text-muted-foreground md:hidden">
+                                                {currencySymbol}{product.price.toFixed(2)}
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="hidden md:table-cell">{product.category}</TableCell>
-                                        <TableCell>{currencySymbol}{product.price.toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{currencySymbol}{product.price.toFixed(2)}</TableCell>
                                         <TableCell className="hidden md:table-cell">{currencySymbol}{product.cost.toFixed(2)}</TableCell>
                                         <TableCell>{product.stock}</TableCell>
                                         <TableCell>
