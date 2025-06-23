@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,9 +53,9 @@ export default function DashboardPage() {
     <div className="flex flex-col h-full">
       <Header title="Dashboard">
         <Button asChild size="sm" className="gap-1">
-          <Link href="/invoices">
+          <Link href="/invoices?action=new">
             <PlusCircle className="h-4 w-4" />
-            Generate Sales Invoice
+            Create New Sale
           </Link>
         </Button>
       </Header>

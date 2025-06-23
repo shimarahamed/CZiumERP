@@ -1,11 +1,13 @@
+
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { MoreHorizontal, PlusCircle, Trash2 } from "lucide-react";
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,6 +58,8 @@ export default function InvoicesPage() {
     const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
     const [viewingFullInvoice, setViewingFullInvoice] = useState<Invoice | null>(null);
     const { toast } = useToast();
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
     const form = useForm<InvoiceFormData>({
         resolver: zodResolver(invoiceSchema),
@@ -80,6 +84,18 @@ export default function InvoicesPage() {
         return acc + (product ? product.price * item.quantity : 0);
     }, 0);
 
+    const handleOpenForm = useCallback((invoice: Invoice | null = null) => {
+        setInvoiceToEdit(invoice);
+        setIsFormOpen(true);
+    }, []);
+
+    useEffect(() => {
+        if (searchParams.get('action') === 'new') {
+            handleOpenForm(null);
+            router.replace('/invoices', { scroll: false });
+        }
+    }, [searchParams, handleOpenForm, router]);
+
     useEffect(() => {
         if (isFormOpen && invoiceToEdit) {
             form.reset({
@@ -97,11 +113,6 @@ export default function InvoicesPage() {
             });
         }
     }, [invoiceToEdit, isFormOpen, form]);
-
-    const handleOpenForm = (invoice: Invoice | null = null) => {
-        setInvoiceToEdit(invoice);
-        setIsFormOpen(true);
-    };
 
     const onSubmit = (data: InvoiceFormData) => {
         const customer = customers.find(c => c.id === data.customerId);
