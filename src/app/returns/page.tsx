@@ -68,6 +68,11 @@ export default function ReturnsPage() {
         control: form.control,
         name: "items"
     });
+    
+    const watchedItems = useWatch({
+        control: form.control,
+        name: 'items'
+    }) || [];
 
     const paidInvoices = useMemo(() => 
         invoices.filter(inv => inv.storeId === currentStore?.id && (inv.status === 'paid' || inv.status === 'partially-refunded')),
@@ -98,11 +103,11 @@ export default function ReturnsPage() {
         }
     };
     
-    const watchedItems = form.watch('items');
     const totalRefundAmount = useMemo(() => {
         return watchedItems.reduce((total, item) => {
             if (item.selected) {
-                return total + (item.price * item.refundQuantity);
+                const quantity = Number(item.refundQuantity) || 0;
+                return total + (item.price * quantity);
             }
             return total;
         }, 0);
@@ -246,7 +251,12 @@ export default function ReturnsPage() {
                                                                 <Checkbox 
                                                                     checked={fields.length > 0 && watchedItems.every(item => item.selected)}
                                                                     onCheckedChange={(checked) => {
-                                                                        const newItems = watchedItems.map(item => ({...item, selected: !!checked, refundQuantity: checked ? item.maxQuantity : 0 }));
+                                                                        const currentItems = form.getValues('items');
+                                                                        const newItems = fields.map((field, index) => ({
+                                                                            ...currentItems[index],
+                                                                            selected: !!checked,
+                                                                            refundQuantity: checked ? field.maxQuantity : 0,
+                                                                        }));
                                                                         replace(newItems);
                                                                     }}
                                                                 />
@@ -271,7 +281,7 @@ export default function ReturnsPage() {
                                                                                         checked={checkboxField.value}
                                                                                         onCheckedChange={(checked) => {
                                                                                             checkboxField.onChange(checked);
-                                                                                            form.setValue(`items.${index}.refundQuantity`, checked ? watchedItems[index].maxQuantity : 0);
+                                                                                            form.setValue(`items.${index}.refundQuantity`, checked ? field.maxQuantity : 0);
                                                                                         }}
                                                                                     />
                                                                                 </FormControl>
@@ -289,7 +299,7 @@ export default function ReturnsPage() {
                                                                         render={({ field: quantityField }) => (
                                                                             <FormItem>
                                                                                 <FormControl>
-                                                                                     <Input type="number" {...quantityField} disabled={!watchedItems[index].selected} />
+                                                                                     <Input type="number" {...quantityField} disabled={!watchedItems[index]?.selected} />
                                                                                 </FormControl>
                                                                                 <FormMessage className="text-xs"/>
                                                                             </FormItem>
