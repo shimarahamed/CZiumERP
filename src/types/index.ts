@@ -73,7 +73,7 @@ export type ActivityLog = {
   details: string;
 };
 
-export type Currency = 'USD' | 'EUR' | 'JPY' | 'GBP';
+export type Currency = 'USD' | 'EUR' | 'JPY' | 'GBP' | 'AED' | 'LKR';
 
 export type CurrencySymbols = {
   [key in Currency]: string;

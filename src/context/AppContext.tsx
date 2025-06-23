@@ -9,6 +9,8 @@ const currencySymbols: CurrencySymbols = {
   EUR: '€',
   JPY: '¥',
   GBP: '£',
+  AED: 'AED',
+  LKR: 'LKR',
 };
 
 interface AppContextType {

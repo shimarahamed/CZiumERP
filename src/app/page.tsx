@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 
 export default function DashboardPage() {
-  const { invoices, customers, currentStore } = useAppContext();
+  const { invoices, customers, currentStore, currencySymbol } = useAppContext();
   
   const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
   const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
@@ -52,7 +52,7 @@ export default function DashboardPage() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{currencySymbol}{totalRevenue.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">+20.1% from last month</p>
             </CardContent>
           </Card>
@@ -62,7 +62,7 @@ export default function DashboardPage() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalProfit.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{currencySymbol}{totalProfit.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">+18.3% from last month</p>
             </CardContent>
           </Card>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                 <BarChart data={salesData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `$${value / 1000}k`} />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currencySymbol}${value / 1000}k`} />
                   <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                   <Legend content={<ChartLegendContent />} />
                   <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
@@ -124,7 +124,7 @@ export default function DashboardPage() {
                         {invoice.customerId ? customers.find(c => c.id === invoice.customerId)?.email : "N/A"}
                       </p>
                     </div>
-                    <div className="ml-auto font-medium">${invoice.amount.toFixed(2)}</div>
+                    <div className="ml-auto font-medium">{currencySymbol}{invoice.amount.toFixed(2)}</div>
                   </div>
                 ))}
               </div>
