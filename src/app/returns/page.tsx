@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from "@/context/AppContext";
-import type { Invoice, Refund } from "@/types";
+import type { Invoice, Refund, InvoiceItem } from "@/types";
 import { Undo2, Loader2 } from "lucide-react";
 
 const refundItemSchema = z.object({
@@ -78,15 +78,17 @@ export default function ReturnsPage() {
         const invoice = invoices.find(inv => inv.id === invoiceId);
         if (invoice) {
             setSelectedInvoice(invoice);
-            const invoiceItems = invoice.items.map(item => ({
-                productId: item.productId,
-                productName: item.productName,
-                price: item.price,
-                maxQuantity: item.quantity,
-                refundQuantity: item.quantity,
-                selected: false,
-            }));
-            replace(invoiceItems);
+            const refundableItems = invoice.items
+                .filter(item => item.quantity > 0)
+                .map(item => ({
+                    productId: item.productId,
+                    productName: item.productName,
+                    price: item.price,
+                    maxQuantity: item.quantity,
+                    refundQuantity: 0,
+                    selected: false,
+                }));
+            replace(refundableItems);
             form.setValue('invoiceId', invoice.id);
             form.clearErrors('items');
         } else {
@@ -109,12 +111,11 @@ export default function ReturnsPage() {
     const onSubmit = (data: ReturnFormData) => {
         setIsLoading(true);
 
-        const refundedItems = data.items.filter(item => item.selected && item.refundQuantity > 0);
-        const originalInvoice = invoices.find(inv => inv.id === data.invoiceId)!;
+        const refundedItemsFromForm = data.items.filter(item => item.selected && item.refundQuantity > 0);
 
         // 1. Update Product Stock
         const updatedProducts = [...products];
-        refundedItems.forEach(item => {
+        refundedItemsFromForm.forEach(item => {
             const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
             if (productIndex !== -1) {
                 updatedProducts[productIndex].stock += item.refundQuantity;
@@ -122,21 +123,34 @@ export default function ReturnsPage() {
         });
         setProducts(updatedProducts);
 
-        // 2. Update Invoice Status
-        const totalItemsInInvoice = originalInvoice.items.reduce((acc, item) => acc + item.quantity, 0);
-        const totalItemsRefundedPreviously = originalInvoice.items.reduce((acc, item) => {
-             const refundedItem = data.items.find(i => i.productId === item.productId);
-             return acc + (refundedItem?.selected ? 0 : (originalInvoice.items.find(oi => oi.productId === item.productId)?.quantity || 0) - item.quantity);
-        }, 0);
+        // 2. Update Invoice
+        const updatedInvoices = invoices.map(invoice => {
+            if (invoice.id !== data.invoiceId) {
+                return invoice;
+            }
 
-        const totalItemsRefundedNow = refundedItems.reduce((acc, item) => acc + item.refundQuantity, 0);
-        const totalRefunded = totalItemsRefundedNow + totalItemsRefundedPreviously;
+            // Deep copy to avoid direct mutation
+            const updatedInvoice = JSON.parse(JSON.stringify(invoice));
+            
+            // Subtract refunded quantities from invoice items
+            refundedItemsFromForm.forEach(refundedItem => {
+                const invoiceItem = updatedInvoice.items.find((i: InvoiceItem) => i.productId === refundedItem.productId);
+                if (invoiceItem) {
+                    invoiceItem.quantity -= refundedItem.refundQuantity;
+                }
+            });
 
-        const newInvoiceStatus = totalRefunded >= totalItemsInInvoice ? 'refunded' : 'partially-refunded';
+            // Determine new status
+            const remainingItemsCount = updatedInvoice.items.reduce((total: number, item: InvoiceItem) => total + item.quantity, 0);
+            if (remainingItemsCount <= 0) {
+                updatedInvoice.status = 'refunded';
+            } else {
+                updatedInvoice.status = 'partially-refunded';
+            }
 
-        const updatedInvoices = invoices.map(inv => 
-            inv.id === data.invoiceId ? { ...inv, status: newInvoiceStatus } : inv
-        );
+            return updatedInvoice;
+        });
+
         setInvoices(updatedInvoices);
 
         // 3. Create Refund Record (this part is just for logging)
@@ -144,7 +158,7 @@ export default function ReturnsPage() {
             id: `REF-${Date.now()}`,
             invoiceId: data.invoiceId,
             storeId: currentStore?.id,
-            items: refundedItems.map(i => ({
+            items: refundedItemsFromForm.map(i => ({
                 productId: i.productId,
                 productName: i.productName,
                 quantity: i.refundQuantity,
@@ -230,16 +244,16 @@ export default function ReturnsPage() {
                                                         <TableRow>
                                                             <TableHead className="w-12">
                                                                 <Checkbox 
-                                                                    checked={watchedItems.length > 0 && watchedItems.every(item => item.selected)}
+                                                                    checked={fields.length > 0 && watchedItems.every(item => item.selected)}
                                                                     onCheckedChange={(checked) => {
-                                                                        const newItems = watchedItems.map(item => ({...item, selected: !!checked}));
+                                                                        const newItems = watchedItems.map(item => ({...item, selected: !!checked, refundQuantity: checked ? item.maxQuantity : 0 }));
                                                                         replace(newItems);
                                                                     }}
                                                                 />
                                                             </TableHead>
                                                             <TableHead>Product</TableHead>
                                                             <TableHead className="text-right">Price</TableHead>
-                                                            <TableHead className="text-center">Purchased</TableHead>
+                                                            <TableHead className="text-center">Available</TableHead>
                                                             <TableHead className="w-32">Refund Qty</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
@@ -250,12 +264,15 @@ export default function ReturnsPage() {
                                                                     <FormField
                                                                         control={form.control}
                                                                         name={`items.${index}.selected`}
-                                                                        render={({ field }) => (
+                                                                        render={({ field: checkboxField }) => (
                                                                             <FormItem>
                                                                                 <FormControl>
                                                                                     <Checkbox
-                                                                                        checked={field.value}
-                                                                                        onCheckedChange={field.onChange}
+                                                                                        checked={checkboxField.value}
+                                                                                        onCheckedChange={(checked) => {
+                                                                                            checkboxField.onChange(checked);
+                                                                                            form.setValue(`items.${index}.refundQuantity`, checked ? watchedItems[index].maxQuantity : 0);
+                                                                                        }}
                                                                                     />
                                                                                 </FormControl>
                                                                             </FormItem>
