@@ -9,16 +9,16 @@ import type { Role } from '@/types';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/customers', label: 'Customers', icon: Users },
   { href: '/invoices', label: 'Invoices', icon: FileText },
+  { href: '/payments', label: 'Payments', icon: CreditCard },
+  { href: '/returns', label: 'Returns', icon: Undo2 },
+  { href: '/customers', label: 'Customers', icon: Users },
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/vendors', label: 'Vendors', icon: Building2 },
   { href: '/scanner', label: 'Barcode Scanner', icon: ScanLine },
-  { href: '/payments', label: 'Payments', icon: CreditCard },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
-  { href: '/returns', label: 'Returns', icon: Undo2 },
-  { href: '/activity', label: 'Activity Logs', icon: History },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
+  { href: '/activity', label: 'Activity Logs', icon: History },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
