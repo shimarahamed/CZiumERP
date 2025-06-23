@@ -6,13 +6,14 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent }
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle } from "lucide-react";
+import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
+import { format, differenceInDays, parseISO } from 'date-fns';
 
 export default function DashboardPage() {
-  const { invoices, customers, currentStore, currencySymbol } = useAppContext();
+  const { invoices, customers, currentStore, currencySymbol, products } = useAppContext();
   
   const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
   const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
@@ -33,6 +34,19 @@ export default function DashboardPage() {
   }, 0);
 
   const totalProfit = totalRevenue - totalCost;
+
+  const lowStockItems = products.filter(p => 
+    typeof p.reorderThreshold !== 'undefined' && p.stock <= p.reorderThreshold
+  );
+
+  const expiringItems = products
+    .filter(p => {
+      if (!p.expiryDate) return false;
+      const expiry = parseISO(p.expiryDate);
+      const daysUntilExpiry = differenceInDays(expiry, new Date());
+      return daysUntilExpiry >= 0 && daysUntilExpiry <= 30;
+    })
+    .sort((a, b) => new Date(a.expiryDate!).getTime() - new Date(b.expiryDate!).getTime());
 
   return (
     <div className="flex flex-col h-full">
@@ -107,27 +121,44 @@ export default function DashboardPage() {
           </Card>
           <Card className="lg:col-span-3">
             <CardHeader>
-              <CardTitle>Recent Sales</CardTitle>
-              <p className="text-sm text-muted-foreground">You made {paidInvoices.length} sales this month.</p>
+              <CardTitle>Inventory Alerts</CardTitle>
+              <p className="text-sm text-muted-foreground">Items that require your attention.</p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {storeInvoices.slice(0, 5).map(invoice => (
-                  <div key={invoice.id} className="flex items-center">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={`https://placehold.co/40x40`} alt="Avatar" data-ai-hint="person user" />
-                      <AvatarFallback>{invoice.customerName ? invoice.customerName.slice(0,2).toUpperCase() : "WI"}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-4 space-y-1">
-                      <p className="text-sm font-medium leading-none">{invoice.customerName || "Walk-in Customer"}</p>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {invoice.customerId ? customers.find(c => c.id === invoice.customerId)?.email : "N/A"}
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">{currencySymbol}{invoice.amount.toFixed(2)}</div>
-                  </div>
-                ))}
-              </div>
+              {lowStockItems.length === 0 && expiringItems.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-muted-foreground text-center py-8">No alerts at the moment.</p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-[250px] overflow-y-auto">
+                  {lowStockItems.length > 0 && (
+                      <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertCircle className="h-4 w-4 text-destructive"/>Low Stock Items</h4>
+                          <div className="space-y-2 text-sm">
+                          {lowStockItems.map(item => (
+                              <div key={item.id} className="flex justify-between items-center">
+                                  <span>{item.name}</span>
+                                  <span className="font-medium text-destructive">{item.stock} left</span>
+                              </div>
+                          ))}
+                          </div>
+                      </div>
+                  )}
+                   {expiringItems.length > 0 && (
+                      <div className="pt-2">
+                          <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-yellow-500"/>Expiring Soon</h4>
+                          <div className="space-y-2 text-sm">
+                          {expiringItems.map(item => (
+                              <div key={item.id} className="flex justify-between items-center">
+                                  <span>{item.name}</span>
+                                  {item.expiryDate && <span className="font-medium">{format(parseISO(item.expiryDate), 'MMM d, yyyy')}</span>}
+                              </div>
+                          ))}
+                          </div>
+                      </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

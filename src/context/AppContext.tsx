@@ -2,8 +2,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -38,6 +38,8 @@ interface AppContextType {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   vendors: Vendor[];
   setVendors: React.Dispatch<React.SetStateAction<Vendor[]>>;
+  purchaseOrders: PurchaseOrder[];
+  setPurchaseOrders: React.Dispatch<React.SetStateAction<PurchaseOrder[]>>;
   stores: Store[];
   currentStore: Store | null;
   selectStore: (storeId: string) => void;
@@ -62,6 +64,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
   const [users] = useState<User[]>(initialUsers);
   const [stores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
@@ -80,6 +83,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCustomers(getStoredState('customers', initialCustomers));
     setProducts(getStoredState('products', initialProducts));
     setVendors(getStoredState('vendors', initialVendors));
+    setPurchaseOrders(getStoredState('purchaseOrders', initialPurchaseOrders));
     setActivityLogs(getStoredState('activityLogs', []));
     setIsAuthenticated(getStoredState('isAuthenticated', false));
     setUser(getStoredState('user', null));
@@ -97,6 +101,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('customers', JSON.stringify(customers)); }, [customers, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('products', JSON.stringify(products)); }, [products, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('vendors', JSON.stringify(vendors)); }, [vendors, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders)); }, [purchaseOrders, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -173,6 +178,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('currentStoreId');
     localStorage.removeItem('currency');
+    localStorage.removeItem('purchaseOrders');
   };
 
 
@@ -182,6 +188,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       customers, setCustomers,
       products, setProducts,
       vendors, setVendors,
+      purchaseOrders, setPurchaseOrders,
       stores,
       currentStore,
       selectStore,

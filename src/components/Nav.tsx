@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings, Undo2 } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings, Undo2, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -14,6 +14,7 @@ const links = [
   { href: '/returns', label: 'Returns', icon: Undo2 },
   { href: '/customers', label: 'Customers', icon: Users },
   { href: '/inventory', label: 'Inventory', icon: Package },
+  { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
   { href: '/vendors', label: 'Vendors', icon: Building2 },
   { href: '/scanner', label: 'Barcode Scanner', icon: ScanLine },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
@@ -23,10 +24,10 @@ const links = [
 ];
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
-    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
+    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
+    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
     cashier: ['Dashboard', 'Customers', 'Invoices', 'Barcode Scanner', 'Payments', 'Returns', 'AI Upselling'],
-    'inventory-staff': ['Inventory', 'Vendors', 'Barcode Scanner', 'Reports'],
+    'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Barcode Scanner', 'Reports'],
 };
 
 

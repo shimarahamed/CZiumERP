@@ -41,6 +41,8 @@ export type Product = {
   cost: number;
   stock: number;
   supplier?: string;
+  reorderThreshold?: number;
+  expiryDate?: string;
 };
 
 export type InvoiceItem = {
@@ -77,6 +79,26 @@ export type Refund = {
   amount: number;
   reason: string;
   date: string;
+};
+
+export type PurchaseOrderItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+  cost: number;
+};
+
+export type PurchaseOrder = {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  storeId?: string;
+  items: PurchaseOrderItem[];
+  totalCost: number;
+  status: 'pending' | 'ordered' | 'received' | 'cancelled';
+  orderDate: string;
+  expectedDeliveryDate?: string;
+  receivedDate?: string;
 };
 
 export type Sale = {

@@ -18,6 +18,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Product } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { DatePicker } from '@/components/ui/date-picker';
+import { isBefore, differenceInDays, parseISO } from 'date-fns';
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required."),
@@ -27,6 +30,8 @@ const productSchema = z.object({
   sku: z.string().optional(),
   category: z.string().optional(),
   description: z.string().optional(),
+  reorderThreshold: z.coerce.number().int().min(0, "Reorder threshold must be non-negative.").optional(),
+  expiryDate: z.date().optional().nullable(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -48,6 +53,8 @@ export default function InventoryPage() {
             sku: '',
             category: '',
             description: '',
+            reorderThreshold: 0,
+            expiryDate: null,
         }
     });
     
@@ -56,23 +63,33 @@ export default function InventoryPage() {
     const handleOpenForm = (product: Product | null = null) => {
         setProductToEdit(product);
         if (product) {
-            form.reset(product);
+            form.reset({
+              ...product,
+              reorderThreshold: product.reorderThreshold ?? 0,
+              expiryDate: product.expiryDate ? new Date(product.expiryDate) : null,
+            });
         } else {
-            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '' });
+            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', reorderThreshold: 0, expiryDate: null });
         }
         setIsFormOpen(true);
     };
 
     const onSubmit = (data: ProductFormData) => {
+        const productData = {
+          ...data,
+          expiryDate: data.expiryDate ? data.expiryDate.toISOString() : undefined,
+          reorderThreshold: data.reorderThreshold || undefined,
+        };
+
         if (productToEdit) {
-            const updatedProducts = products.map(p => p.id === productToEdit.id ? { ...p, ...data } : p);
+            const updatedProducts = products.map(p => p.id === productToEdit.id ? { ...p, ...productData } : p);
             setProducts(updatedProducts);
             toast({ title: "Product Updated", description: `${data.name} has been updated.` });
             addActivityLog('Product Updated', `Updated product: ${data.name} (ID: ${productToEdit.id})`);
         } else {
             const newProduct: Product = {
                 id: `prod-${Date.now()}`,
-                ...data,
+                ...productData,
             };
             setProducts([newProduct, ...products]);
             toast({ title: "Product Added", description: `${data.name} has been added to inventory.` });
@@ -89,6 +106,26 @@ export default function InventoryPage() {
         toast({ title: "Product Deleted", description: `${productToDelete.name} has been deleted.` });
         setProductToDelete(null);
     };
+
+    const getProductStatus = (product: Product) => {
+        const statuses: { text: string; variant: 'destructive' | 'secondary' }[] = [];
+        const now = new Date();
+
+        if (typeof product.reorderThreshold !== 'undefined' && product.stock <= product.reorderThreshold) {
+            statuses.push({ text: 'Low Stock', variant: 'destructive' });
+        }
+
+        if (product.expiryDate) {
+            const expiry = parseISO(product.expiryDate);
+            if (isBefore(expiry, now)) {
+                statuses.push({ text: 'Expired', variant: 'destructive' });
+            } else if (differenceInDays(expiry, now) <= 30) {
+                statuses.push({ text: 'Expires Soon', variant: 'secondary' });
+            }
+        }
+        
+        return statuses;
+    }
 
     return (
         <div className="flex flex-col h-full">
@@ -114,10 +151,10 @@ export default function InventoryPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Product Name</TableHead>
-                                    <TableHead className="hidden md:table-cell">Category</TableHead>
                                     <TableHead className="hidden md:table-cell">Price</TableHead>
-                                    <TableHead className="hidden md:table-cell">Cost</TableHead>
                                     <TableHead>Stock</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="hidden md:table-cell">Expiry</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -130,10 +167,17 @@ export default function InventoryPage() {
                                                 {currencySymbol}{product.price.toFixed(2)}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="hidden md:table-cell">{product.category}</TableCell>
                                         <TableCell className="hidden md:table-cell">{currencySymbol}{product.price.toFixed(2)}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{currencySymbol}{product.cost.toFixed(2)}</TableCell>
                                         <TableCell>{product.stock}</TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {getProductStatus(product).map(status => (
+                                                    <Badge key={status.text} variant={status.variant as any} className="whitespace-nowrap">{status.text}</Badge>
+                                                ))}
+                                                {getProductStatus(product).length === 0 && <span className="text-muted-foreground">-</span>}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="hidden md:table-cell">{product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'N/A'}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -191,6 +235,14 @@ export default function InventoryPage() {
                                 <FormField control={form.control} name="stock" render={({ field }) => (
                                     <FormItem><FormLabel>Stock Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 <FormField control={form.control} name="reorderThreshold" render={({ field }) => (
+                                    <FormItem><FormLabel>Reorder Threshold</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="expiryDate" render={({ field }) => (
+                                    <FormItem className="flex flex-col pt-2"><FormLabel>Expiry Date</FormLabel><FormControl><DatePicker date={field.value ?? undefined} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                )}/>
                             </div>
                             <DialogFooter className="pt-4">
                                 <Button type="submit">{productToEdit ? 'Save Changes' : 'Add Product'}</Button>
