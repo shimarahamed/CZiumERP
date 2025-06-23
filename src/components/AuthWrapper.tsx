@@ -25,6 +25,18 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+          console.log('SW registration failed: ', registrationError);
+        });
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     if (!isAuthenticated && !UNAUTH_ROUTES.includes(pathname)) {
       router.push('/login');
     } else if (isAuthenticated && pathname === '/login') {
