@@ -1,10 +1,10 @@
 import type { Customer, Invoice, Sale, Product, Vendor, Store, User } from '@/types';
 
 export const initialUsers: User[] = [
-  { id: 'user-1', name: 'Admin User', email: 'admin@bizflow.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
-  { id: 'user-2', name: 'Manager Mike', email: 'manager@bizflow.com', avatar: 'https://placehold.co/40x40', role: 'manager', password: 'password' },
-  { id: 'user-3', name: 'Cashier Chloe', email: 'cashier@bizflow.com', avatar: 'https://placehold.co/40x40', role: 'cashier', password: 'password' },
-  { id: 'user-4', name: 'Inventory Ian', email: 'inventory@bizflow.com', avatar: 'https://placehold.co/40x40', role: 'inventory-staff', password: 'password' },
+  { id: 'user-1', name: 'Admin User', email: 'admin@cziumpos.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
+  { id: 'user-2', name: 'Manager Mike', email: 'manager@cziumpos.com', avatar: 'https://placehold.co/40x40', role: 'manager', password: 'password' },
+  { id: 'user-3', name: 'Cashier Chloe', email: 'cashier@cziumpos.com', avatar: 'https://placehold.co/40x40', role: 'cashier', password: 'password' },
+  { id: 'user-4', name: 'Inventory Ian', email: 'inventory@cziumpos.com', avatar: 'https://placehold.co/40x40', role: 'inventory-staff', password: 'password' },
 ];
 
 export const initialStores: Store[] = [
