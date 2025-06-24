@@ -15,12 +15,16 @@ export type Store = {
   address: string;
 };
 
+export type CustomerTier = 'Bronze' | 'Silver' | 'Gold';
+
 export type Customer = {
   id: string;
   name: string;
   email: string;
   phone: string;
   avatar: string;
+  loyaltyPoints?: number;
+  tier?: CustomerTier;
 };
 
 export type Vendor = {

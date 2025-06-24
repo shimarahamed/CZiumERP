@@ -15,7 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import type { Customer, Invoice } from '@/types';
+import type { Customer, Invoice, CustomerTier } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +33,13 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
     pending: 'secondary',
     overdue: 'destructive'
 };
+
+const tierVariant: { [key in CustomerTier]: 'secondary' | 'default' | 'outline' } = {
+    Bronze: 'secondary',
+    Silver: 'default',
+    Gold: 'outline'
+};
+
 
 export default function CustomersPage() {
     const { customers, setCustomers, invoices, addActivityLog, currencySymbol, user } = useAppContext();
@@ -74,6 +81,8 @@ export default function CustomersPage() {
                 id: `cust-${Date.now()}`,
                 avatar: `https://placehold.co/40x40`,
                 ...data,
+                loyaltyPoints: 0,
+                tier: 'Bronze',
             };
             setCustomers([newCustomer, ...customers]);
             toast({ title: "Customer Added", description: `${data.name} has been added.` });
@@ -130,8 +139,9 @@ export default function CustomersPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Customer</TableHead>
+                                    <TableHead>Tier</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Loyalty Points</TableHead>
                                     <TableHead className="hidden md:table-cell">Email</TableHead>
-                                    <TableHead className="hidden md:table-cell">Phone</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
@@ -148,12 +158,23 @@ export default function CustomersPage() {
                                                 </Avatar>
                                                 <div className="flex flex-col min-w-0">
                                                    <span className="truncate">{customer.name}</span>
-                                                   <span className="text-muted-foreground md:hidden truncate">{customer.email}</span>
+                                                   <div className="text-muted-foreground sm:hidden flex flex-col">
+                                                        <span className="truncate">{customer.email}</span>
+                                                        <span>{customer.loyaltyPoints || 0} points</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </TableCell>
+                                        <TableCell>
+                                            <Badge 
+                                                variant={tierVariant[customer.tier || 'Bronze']} 
+                                                className={customer.tier === 'Gold' ? 'border-amber-500 text-amber-600' : ''}
+                                            >
+                                                {customer.tier || 'Bronze'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="hidden sm:table-cell">{customer.loyaltyPoints || 0}</TableCell>
                                         <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{customer.phone}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>

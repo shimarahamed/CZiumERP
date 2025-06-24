@@ -56,7 +56,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, products, setProducts, addActivityLog, currentStore, currencySymbol } = useAppContext();
+    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
@@ -189,6 +189,34 @@ export default function InvoicesPage() {
              }
         });
         setProducts(updatedProducts);
+
+        // Loyalty Points Logic
+        if (data.status === 'paid' && data.customerId && data.customerId !== 'none') {
+            const wasAlreadyPaid = invoiceToEdit?.status === 'paid';
+            
+            if (!wasAlreadyPaid) { // Award points only if newly paid
+                const customerIndex = customers.findIndex(c => c.id === data.customerId);
+                if (customerIndex > -1) {
+                    const updatedCustomers = [...customers];
+                    const customerToUpdate = { ...updatedCustomers[customerIndex] };
+                    
+                    const pointsEarned = Math.floor(totalAmount);
+                    customerToUpdate.loyaltyPoints = (customerToUpdate.loyaltyPoints || 0) + pointsEarned;
+
+                    // Tier logic
+                    if (customerToUpdate.loyaltyPoints >= 2000 && customerToUpdate.tier !== 'Gold') {
+                        customerToUpdate.tier = 'Gold';
+                    } else if (customerToUpdate.loyaltyPoints >= 500 && customerToUpdate.tier === 'Bronze') {
+                        customerToUpdate.tier = 'Silver';
+                    }
+
+                    updatedCustomers[customerIndex] = customerToUpdate;
+                    setCustomers(updatedCustomers);
+                    toast({ title: "Loyalty Points Awarded!", description: `${customerToUpdate.name} earned ${pointsEarned} points.` });
+                }
+            }
+        }
+
 
         if (invoiceToEdit) {
             setInvoices(invoices.map(inv => inv.id === invoiceToEdit.id ? {
