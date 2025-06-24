@@ -66,7 +66,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar collapsible="icon">
         <div className="flex flex-col h-full">
           <SidebarHeader className="p-4 flex items-center gap-3">
              <div className="p-2 bg-primary/20 rounded-lg">

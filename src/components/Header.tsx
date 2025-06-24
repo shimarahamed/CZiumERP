@@ -1,3 +1,4 @@
+
 'use client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ export default function Header({ title, children }: HeaderProps) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-card px-4 md:px-6 sticky top-0 z-10">
       <div className="flex items-center gap-4 min-w-0">
-        <SidebarTrigger className="md:hidden" />
+        <SidebarTrigger />
         <h1 className="text-lg md:text-xl font-semibold truncate">{title}</h1>
       </div>
       <div className="flex items-center gap-2 md:gap-4">

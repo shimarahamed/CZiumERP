@@ -70,7 +70,7 @@ export default function InventoryPage() {
             form.reset({
               ...product,
               vendorId: product.vendorId ?? 'none',
-              reorderThreshold: product.reorderThreshold ?? 0,
+              reorderThreshold: product.reorderThreshold,
               expiryDate: product.expiryDate ? new Date(product.expiryDate) : null,
             });
         } else {
@@ -117,8 +117,10 @@ export default function InventoryPage() {
         const statuses: { text: string; variant: 'destructive' | 'secondary' }[] = [];
         const now = new Date();
 
-        if (product.stock < 10) {
-            statuses.push({ text: 'Low Stock', variant: 'destructive' });
+        if (product.stock <= 0) {
+            statuses.push({ text: 'Out of Stock', variant: 'destructive' });
+        } else if (product.reorderThreshold && product.stock <= product.reorderThreshold) {
+            statuses.push({ text: 'Low Stock', variant: 'secondary' });
         }
 
         if (product.expiryDate) {
@@ -265,7 +267,7 @@ export default function InventoryPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                  <FormField control={form.control} name="reorderThreshold" render={({ field }) => (
-                                    <FormItem><FormLabel>Reorder Threshold</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Reorder Threshold</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="expiryDate" render={({ field }) => (
                                     <FormItem className="flex flex-col pt-2"><FormLabel>Expiry Date</FormLabel><FormControl><DatePicker date={field.value ?? undefined} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
