@@ -29,6 +29,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { Invoice, InvoiceItem } from "@/types";
 import { Combobox } from "@/components/ui/combobox";
 import BarcodeScanner from "@/components/BarcodeScanner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const invoiceItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),
@@ -241,44 +242,63 @@ export default function InvoicesPage() {
                     <TableHead className="hidden md:table-cell">Amount</TableHead>
                     <TableHead className="hidden md:table-cell">Status</TableHead>
                     <TableHead className="hidden lg:table-cell">Date</TableHead>
-                    <TableHead><span className="sr-only">Actions</span></TableHead>
+                    <TableHead className="text-right w-[140px]">Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {invoices.map(invoice => (
-                    <TableRow key={invoice.id} onClick={() => onView(invoice)} className="cursor-pointer">
-                        <TableCell className="font-medium">{invoice.id}</TableCell>
-                        <TableCell>
+                    <TableRow key={invoice.id}>
+                        <TableCell onClick={() => onView(invoice)} className="font-medium cursor-pointer">{invoice.id}</TableCell>
+                        <TableCell onClick={() => onView(invoice)} className="cursor-pointer">
                             <div className="truncate">{invoice.customerName || 'N/A'}</div>
                             <div className="text-sm text-muted-foreground md:hidden">
                                 {currencySymbol}{invoice.amount.toFixed(2)}
                             </div>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
-                        <TableCell className="hidden md:table-cell"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge></TableCell>
-                        <TableCell className="hidden lg:table-cell">{new Date(invoice.date).toLocaleDateString()}</TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                        <span className="sr-only">Toggle menu</span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => onView(invoice)}>
-                                        <Receipt />
-                                        View Receipt
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => onViewFull(invoice)}>
-                                        <FileText />
-                                        View Full Invoice
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => onEdit(invoice)}>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive" onClick={() => onDelete(invoice)}>Delete</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                        <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
+                        <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge></TableCell>
+                        <TableCell onClick={() => onView(invoice)} className="hidden lg:table-cell cursor-pointer">{new Date(invoice.date).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-right">
+                           <TooltipProvider>
+                                <div className="flex items-center justify-end gap-1">
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="ghost" size="icon" onClick={() => onView(invoice)}>
+                                                <Receipt className="h-4 w-4" />
+                                                <span className="sr-only">View Receipt</span>
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>View Receipt</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="ghost" size="icon" onClick={() => onViewFull(invoice)}>
+                                                <FileText className="h-4 w-4" />
+                                                <span className="sr-only">View Full Invoice</span>
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>View Full Invoice</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                                <span className="sr-only">Toggle menu</span>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuLabel>More Actions</DropdownMenuLabel>
+                                            <DropdownMenuItem onClick={() => onEdit(invoice)}>Edit</DropdownMenuItem>
+                                            <DropdownMenuItem className="text-destructive" onClick={() => onDelete(invoice)}>Delete</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            </TooltipProvider>
                         </TableCell>
                     </TableRow>
                 ))}
