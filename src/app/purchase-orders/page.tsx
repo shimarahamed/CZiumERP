@@ -85,6 +85,7 @@ export default function PurchaseOrdersPage() {
     }, 0);
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+    const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
 
     useEffect(() => {
         if (isFormOpen && poToEdit) {
@@ -226,9 +227,11 @@ export default function PurchaseOrdersPage() {
                                 <CardDescription>Create and manage purchase orders for your vendors.</CardDescription>
                             </div>
                             
-                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                <PlusCircle className="h-4 w-4" /> Create Purchase Order
-                            </Button>
+                            {canCreatePo && (
+                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
+                                    <PlusCircle className="h-4 w-4" /> Create Purchase Order
+                                </Button>
+                            )}
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -277,7 +280,7 @@ export default function PurchaseOrdersPage() {
                                                     {po.status === 'ordered' && canManage && (
                                                         <DropdownMenuItem onClick={() => setPoToMarkReceived(po)}>Mark as Received</DropdownMenuItem>
                                                     )}
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(po)}>Edit</DropdownMenuItem>
+                                                    {canManage && <DropdownMenuItem onClick={() => handleOpenForm(po)}>Edit</DropdownMenuItem>}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
