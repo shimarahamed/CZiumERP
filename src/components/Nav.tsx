@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
-  Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store 
+  Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, FileQuestion
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -24,8 +24,8 @@ type NavCategory = {
 
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Users', 'Activity Logs', 'Settings'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Users', 'Activity Logs', 'Settings'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
 };
@@ -48,6 +48,7 @@ const categories: NavCategory[] = [
       { href: '/inventory', label: 'Inventory', icon: Package },
       { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
       { href: '/vendors', label: 'Vendors', icon: Building2 },
+      { href: '/rfq', label: 'Request for Quotation', icon: FileQuestion },
     ],
   },
   {

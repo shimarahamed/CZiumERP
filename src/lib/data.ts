@@ -1,4 +1,4 @@
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@cziumpos.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -155,6 +155,34 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
         orderDate: '2023-10-15',
         expectedDeliveryDate: '2023-10-25',
         receivedDate: '2023-10-24',
+    }
+];
+
+export const initialRfqs: RFQ[] = [
+    {
+        id: 'RFQ-001',
+        storeId: 'store-1',
+        items: [
+            { productId: 'prod-1', productName: 'Espresso Machine', quantity: 10 },
+            { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 20 },
+        ],
+        vendorIds: ['vend-3'],
+        status: 'sent',
+        creationDate: '2023-11-01',
+        userId: 'user-2',
+        userName: 'Manager Mike',
+    },
+    {
+        id: 'RFQ-002',
+        storeId: 'store-1',
+        items: [
+            { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 200 },
+        ],
+        vendorIds: ['vend-1', 'vend-2'],
+        status: 'draft',
+        creationDate: '2023-11-05',
+        userId: 'user-2',
+        userName: 'Manager Mike',
     }
 ];
 

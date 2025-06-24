@@ -110,6 +110,23 @@ export type PurchaseOrder = {
   receivedDate?: string;
 };
 
+export type RFQItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+};
+
+export type RFQ = {
+  id: string;
+  storeId?: string;
+  items: RFQItem[];
+  vendorIds: string[];
+  status: 'draft' | 'sent' | 'closed';
+  creationDate: string;
+  userId?: string;
+  userName?: string;
+};
+
 export type Sale = {
   month: string;
   revenue: number;
