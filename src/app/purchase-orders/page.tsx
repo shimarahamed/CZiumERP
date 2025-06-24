@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -89,6 +89,13 @@ export default function PurchaseOrdersPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
     const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
+
+    const availableProductsForPO = useMemo(() => {
+        if (!watchedVendorId) {
+            return products;
+        }
+        return products.filter(p => !p.vendorId || p.vendorId === watchedVendorId);
+    }, [watchedVendorId, products]);
     
     const handleOpenForm = useCallback((po: PurchaseOrder | null = null) => {
         setPoToEdit(po);
@@ -382,7 +389,7 @@ export default function PurchaseOrdersPage() {
                                         <FormField control={form.control} name={`items.${index}.productId`} render={({ field }) => (
                                             <FormItem className="flex-1 min-w-[150px]"><FormControl>
                                                 <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Select product" /></SelectTrigger>
-                                                    <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                                                    <SelectContent>{availableProductsForPO.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                                                 </Select>
                                             </FormControl><FormMessage /></FormItem>
                                         )} />
