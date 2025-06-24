@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, addDays } from "date-fns";
 import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle } from "lucide-react";
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,8 @@ export default function PurchaseOrdersPage() {
         addActivityLog, currentStore, currencySymbol, user
     } = useAppContext();
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [poToEdit, setPoToEdit] = useState<PurchaseOrder | null>(null);
@@ -86,6 +89,44 @@ export default function PurchaseOrdersPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
     const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
+    
+    const handleOpenForm = useCallback((po: PurchaseOrder | null = null) => {
+        setPoToEdit(po);
+        setIsFormOpen(true);
+    }, []);
+
+    useEffect(() => {
+        const action = searchParams.get('action');
+        if (action !== 'new') return;
+        
+        const productId = searchParams.get('productId');
+        const vendorId = searchParams.get('vendorId');
+        
+        handleOpenForm(null);
+
+        if(productId && vendorId) {
+            const product = products.find(p => p.id === productId);
+            if(product) {
+                 const defaultQty = product.reorderThreshold && product.reorderThreshold > 0 ? product.reorderThreshold : 10;
+                 setTimeout(() => {
+                    form.reset({
+                        vendorId: vendorId,
+                        status: canManage ? 'ordered' : 'pending-approval',
+                        orderDate: new Date(),
+                        expectedDeliveryDate: undefined,
+                        items: [{
+                            productId: product.id,
+                            quantity: defaultQty,
+                            cost: product.cost
+                        }],
+                    });
+                 }, 100);
+            }
+        }
+        
+        router.replace('/purchase-orders', { scroll: false });
+
+    }, [searchParams, handleOpenForm, router, products, form, canManage]);
 
     useEffect(() => {
         if (isFormOpen && poToEdit) {
@@ -116,12 +157,6 @@ export default function PurchaseOrdersPage() {
             }
         }
     }, [watchedVendorId, watchedOrderDate, vendors, form, poToEdit]);
-
-
-    const handleOpenForm = (po: PurchaseOrder | null = null) => {
-        setPoToEdit(po);
-        setIsFormOpen(true);
-    };
 
     const onSubmit = (data: POFormData) => {
         const vendor = vendors.find(v => v.id === data.vendorId)!;

@@ -13,7 +13,7 @@ import { useAppContext } from "@/context/AppContext";
 import { format, differenceInDays, parseISO } from 'date-fns';
 
 export default function DashboardPage() {
-  const { invoices, customers, currentStore, currencySymbol, products } = useAppContext();
+  const { invoices, customers, currentStore, currencySymbol, products, user } = useAppContext();
   
   const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
   const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
@@ -64,6 +64,8 @@ export default function DashboardPage() {
   const topProducts = Array.from(productSales.values())
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 5);
+
+  const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
 
 
   return (
@@ -175,7 +177,16 @@ export default function DashboardPage() {
                             {lowStockItems.map(item => (
                                 <div key={item.id} className="flex justify-between items-center">
                                     <span>{item.name}</span>
-                                    <span className="font-medium text-destructive">{item.stock} left</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium text-destructive">{item.stock} left</span>
+                                      {canCreatePo && item.vendorId && (
+                                        <Button asChild variant="outline" size="sm" className="h-7">
+                                            <Link href={`/purchase-orders?action=new&productId=${item.id}&vendorId=${item.vendorId}`}>
+                                                Reorder
+                                            </Link>
+                                        </Button>
+                                      )}
+                                    </div>
                                 </div>
                             ))}
                             </div>
