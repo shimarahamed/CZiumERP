@@ -6,7 +6,7 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, Receipt, FileText } from "lucide-react";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -267,8 +267,14 @@ export default function InvoicesPage() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => onView(invoice)}>View Receipt</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => onViewFull(invoice)}>View Full Invoice</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onView(invoice)}>
+                                        <Receipt />
+                                        View Receipt
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onViewFull(invoice)}>
+                                        <FileText />
+                                        View Full Invoice
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => onEdit(invoice)}>Edit</DropdownMenuItem>
                                     <DropdownMenuItem className="text-destructive" onClick={() => onDelete(invoice)}>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
