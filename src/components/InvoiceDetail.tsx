@@ -4,18 +4,62 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DialogContent, DialogFooter } from "@/components/ui/dialog";
 import type { Invoice } from '@/types';
-import { Printer, Store as StoreIcon } from 'lucide-react';
+import { Printer, Store as StoreIcon, Mail } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface InvoiceDetailProps {
     invoice: Invoice;
 }
 
 const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
-    const { currentStore, currencySymbol } = useAppContext();
+    const { currentStore, currencySymbol, customers } = useAppContext();
+    const { toast } = useToast();
+    
     const handlePrint = () => {
         window.print();
     };
+
+    const subtotal = invoice.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const discountAmount = subtotal * ((invoice.discount || 0) / 100);
+    const taxAmount = (subtotal - discountAmount) * ((invoice.taxRate || 0) / 100);
+
+    const generateTextReceipt = () => {
+      let receipt = `RECEIPT from ${currentStore?.name}\n`;
+      receipt += `Invoice ID: ${invoice.id}\n`;
+      receipt += `Date: ${new Date(invoice.date).toLocaleString()}\n\n`;
+      receipt += `Items:\n`;
+      invoice.items.forEach(item => {
+        receipt += `- ${item.productName} (x${item.quantity}) @ ${currencySymbol}${item.price.toFixed(2)}\n`;
+      });
+      receipt += `\nSubtotal: ${currencySymbol}${subtotal.toFixed(2)}\n`;
+      if (invoice.discount) {
+        receipt += `Discount (${invoice.discount}%): -${currencySymbol}${discountAmount.toFixed(2)}\n`;
+      }
+      if (invoice.taxRate) {
+        receipt += `Tax (${invoice.taxRate}%): +${currencySymbol}${taxAmount.toFixed(2)}\n`;
+      }
+      receipt += `TOTAL: ${currencySymbol}${invoice.amount.toFixed(2)}\n\n`;
+      receipt += `Thank you for your business!`;
+      return receipt;
+    }
+
+    const handleEmailReceipt = () => {
+      const customer = customers.find(c => c.id === invoice.customerId);
+      if (!customer?.email) {
+          toast({
+              variant: 'destructive',
+              title: 'Cannot Email Receipt',
+              description: "No email address is associated with this customer.",
+          });
+          return;
+      }
+
+      const subject = `Your Receipt from ${currentStore?.name} (#${invoice.id})`;
+      const body = generateTextReceipt();
+
+      window.location.href = `mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
 
     return (
         <DialogContent className="sm:max-w-sm p-0">
@@ -67,11 +111,15 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                 <div className="space-y-1">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>{currencySymbol}{invoice.amount.toFixed(2)}</span>
+                        <span>{currencySymbol}{subtotal.toFixed(2)}</span>
+                    </div>
+                     <div className="flex justify-between">
+                        <span>Discount ({invoice.discount || 0}%)</span>
+                        <span>-{currencySymbol}{discountAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Taxes (0%)</span>
-                        <span>{currencySymbol}0.00</span>
+                        <span>Taxes ({invoice.taxRate || 0}%)</span>
+                        <span>{currencySymbol}{taxAmount.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -86,7 +134,11 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                     Thank you for your business!
                 </div>
             </div>
-            <DialogFooter className="non-printable p-4 border-t">
+            <DialogFooter className="non-printable p-4 border-t flex flex-col sm:flex-row gap-2">
+                 <Button onClick={handleEmailReceipt} variant="outline" className="w-full">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Email Receipt
+                </Button>
                 <Button onClick={handlePrint} variant="outline" className="w-full">
                     <Printer className="mr-2 h-4 w-4" />
                     Print Receipt

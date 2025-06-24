@@ -1,12 +1,12 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail } from "lucide-react";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,8 @@ import InvoiceDetail from "@/components/InvoiceDetail";
 import FullInvoice from "@/components/FullInvoice";
 import { useAppContext } from "@/context/AppContext";
 import type { Invoice, InvoiceItem } from "@/types";
+import { Combobox } from "@/components/ui/combobox";
+import BarcodeScanner from "@/components/BarcodeScanner";
 
 const invoiceItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),
@@ -38,6 +40,8 @@ const invoiceSchema = z.object({
   status: z.enum(['paid', 'pending', 'overdue']),
   date: z.date(),
   items: z.array(invoiceItemSchema).min(1, "Invoice must have at least one item."),
+  discount: z.coerce.number().min(0).max(100).optional(),
+  taxRate: z.coerce.number().min(0).optional(),
 });
 
 type InvoiceFormData = z.infer<typeof invoiceSchema>;
@@ -53,6 +57,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 export default function InvoicesPage() {
     const { invoices, setInvoices, customers, products, setProducts, addActivityLog, currentStore, currencySymbol } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
     const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
@@ -68,6 +73,8 @@ export default function InvoicesPage() {
             status: 'pending',
             date: new Date(),
             items: [],
+            discount: 0,
+            taxRate: 0,
         },
     });
     
@@ -79,10 +86,19 @@ export default function InvoicesPage() {
     const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
 
     const watchedItems = useWatch({ control: form.control, name: 'items' });
-    const totalAmount = watchedItems.reduce((acc, item) => {
+    const watchedDiscount = useWatch({ control: form.control, name: 'discount' }) || 0;
+    const watchedTaxRate = useWatch({ control: form.control, name: 'taxRate' }) || 0;
+
+    const subtotal = useMemo(() => watchedItems.reduce((acc, item) => {
         const product = products.find(p => p.id === item.productId);
-        return acc + (product ? product.price * item.quantity : 0);
-    }, 0);
+        return acc + (product ? product.price * (item.quantity || 0) : 0);
+    }, 0), [watchedItems, products]);
+
+    const discountAmount = useMemo(() => subtotal * (watchedDiscount / 100), [subtotal, watchedDiscount]);
+    const taxAmount = useMemo(() => (subtotal - discountAmount) * (watchedTaxRate / 100), [subtotal, discountAmount, watchedTaxRate]);
+    const totalAmount = useMemo(() => subtotal - discountAmount + taxAmount, [subtotal, discountAmount, taxAmount]);
+
+    const productOptions = useMemo(() => products.map(p => ({ label: p.name, value: p.id })), [products]);
 
     const handleOpenForm = useCallback((invoice: Invoice | null = null) => {
         setInvoiceToEdit(invoice);
@@ -103,6 +119,8 @@ export default function InvoicesPage() {
                 status: invoiceToEdit.status as 'paid' | 'pending' | 'overdue',
                 date: new Date(invoiceToEdit.date),
                 items: invoiceToEdit.items.map(item => ({ productId: item.productId, quantity: item.quantity })),
+                discount: invoiceToEdit.discount || 0,
+                taxRate: invoiceToEdit.taxRate || 0,
             });
         } else if (isFormOpen && !invoiceToEdit) {
             form.reset({
@@ -110,9 +128,22 @@ export default function InvoicesPage() {
                 status: 'pending',
                 date: new Date(),
                 items: [],
+                discount: 0,
+                taxRate: 0,
             });
         }
     }, [invoiceToEdit, isFormOpen, form]);
+
+    const handleScanSuccess = (productId: string) => {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            append({ productId: product.id, quantity: 1 });
+            toast({ title: "Product Added by Scan", description: product.name });
+        } else {
+            toast({ variant: 'destructive', title: "Product Not Found", description: `No product matched the scanned code.` });
+        }
+        setIsScannerOpen(false);
+    };
 
     const onSubmit = (data: InvoiceFormData) => {
         const customer = customers.find(c => c.id === data.customerId);
@@ -127,8 +158,6 @@ export default function InvoicesPage() {
                 cost: product.cost,
             };
         });
-
-        const newAmount = newInvoiceItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
         // Update product stock
         const updatedProducts = [...products];
@@ -168,10 +197,12 @@ export default function InvoicesPage() {
                 status: data.status,
                 date: format(data.date, 'yyyy-MM-dd'),
                 items: newInvoiceItems,
-                amount: newAmount,
+                amount: totalAmount,
+                discount: data.discount,
+                taxRate: data.taxRate,
             } : inv));
             toast({ title: "Invoice Updated" });
-            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: ${currencySymbol}${newAmount.toFixed(2)}`);
+            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: ${currencySymbol}${totalAmount.toFixed(2)}`);
         } else {
             const newInvoice: Invoice = {
                 id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
@@ -181,11 +212,13 @@ export default function InvoicesPage() {
                 status: data.status,
                 date: format(data.date, 'yyyy-MM-dd'),
                 items: newInvoiceItems,
-                amount: newAmount,
+                amount: totalAmount,
+                discount: data.discount,
+                taxRate: data.taxRate,
             };
             setInvoices([newInvoice, ...invoices]);
             toast({ title: "Invoice Created" });
-            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for ${currencySymbol}${newAmount.toFixed(2)}`);
+            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for ${currencySymbol}${totalAmount.toFixed(2)}`);
         }
         setIsFormOpen(false);
         setInvoiceToEdit(null);
@@ -280,13 +313,13 @@ export default function InvoicesPage() {
             </main>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent className="sm:max-w-2xl">
+                <DialogContent className="sm:max-w-4xl">
                     <DialogHeader>
                         <DialogTitle>{invoiceToEdit ? 'Edit Invoice' : 'Create Invoice'}</DialogTitle>
                         <DialogDescription>{invoiceToEdit ? 'Update details.' : 'Fill out the form to create a new invoice.'}</DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[80vh] overflow-y-auto px-2">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField control={form.control} name="customerId" render={({ field }) => (
                                     <FormItem><FormLabel>Customer</FormLabel>
@@ -296,7 +329,7 @@ export default function InvoicesPage() {
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="date" render={({ field }) => (
-                                    <FormItem><FormLabel>Date</FormLabel><FormControl><DatePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="flex flex-col"><FormLabel>Date</FormLabel><FormControl><DatePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                  <FormField control={form.control} name="status" render={({ field }) => (
                                     <FormItem><FormLabel>Status</FormLabel>
@@ -313,11 +346,19 @@ export default function InvoicesPage() {
                                 {fields.map((field, index) => (
                                     <div key={field.id} className="flex flex-wrap items-end gap-2">
                                         <FormField control={form.control} name={`items.${index}.productId`} render={({ field }) => (
-                                            <FormItem className="flex-1 min-w-[150px]"><FormControl>
-                                                <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Select product" /></SelectTrigger>
-                                                    <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-                                                </Select>
-                                            </FormControl><FormMessage /></FormItem>
+                                            <FormItem className="flex-1 min-w-[200px]">
+                                                <FormControl>
+                                                    <Combobox
+                                                        options={productOptions}
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                        placeholder="Select a product..."
+                                                        searchPlaceholder="Search products..."
+                                                        emptyText="No products found."
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
                                         )} />
                                         <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
                                             <FormItem className="w-24"><FormControl><Input type="number" placeholder="Qty" {...field} /></FormControl><FormMessage /></FormItem>
@@ -325,25 +366,51 @@ export default function InvoicesPage() {
                                         <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4" /></Button>
                                     </div>
                                 ))}
-                                <Button type="button" variant="outline" size="sm" onClick={() => append({ productId: '', quantity: 1 })}>
-                                    <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                                </Button>
+                                <div className="flex gap-2">
+                                    <Button type="button" variant="outline" size="sm" onClick={() => append({ productId: '', quantity: 1 })}>
+                                        <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                                    </Button>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => setIsScannerOpen(true)}>
+                                        <ScanLine className="mr-2 h-4 w-4" /> Scan Product
+                                    </Button>
+                                </div>
                                 </div>
                                  <FormMessage>{form.formState.errors.items?.message}</FormMessage>
                             </div>
                             
-                            <div className="flex justify-end pt-4">
-                                <div className="text-right">
-                                    <p className="text-muted-foreground">Total Amount</p>
-                                    <p className="text-2xl font-bold">{currencySymbol}{totalAmount.toFixed(2)}</p>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="discount" render={({ field }) => (
+                                    <FormItem><FormLabel>Discount (%)</FormLabel><FormControl><Input type="number" step="0.1" placeholder="e.g. 5" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="taxRate" render={({ field }) => (
+                                    <FormItem><FormLabel>Tax Rate (%)</FormLabel><FormControl><Input type="number" step="0.1" placeholder="e.g. 8.5" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
                             </div>
+
+                            <Card className="p-4 bg-muted/50">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{currencySymbol}{subtotal.toFixed(2)}</span></div>
+                                    <div className="flex justify-between"><span className="text-muted-foreground">Discount ({watchedDiscount}%)</span><span className="text-destructive">-{currencySymbol}{discountAmount.toFixed(2)}</span></div>
+                                    <div className="flex justify-between"><span className="text-muted-foreground">Tax ({watchedTaxRate}%)</span><span>+{currencySymbol}{taxAmount.toFixed(2)}</span></div>
+                                    <div className="flex justify-between font-bold text-lg"><span >Total Amount</span><span>{currencySymbol}{totalAmount.toFixed(2)}</span></div>
+                                </div>
+                            </Card>
 
                             <DialogFooter>
                                 <Button type="submit">{invoiceToEdit ? 'Save Changes' : 'Create Invoice'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
+                </DialogContent>
+            </Dialog>
+
+             <Dialog open={isScannerOpen} onOpenChange={setIsScannerOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Scan Barcode</DialogTitle>
+                        <DialogDescription>Point your camera at a product barcode.</DialogDescription>
+                    </DialogHeader>
+                    <BarcodeScanner onScan={handleScanSuccess} onClose={() => setIsScannerOpen(false)} />
                 </DialogContent>
             </Dialog>
 

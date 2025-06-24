@@ -62,6 +62,8 @@ export type Invoice = {
   amount: number;
   status: 'paid' | 'pending' | 'overdue' | 'refunded' | 'partially-refunded';
   date: string;
+  discount?: number;
+  taxRate?: number;
 };
 
 export type RefundItem = {

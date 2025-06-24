@@ -6,23 +6,63 @@ import { DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import type { Invoice } from '@/types';
-import { Printer, Store as StoreIcon } from 'lucide-react';
+import { Printer, Store as StoreIcon, Mail } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface FullInvoiceProps {
     invoice: Invoice;
 }
 
 const FullInvoice = ({ invoice }: FullInvoiceProps) => {
-    const { currentStore, currencySymbol } = useAppContext();
+    const { currentStore, currencySymbol, customers } = useAppContext();
+    const { toast } = useToast();
+    
     const handlePrint = () => {
         window.print();
     };
 
     const subtotal = invoice.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    // Assuming 0 tax for now as in receipt
-    const tax = 0;
-    const total = subtotal + tax;
+    const discountAmount = subtotal * ((invoice.discount || 0) / 100);
+    const taxAmount = (subtotal - discountAmount) * ((invoice.taxRate || 0) / 100);
+
+    const generateTextReceipt = () => {
+      let receipt = `INVOICE from ${currentStore?.name}\n`;
+      receipt += `Invoice ID: ${invoice.id}\n`;
+      receipt += `Date: ${new Date(invoice.date).toLocaleDateString()}\n\n`;
+      receipt += `Items:\n`;
+      invoice.items.forEach(item => {
+        receipt += `- ${item.productName} (x${item.quantity}) @ ${currencySymbol}${item.price.toFixed(2)}\n`;
+      });
+      receipt += `\nSubtotal: ${currencySymbol}${subtotal.toFixed(2)}\n`;
+      if (invoice.discount) {
+        receipt += `Discount (${invoice.discount}%): -${currencySymbol}${discountAmount.toFixed(2)}\n`;
+      }
+      if (invoice.taxRate) {
+        receipt += `Tax (${invoice.taxRate}%): +${currencySymbol}${taxAmount.toFixed(2)}\n`;
+      }
+      receipt += `TOTAL: ${currencySymbol}${invoice.amount.toFixed(2)}\n\n`;
+      receipt += `Thank you for your business!`;
+      return receipt;
+    }
+
+    const handleEmailReceipt = () => {
+      const customer = customers.find(c => c.id === invoice.customerId);
+      if (!customer?.email) {
+          toast({
+              variant: 'destructive',
+              title: 'Cannot Email Receipt',
+              description: "No email address is associated with this customer.",
+          });
+          return;
+      }
+
+      const subject = `Your Invoice from ${currentStore?.name} (#${invoice.id})`;
+      const body = generateTextReceipt();
+
+      window.location.href = `mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
 
     return (
         <DialogContent className="sm:max-w-4xl p-0">
@@ -45,7 +85,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <div>
                         <h3 className="font-semibold mb-1">Bill To:</h3>
                         <p>{invoice.customerName || 'Walk-in Customer'}</p>
-                        {invoice.customerId && <p className="text-muted-foreground">{invoice.customerId}</p>}
+                        {invoice.customerId && <p className="text-muted-foreground">{customers.find(c=>c.id === invoice.customerId)?.email}</p>}
                     </div>
                     <div className="text-right">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -89,13 +129,17 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                             <span className="font-medium">{currencySymbol}{subtotal.toFixed(2)}</span>
                         </div>
                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Tax (0%):</span>
-                            <span className="font-medium">{currencySymbol}{tax.toFixed(2)}</span>
+                            <span className="text-muted-foreground">Discount ({invoice.discount || 0}%):</span>
+                            <span className="font-medium text-destructive">-{currencySymbol}{discountAmount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Tax ({invoice.taxRate || 0}%):</span>
+                            <span className="font-medium">{currencySymbol}{taxAmount.toFixed(2)}</span>
                         </div>
                         <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total:</span>
-                            <span>{currencySymbol}{total.toFixed(2)}</span>
+                            <span>{currencySymbol}{invoice.amount.toFixed(2)}</span>
                         </div>
                     </div>
                 </section>
@@ -104,7 +148,11 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <p>Thank you for your business!</p>
                 </footer>
             </div>
-            <DialogFooter className="non-printable p-4 border-t">
+            <DialogFooter className="non-printable p-4 border-t flex flex-col sm:flex-row gap-2">
+                 <Button onClick={handleEmailReceipt} variant="outline" className="w-full">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Email Invoice
+                </Button>
                 <Button onClick={handlePrint} variant="outline" className="w-full">
                     <Printer className="mr-2 h-4 w-4" />
                     Print Invoice

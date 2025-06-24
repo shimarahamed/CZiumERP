@@ -16,7 +16,6 @@ const links = [
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
   { href: '/vendors', label: 'Vendors', icon: Building2 },
-  { href: '/scanner', label: 'Barcode Scanner', icon: ScanLine },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
   { href: '/activity', label: 'Activity Logs', icon: History },
@@ -24,10 +23,10 @@ const links = [
 ];
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
-    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Barcode Scanner', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
-    cashier: ['Dashboard', 'Customers', 'Invoices', 'Barcode Scanner', 'Payments', 'Returns', 'AI Upselling'],
-    'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Barcode Scanner', 'Reports'],
+    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
+    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
+    cashier: ['Dashboard', 'Customers', 'Invoices', 'Payments', 'Returns', 'AI Upselling'],
+    'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
 };
 
 

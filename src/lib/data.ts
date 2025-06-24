@@ -45,9 +45,11 @@ export const initialInvoices: Invoice[] = [
     items: [
       { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }
     ],
-    amount: 499.99, 
+    amount: 524.99, 
     status: 'paid', 
-    date: '2023-10-25' 
+    date: '2023-10-25',
+    discount: 0,
+    taxRate: 5,
   },
   { 
     id: 'INV-002', 
@@ -58,9 +60,11 @@ export const initialInvoices: Invoice[] = [
       { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 2, price: 22.00, cost: 12.00 },
       { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00, cost: 20.00 }
     ],
-    amount: 84.00, 
+    amount: 79.80,
     status: 'pending', 
-    date: '2023-10-26' 
+    date: '2023-10-26',
+    discount: 5,
+    taxRate: 0,
   },
   { 
     id: 'INV-003', 
