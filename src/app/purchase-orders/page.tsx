@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { MoreHorizontal, PlusCircle, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -72,7 +72,9 @@ export default function PurchaseOrdersPage() {
         control: form.control,
         name: "items"
     });
-
+    
+    const watchedVendorId = useWatch({ control: form.control, name: 'vendorId' });
+    const watchedOrderDate = useWatch({ control: form.control, name: 'orderDate' });
     const watchedItems = useWatch({ control: form.control, name: 'items' });
     const totalCost = watchedItems.reduce((acc, item) => {
         return acc + (item.cost * item.quantity);
@@ -99,6 +101,16 @@ export default function PurchaseOrdersPage() {
             });
         }
     }, [poToEdit, isFormOpen, form]);
+
+    useEffect(() => {
+        if (watchedVendorId && watchedOrderDate && !poToEdit) { // Only auto-set for new POs
+            const vendor = vendors.find(v => v.id === watchedVendorId);
+            if (vendor?.leadTimeDays) {
+                const newExpectedDate = addDays(new Date(watchedOrderDate), vendor.leadTimeDays);
+                form.setValue('expectedDeliveryDate', newExpectedDate);
+            }
+        }
+    }, [watchedVendorId, watchedOrderDate, vendors, form, poToEdit]);
 
 
     const handleOpenForm = (po: PurchaseOrder | null = null) => {

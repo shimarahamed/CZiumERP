@@ -33,6 +33,7 @@ export type Vendor = {
   contactPerson: string;
   email: string;
   phone: string;
+  leadTimeDays?: number;
 };
 
 export type Product = {

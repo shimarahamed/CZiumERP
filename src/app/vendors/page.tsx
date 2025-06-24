@@ -23,6 +23,7 @@ const vendorSchema = z.object({
   contactPerson: z.string().min(1, "Contact person is required."),
   email: z.string().email("Invalid email address."),
   phone: z.string().min(1, "Phone number is required."),
+  leadTimeDays: z.coerce.number().int().min(0, "Lead time must be a non-negative number.").optional(),
 });
 
 type VendorFormData = z.infer<typeof vendorSchema>;
@@ -36,6 +37,13 @@ export default function VendorsPage() {
 
     const form = useForm<VendorFormData>({
         resolver: zodResolver(vendorSchema),
+        defaultValues: {
+            name: '',
+            contactPerson: '',
+            email: '',
+            phone: '',
+            leadTimeDays: 0,
+        }
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
@@ -43,9 +51,12 @@ export default function VendorsPage() {
     const handleOpenForm = (vendor: Vendor | null = null) => {
         setVendorToEdit(vendor);
         if (vendor) {
-            form.reset(vendor);
+            form.reset({
+                ...vendor,
+                leadTimeDays: vendor.leadTimeDays ?? 0,
+            });
         } else {
-            form.reset({ name: '', contactPerson: '', email: '', phone: '' });
+            form.reset({ name: '', contactPerson: '', email: '', phone: '', leadTimeDays: 0 });
         }
         setIsFormOpen(true);
     };
@@ -103,7 +114,7 @@ export default function VendorsPage() {
                                     <TableHead>Vendor</TableHead>
                                     <TableHead>Contact Person</TableHead>
                                     <TableHead className="hidden md:table-cell">Email</TableHead>
-                                    <TableHead className="hidden md:table-cell">Phone</TableHead>
+                                    <TableHead className="hidden md:table-cell">Lead Time</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -116,7 +127,7 @@ export default function VendorsPage() {
                                             <div className="text-sm text-muted-foreground md:hidden truncate">{vendor.email}</div>
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell">{vendor.email}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{vendor.phone}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{vendor.leadTimeDays ? `${vendor.leadTimeDays} days` : 'N/A'}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -159,9 +170,14 @@ export default function VendorsPage() {
                             <FormField control={form.control} name="email" render={({ field }) => (
                                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                            <FormField control={form.control} name="phone" render={({ field }) => (
-                                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
-                            )} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="phone" render={({ field }) => (
+                                    <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                 <FormField control={form.control} name="leadTimeDays" render={({ field }) => (
+                                    <FormItem><FormLabel>Lead Time (days)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
                             <DialogFooter>
                                 <Button type="submit">{vendorToEdit ? 'Save Changes' : 'Add Vendor'}</Button>
                             </DialogFooter>
