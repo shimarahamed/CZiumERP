@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,7 +30,7 @@ const vendorSchema = z.object({
 type VendorFormData = z.infer<typeof vendorSchema>;
 
 export default function VendorsPage() {
-    const { vendors, setVendors, addActivityLog, user } = useAppContext();
+    const { vendors, setVendors, addActivityLog, user, purchaseOrders, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [vendorToEdit, setVendorToEdit] = useState<Vendor | null>(null);
@@ -47,6 +48,19 @@ export default function VendorsPage() {
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const vendorStats = useMemo(() => {
+        const stats = new Map<string, { totalOrders: number; totalSpent: number }>();
+        purchaseOrders.forEach(po => {
+            if (!stats.has(po.vendorId)) {
+                stats.set(po.vendorId, { totalOrders: 0, totalSpent: 0 });
+            }
+            const currentStats = stats.get(po.vendorId)!;
+            currentStats.totalOrders += 1;
+            currentStats.totalSpent += po.totalCost;
+        });
+        return stats;
+    }, [purchaseOrders]);
 
     const handleOpenForm = (vendor: Vendor | null = null) => {
         setVendorToEdit(vendor);
@@ -97,7 +111,7 @@ export default function VendorsPage() {
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Vendor Management</CardTitle>
-                                <CardDescription>Manage your product suppliers and vendors.</CardDescription>
+                                <CardDescription>Manage your product suppliers and view their order history.</CardDescription>
                             </div>
                             {canManage && (
                                 <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
@@ -113,38 +127,43 @@ export default function VendorsPage() {
                                 <TableRow>
                                     <TableHead>Vendor</TableHead>
                                     <TableHead>Contact Person</TableHead>
-                                    <TableHead className="hidden md:table-cell">Email</TableHead>
-                                    <TableHead className="hidden md:table-cell">Lead Time</TableHead>
+                                    <TableHead className="hidden md:table-cell text-right">Total Orders</TableHead>
+                                    <TableHead className="hidden md:table-cell text-right">Total Spent</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {vendors.map(vendor => (
-                                    <TableRow key={vendor.id}>
-                                        <TableCell className="font-medium truncate">{vendor.name}</TableCell>
-                                        <TableCell>
-                                            <div className="truncate">{vendor.contactPerson}</div>
-                                            <div className="text-sm text-muted-foreground md:hidden truncate">{vendor.email}</div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell">{vendor.email}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{vendor.leadTimeDays ? `${vendor.leadTimeDays} days` : 'N/A'}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(vendor)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => setVendorToDelete(vendor)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {vendors.map(vendor => {
+                                    const stats = vendorStats.get(vendor.id) || { totalOrders: 0, totalSpent: 0 };
+                                    return (
+                                        <TableRow key={vendor.id}>
+                                            <TableCell className="font-medium truncate">{vendor.name}</TableCell>
+                                            <TableCell>
+                                                <div className="truncate">{vendor.contactPerson}</div>
+                                                <div className="text-sm text-muted-foreground md:hidden">
+                                                    {stats.totalOrders} POs ({currencySymbol} {stats.totalSpent.toFixed(2)})
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell text-right">{stats.totalOrders}</TableCell>
+                                            <TableCell className="hidden md:table-cell text-right">{currencySymbol} {stats.totalSpent.toFixed(2)}</TableCell>
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleOpenForm(vendor)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive" onClick={() => setVendorToDelete(vendor)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
                             </TableBody>
                         </Table>
                     </CardContent>
