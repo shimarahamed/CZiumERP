@@ -81,8 +81,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
-  const [currency, setCurrency] = useState<Currency>('USD');
-  const [currencySymbol, setCurrencySymbol] = useState<string>('$');
+  const [currency, setCurrency] = useState<Currency>('AED');
+  const [currencySymbol, setCurrencySymbol] = useState<string>('AED');
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -105,7 +105,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if(storedStoreId){
         setCurrentStore(loadedStores.find(s => s.id === storedStoreId) || null);
     }
-    setCurrency(getStoredState('currency', 'USD'));
+    setCurrency(getStoredState('currency', 'AED'));
     
     setIsHydrated(true);
   }, []);
