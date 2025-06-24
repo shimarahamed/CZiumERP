@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState } from 'react';
@@ -83,7 +84,7 @@ export default function InventoryPage() {
           ...data,
           vendorId: data.vendorId === 'none' ? undefined : data.vendorId,
           expiryDate: data.expiryDate ? data.expiryDate.toISOString() : undefined,
-          reorderThreshold: data.reorderThreshold || undefined,
+          reorderThreshold: data.reorderThreshold,
         };
 
         if (productToEdit) {
