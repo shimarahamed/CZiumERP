@@ -19,6 +19,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Store as StoreType } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const storeSchema = z.object({
   name: z.string().min(1, "Store name is required."),
@@ -68,7 +69,7 @@ export default function StoresPage() {
 
     const handleSelectStore = (storeId: string) => {
         const store = stores.find(s => s.id === storeId);
-        if (store) {
+        if (store && store.id !== currentStore?.id) {
             selectStore(storeId);
             toast({
                 title: "Store Switched",
@@ -99,25 +100,23 @@ export default function StoresPage() {
         setStoreToEdit(null);
     };
     
-    const handleDelete = () => {
+    const handleDeleteClick = (e: React.MouseEvent, store: StoreType) => {
+        e.stopPropagation();
+        setStoreToDelete(store);
+    };
+    
+    const confirmDelete = () => {
         if (!storeToDelete) return;
-
-        if (storeToDelete.id === currentStore?.id) {
-            toast({ variant: 'destructive', title: "Action Forbidden", description: "You cannot delete the currently active store session. Please switch stores first." });
-            setStoreToDelete(null);
-            return;
-        }
-
-        if (stores.length <= 1) {
-            toast({ variant: 'destructive', title: "Action Forbidden", description: "You cannot delete the last remaining store." });
-            setStoreToDelete(null);
-            return;
-        }
 
         addActivityLog('Store Deleted', `Deleted store: ${storeToDelete.name} (ID: ${storeToDelete.id})`);
         setStores(stores.filter(s => s.id !== storeToDelete.id));
         toast({ title: "Store Deleted", description: `${storeToDelete.name} has been deleted.` });
         setStoreToDelete(null);
+    };
+
+    const handleEditClick = (e: React.MouseEvent, store: StoreType) => {
+        e.stopPropagation();
+        handleOpenForm(store);
     };
 
     return (
@@ -129,7 +128,7 @@ export default function StoresPage() {
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Stores</CardTitle>
-                                <CardDescription>Manage your business locations and set your active store.</CardDescription>
+                                <CardDescription>Select a store to manage its session, or use the actions to edit/delete.</CardDescription>
                             </div>
                             <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" />
@@ -144,12 +143,18 @@ export default function StoresPage() {
                                     <TableHead>Store Name</TableHead>
                                     <TableHead>Address</TableHead>
                                     <TableHead>Session Status</TableHead>
-                                    <TableHead><span className="sr-only">Actions</span></TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {stores.map(store => (
-                                    <TableRow key={store.id} className={store.id === currentStore?.id ? 'bg-muted' : ''}>
+                                    <TableRow 
+                                        key={store.id}
+                                        onClick={() => handleSelectStore(store.id)}
+                                        className={cn(
+                                            store.id === currentStore?.id ? 'bg-muted/80' : 'cursor-pointer hover:bg-muted/50'
+                                        )}
+                                    >
                                         <TableCell className="font-medium flex items-center gap-2">
                                             <Store className="h-4 w-4 text-muted-foreground"/>
                                             <span>{store.name}</span>
@@ -159,23 +164,32 @@ export default function StoresPage() {
                                             {store.id === currentStore?.id ? (
                                                 <Badge variant="default">Active Session</Badge>
                                             ) : (
-                                                <Button variant="outline" size="sm" onClick={() => handleSelectStore(store.id)}>
-                                                    Switch to Store
-                                                </Button>
+                                                <Badge variant="outline">Inactive</Badge>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                    <Button 
+                                                        aria-haspopup="true" 
+                                                        size="icon" 
+                                                        variant="ghost"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
                                                         <MoreHorizontal className="h-4 w-4" />
                                                         <span className="sr-only">Toggle menu</span>
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
+                                                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(store)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => setStoreToDelete(store)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={(e) => handleEditClick(e, store)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem 
+                                                        className="text-destructive" 
+                                                        onClick={(e) => handleDeleteClick(e, store)}
+                                                        disabled={store.id === currentStore?.id || stores.length <= 1}
+                                                    >
+                                                        Delete
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -219,7 +233,7 @@ export default function StoresPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
