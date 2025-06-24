@@ -73,7 +73,7 @@ export default function InvoicesPage() {
             customerId: 'none',
             status: 'pending',
             date: new Date(),
-            items: [],
+            items: [{ productId: '', quantity: 1 }],
             discount: 0,
             taxRate: 0,
         },
@@ -128,7 +128,7 @@ export default function InvoicesPage() {
                 customerId: 'none',
                 status: 'pending',
                 date: new Date(),
-                items: [],
+                items: [{ productId: '', quantity: 1 }],
                 discount: 0,
                 taxRate: 0,
             });
