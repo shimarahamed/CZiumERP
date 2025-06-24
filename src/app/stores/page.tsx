@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Store as StoreType } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 
 const storeSchema = z.object({
   name: z.string().min(1, "Store name is required."),
@@ -27,7 +28,7 @@ const storeSchema = z.object({
 type StoreFormData = z.infer<typeof storeSchema>;
 
 export default function StoresPage() {
-    const { stores, setStores, addActivityLog, user: currentUser, currentStore } = useAppContext();
+    const { stores, setStores, addActivityLog, user: currentUser, currentStore, selectStore } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [storeToEdit, setStoreToEdit] = useState<StoreType | null>(null);
@@ -63,6 +64,20 @@ export default function StoresPage() {
             form.reset({ name: '', address: '' });
         }
         setIsFormOpen(true);
+    };
+
+    const handleSelectStore = (storeId: string) => {
+        const store = stores.find(s => s.id === storeId);
+        if (store) {
+            selectStore(storeId);
+            toast({
+                title: "Store Switched",
+                description: `You are now managing ${store.name}. The page will now refresh.`,
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
     };
 
     const onSubmit = (data: StoreFormData) => {
@@ -114,7 +129,7 @@ export default function StoresPage() {
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Stores</CardTitle>
-                                <CardDescription>Manage your business locations.</CardDescription>
+                                <CardDescription>Manage your business locations and set your active store.</CardDescription>
                             </div>
                             <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" />
@@ -128,18 +143,28 @@ export default function StoresPage() {
                                 <TableRow>
                                     <TableHead>Store Name</TableHead>
                                     <TableHead>Address</TableHead>
+                                    <TableHead>Session Status</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {stores.map(store => (
-                                    <TableRow key={store.id}>
+                                    <TableRow key={store.id} className={store.id === currentStore?.id ? 'bg-muted' : ''}>
                                         <TableCell className="font-medium flex items-center gap-2">
                                             <Store className="h-4 w-4 text-muted-foreground"/>
                                             <span>{store.name}</span>
                                         </TableCell>
                                         <TableCell>{store.address}</TableCell>
                                         <TableCell>
+                                            {store.id === currentStore?.id ? (
+                                                <Badge variant="default">Active Session</Badge>
+                                            ) : (
+                                                <Button variant="outline" size="sm" onClick={() => handleSelectStore(store.id)}>
+                                                    Switch to Store
+                                                </Button>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button aria-haspopup="true" size="icon" variant="ghost">
