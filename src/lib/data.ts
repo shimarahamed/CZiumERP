@@ -28,6 +28,9 @@ export const initialProducts: Product[] = [
   { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.', reorderThreshold: 15, vendorId: 'vend-2' },
   { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.', reorderThreshold: 20, vendorId: 'vend-2' },
   { id: 'prod-6', name: 'Almond Milk (1L)', price: 4.50, cost: 2.50, stock: 50, sku: 'AM-1L', category: 'Consumables', description: 'Unsweetened almond milk.', reorderThreshold: 20, expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(), vendorId: 'vend-1' },
+  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), vendorId: 'vend-1' },
+  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 15, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), vendorId: 'vend-1' },
+  { id: 'prod-9', name: 'Cleaning Tablets', price: 15.00, cost: 8.00, stock: 8, sku: 'CL-TAB', category: 'Maintenance', description: 'Tablets for cleaning espresso machines.', reorderThreshold: 15, vendorId: 'vend-2' },
 ];
 
 export const initialVendors: Vendor[] = [
