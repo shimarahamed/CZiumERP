@@ -87,7 +87,7 @@ export default function Nav() {
 
         return (
           <div key={category.label} className="space-y-1">
-             <h4 className="px-2 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">{category.label}</h4>
+             <h4 className="px-2 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider group-data-[collapsible=icon]:hidden">{category.label}</h4>
             {visibleLinks.map((link) => (
               <SidebarMenuItem key={link.href}>
                 <SidebarMenuButton
