@@ -42,6 +42,8 @@ export const initialInvoices: Invoice[] = [
     storeId: 'store-1',
     customerId: '1', 
     customerName: 'John Doe', 
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
     items: [
       { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }
     ],
@@ -56,6 +58,8 @@ export const initialInvoices: Invoice[] = [
     storeId: 'store-2',
     customerId: '2', 
     customerName: 'Jane Smith', 
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
     items: [
       { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 2, price: 22.00, cost: 12.00 },
       { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00, cost: 20.00 }
@@ -71,6 +75,8 @@ export const initialInvoices: Invoice[] = [
     storeId: 'store-1',
     customerId: '3', 
     customerName: 'Sam Wilson', 
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
     items: [
       { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 1, price: 129.50, cost: 80.00 }
     ],
@@ -83,6 +89,8 @@ export const initialInvoices: Invoice[] = [
     storeId: 'store-2',
     customerId: '1', 
     customerName: 'John Doe', 
+    userId: 'user-2',
+    userName: 'Manager Mike',
     items: [
       { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
       { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00, cost: 12.00 }
@@ -96,6 +104,8 @@ export const initialInvoices: Invoice[] = [
     storeId: 'store-1',
     customerName: 'Alice Johnson', 
     customerId: '4', 
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
     items: [
       { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 2, price: 40.00, cost: 20.00 }
     ],
@@ -106,6 +116,8 @@ export const initialInvoices: Invoice[] = [
   { 
     id: 'INV-006',
     storeId: 'store-3',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
     items: [
       { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00, cost: 12.00 }
     ],

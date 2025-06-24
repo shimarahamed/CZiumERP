@@ -56,7 +56,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol } = useAppContext();
+    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol, user } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
@@ -223,6 +223,8 @@ export default function InvoicesPage() {
                 ...inv,
                 customerId: data.customerId === 'none' ? undefined : data.customerId,
                 customerName: data.customerId === 'none' ? undefined : customer?.name,
+                userId: user?.id,
+                userName: user?.name,
                 status: data.status,
                 date: format(data.date, 'yyyy-MM-dd'),
                 items: newInvoiceItems,
@@ -238,6 +240,8 @@ export default function InvoicesPage() {
                 storeId: currentStore?.id,
                 customerId: data.customerId === 'none' ? undefined : data.customerId,
                 customerName: data.customerId === 'none' ? undefined : customer?.name,
+                userId: user?.id,
+                userName: user?.name,
                 status: data.status,
                 date: format(data.date, 'yyyy-MM-dd'),
                 items: newInvoiceItems,

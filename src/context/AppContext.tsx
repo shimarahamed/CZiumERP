@@ -7,6 +7,9 @@ import { initialInvoices, customers as initialCustomers, initialProducts, initia
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
+  if (typeof window === 'undefined') {
+    return defaultValue;
+  }
   const storedValue = localStorage.getItem(key);
   if (storedValue && storedValue !== "undefined") {
     try {
@@ -45,6 +48,8 @@ interface AppContextType {
   selectStore: (storeId: string) => void;
   isAuthenticated: boolean;
   user: User | null;
+  users: User[];
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
   login: (email: string, pass: string) => boolean;
   logout: () => void;
   activityLogs: ActivityLog[];
@@ -65,7 +70,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
-  const [users] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(initialUsers);
   const [stores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
@@ -84,6 +89,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setProducts(getStoredState('products', initialProducts));
     setVendors(getStoredState('vendors', initialVendors));
     setPurchaseOrders(getStoredState('purchaseOrders', initialPurchaseOrders));
+    setUsers(getStoredState('users', initialUsers));
     setActivityLogs(getStoredState('activityLogs', []));
     setIsAuthenticated(getStoredState('isAuthenticated', false));
     setUser(getStoredState('user', null));
@@ -102,6 +108,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('products', JSON.stringify(products)); }, [products, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('vendors', JSON.stringify(vendors)); }, [vendors, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders)); }, [purchaseOrders, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(users)); }, [users, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -179,6 +186,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('currentStoreId');
     localStorage.removeItem('currency');
     localStorage.removeItem('purchaseOrders');
+    localStorage.removeItem('users');
   };
 
 
@@ -192,7 +200,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       stores,
       currentStore,
       selectStore,
-      isAuthenticated, user, login, logout,
+      isAuthenticated, user, users, setUsers, login, logout,
       activityLogs, addActivityLog,
       currency,
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,

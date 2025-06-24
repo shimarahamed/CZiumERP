@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, ScanLine, Building2, History, Settings, Undo2, ShoppingCart } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, Building2, History, Settings, Undo2, ShoppingCart, UserCog } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -18,14 +18,15 @@ const links = [
   { href: '/vendors', label: 'Vendors', icon: Building2 },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
+  { href: '/users', label: 'Users', icon: UserCog },
   { href: '/activity', label: 'Activity Logs', icon: History },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
-    manager: ['Dashboard', 'Customers', 'Invoices', 'Inventory', 'Purchase Orders', 'Vendors', 'Payments', 'Reports', 'Returns', 'Activity Logs', 'AI Upselling', 'Settings'],
-    cashier: ['Dashboard', 'Customers', 'Invoices', 'Payments', 'Returns', 'AI Upselling'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'AI Upselling', 'Users', 'Activity Logs', 'Settings'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
+    cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
 };
 

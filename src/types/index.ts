@@ -62,6 +62,8 @@ export type Invoice = {
   storeId?: string;
   customerId?: string;
   customerName?: string;
+  userId?: string;
+  userName?: string;
   items: InvoiceItem[];
   amount: number;
   status: 'paid' | 'pending' | 'overdue' | 'refunded' | 'partially-refunded';
