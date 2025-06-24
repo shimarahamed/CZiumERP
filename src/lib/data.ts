@@ -14,23 +14,31 @@ export const initialStores: Store[] = [
 ];
 
 export const customers: Customer[] = [
-  { id: '1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', loyaltyPoints: 525, tier: 'Silver' },
-  { id: '2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', loyaltyPoints: 80, tier: 'Bronze' },
-  { id: '3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', loyaltyPoints: 130, tier: 'Bronze' },
-  { id: '4', name: 'Alice Johnson', email: 'alice@example.com', phone: '456-789-0123', avatar: 'https://placehold.co/40x40', loyaltyPoints: 80, tier: 'Bronze' },
-  { id: '5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40', loyaltyPoints: 0, tier: 'Bronze' },
+  { id: 'cust-1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', loyaltyPoints: 525, tier: 'Silver' },
+  { id: 'cust-2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', loyaltyPoints: 80, tier: 'Bronze' },
+  { id: 'cust-3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', loyaltyPoints: 130, tier: 'Bronze' },
+  { id: 'cust-4', name: 'Alice Johnson', email: 'alice@example.com', phone: '456-789-0123', avatar: 'https://placehold.co/40x40', loyaltyPoints: 2150, tier: 'Gold' },
+  { id: 'cust-5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40', loyaltyPoints: 0, tier: 'Bronze' },
+  { id: 'cust-6', name: 'Emily White', email: 'emily@example.com', phone: '678-901-2345', avatar: 'https://placehold.co/40x40', loyaltyPoints: 1200, tier: 'Silver' },
+  { id: 'cust-7', name: 'Michael Green', email: 'michael@example.com', phone: '789-012-3456', avatar: 'https://placehold.co/40x40', loyaltyPoints: 340, tier: 'Bronze' },
+  { id: 'cust-8', name: 'Sarah Black', email: 'sarah@example.com', phone: '890-123-4567', avatar: 'https://placehold.co/40x40', loyaltyPoints: 450, tier: 'Bronze' },
 ];
 
 export const initialProducts: Product[] = [
-  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 5, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.', reorderThreshold: 5, vendorId: 'vend-3' },
+  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 5, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.', reorderThreshold: 5, vendorId: 'vend-3', warrantyDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString() },
   { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, cost: 80.00, stock: 30, sku: 'CG-129', category: 'Appliances', description: 'A conical burr grinder for a consistent grind.', reorderThreshold: 10, vendorId: 'vend-3' },
   { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, cost: 12.00, stock: 25, sku: 'CB-1KG', category: 'Consumables', description: 'Single-origin beans from Ethiopia.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), vendorId: 'vend-1' },
   { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.', reorderThreshold: 15, vendorId: 'vend-2' },
   { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.', reorderThreshold: 20, vendorId: 'vend-2' },
   { id: 'prod-6', name: 'Almond Milk (1L)', price: 4.50, cost: 2.50, stock: 50, sku: 'AM-1L', category: 'Consumables', description: 'Unsweetened almond milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() + 90)).toISOString(), vendorId: 'vend-1' },
-  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(), vendorId: 'vend-1' },
-  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 8, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), vendorId: 'vend-1' },
+  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(), vendorId: 'vend-1' }, // Expired
+  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 8, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString() },
   { id: 'prod-9', name: 'Cleaning Tablets', price: 15.00, cost: 8.00, stock: 80, sku: 'CL-TAB', category: 'Maintenance', description: 'Tablets for cleaning espresso machines.', reorderThreshold: 15 },
+  { id: 'prod-10', name: 'Digital Scale', price: 35.00, cost: 20.00, stock: 0, sku: 'SCL-DGTL', category: 'Accessories', description: 'Precision digital scale for coffee weighing.', reorderThreshold: 10, vendorId: 'vend-2' }, // Out of Stock
+  { id: 'prod-11', name: 'Gooseneck Kettle', price: 89.99, cost: 60.00, stock: 9, sku: 'KT-GNK', category: 'Appliances', description: 'Electric gooseneck kettle for pour-over coffee.', reorderThreshold: 10, vendorId: 'vend-3' }, // Low Stock
+  { id: 'prod-12', name: 'Travel Mug', price: 25.00, cost: 15.00, stock: 100, sku: 'TM-16OZ', category: 'Accessories', description: '16oz insulated travel mug.', reorderThreshold: 30, vendorId: 'vend-2' },
+  { id: 'prod-13', name: 'Barista Apron', price: 30.00, cost: 18.00, stock: 40, sku: 'APRN-BRST', category: 'Apparel', description: 'Canvas barista apron with leather straps.', reorderThreshold: 10, vendorId: 'vend-2' },
+  { id: 'prod-14', name: 'Syrup Variety Pack', price: 18.00, cost: 10.00, stock: 60, sku: 'SYRP-PCK', category: 'Consumables', description: 'Pack of 3 flavored syrups.', reorderThreshold: 25, vendorId: 'vend-1', expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString() },
 ];
 
 export const initialVendors: Vendor[] = [
@@ -43,7 +51,7 @@ export const initialInvoices: Invoice[] = [
   { 
     id: 'INV-001', 
     storeId: 'store-1',
-    customerId: '1', 
+    customerId: 'cust-1', 
     customerName: 'John Doe', 
     userId: 'user-3',
     userName: 'Cashier Chloe',
@@ -59,7 +67,7 @@ export const initialInvoices: Invoice[] = [
   { 
     id: 'INV-002', 
     storeId: 'store-2',
-    customerId: '2', 
+    customerId: 'cust-2', 
     customerName: 'Jane Smith', 
     userId: 'user-3',
     userName: 'Cashier Chloe',
@@ -76,7 +84,7 @@ export const initialInvoices: Invoice[] = [
   { 
     id: 'INV-003', 
     storeId: 'store-1',
-    customerId: '3', 
+    customerId: 'cust-3', 
     customerName: 'Sam Wilson', 
     userId: 'user-3',
     userName: 'Cashier Chloe',
@@ -90,7 +98,7 @@ export const initialInvoices: Invoice[] = [
   { 
     id: 'INV-004', 
     storeId: 'store-2',
-    customerId: '1', 
+    customerId: 'cust-1', 
     customerName: 'John Doe', 
     userId: 'user-2',
     userName: 'Manager Mike',
@@ -106,15 +114,17 @@ export const initialInvoices: Invoice[] = [
     id: 'INV-005', 
     storeId: 'store-1',
     customerName: 'Alice Johnson', 
-    customerId: '4', 
+    customerId: 'cust-4', 
     userId: 'user-3',
     userName: 'Cashier Chloe',
     items: [
       { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 2, price: 40.00, cost: 20.00 }
     ],
-    amount: 80.00, 
+    amount: 72.00, 
     status: 'pending', 
-    date: '2023-10-28' 
+    date: '2023-10-28',
+    discount: 10,
+    taxRate: 0
   },
   { 
     id: 'INV-006',
@@ -125,8 +135,116 @@ export const initialInvoices: Invoice[] = [
       { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00, cost: 12.00 }
     ],
     amount: 22.00, 
-    status: 'pending', 
+    status: 'paid', 
     date: '2023-10-29' 
+  },
+  {
+    id: 'INV-007',
+    storeId: 'store-1',
+    customerId: 'cust-6',
+    customerName: 'Emily White',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    // Original sale was 1 grinder. Now 0 remain after full refund.
+    items: [
+      { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 0, price: 129.50, cost: 80.00 }
+    ],
+    amount: 123.03,
+    status: 'refunded',
+    date: '2023-11-01',
+    discount: 5,
+    taxRate: 0,
+  },
+  {
+    id: 'INV-008',
+    storeId: 'store-2',
+    customerId: 'cust-7',
+    customerName: 'Michael Green',
+    userId: 'user-2',
+    userName: 'Manager Mike',
+    // Original sale was 2 travel mugs. 1 was refunded. 1 remains.
+    items: [
+      { productId: 'prod-12', productName: 'Travel Mug', quantity: 1, price: 25.00, cost: 15.00 }
+    ],
+    amount: 52.50,
+    status: 'partially-refunded',
+    date: '2023-11-02',
+    discount: 0,
+    taxRate: 5,
+  },
+   {
+    id: 'INV-009',
+    storeId: 'store-3',
+    customerId: 'cust-8',
+    customerName: 'Sarah Black',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-13', productName: 'Barista Apron', quantity: 1, price: 30.00, cost: 18.00 },
+      { productId: 'prod-14', productName: 'Syrup Variety Pack', quantity: 1, price: 18.00, cost: 10.00 }
+    ],
+    amount: 48.00,
+    status: 'paid',
+    date: '2023-11-05'
+  },
+  {
+    id: 'INV-010',
+    storeId: 'store-1',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-8', productName: 'Assorted Pastries', quantity: 3, price: 3.50, cost: 1.50 }
+    ],
+    amount: 10.50,
+    status: 'paid',
+    date: '2023-11-08'
+  },
+  {
+    id: 'INV-011',
+    storeId: 'store-2',
+    customerId: 'cust-4',
+    customerName: 'Alice Johnson',
+    userId: 'user-2',
+    userName: 'Manager Mike',
+    items: [
+      { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 },
+      { productId: 'prod-9', productName: 'Cleaning Tablets', quantity: 2, price: 15.00, cost: 8.00 }
+    ],
+    amount: 476.99,
+    status: 'paid',
+    date: '2023-11-10',
+    discount: 10, // Gold tier discount
+    taxRate: 0,
+  },
+   {
+    id: 'INV-012',
+    storeId: 'store-3',
+    customerId: 'cust-5',
+    customerName: 'Bob Brown',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-6', productName: 'Almond Milk (1L)', quantity: 2, price: 4.50, cost: 2.50 }
+    ],
+    amount: 9.00,
+    status: 'pending',
+    date: '2023-11-11'
+  },
+  {
+    id: 'INV-013',
+    storeId: 'store-1',
+    customerId: 'cust-1',
+    customerName: 'John Doe',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-7', productName: 'Oat Milk (1L)', quantity: 4, price: 4.75, cost: 2.75 }
+    ],
+    amount: 18.05,
+    status: 'overdue',
+    date: '2023-10-01',
+    discount: 5,
+    taxRate: 0
   },
 ];
 
@@ -158,6 +276,44 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
         orderDate: '2023-10-15',
         expectedDeliveryDate: '2023-10-25',
         receivedDate: '2023-10-24',
+    },
+    {
+        id: 'PO-003',
+        vendorId: 'vend-2',
+        vendorName: 'Cup Supplies Inc.',
+        storeId: 'store-1',
+        items: [
+            { productId: 'prod-10', productName: 'Digital Scale', quantity: 15, cost: 20.00 },
+            { productId: 'prod-12', productName: 'Travel Mug', quantity: 50, cost: 15.00 },
+        ],
+        totalCost: (15 * 20.00) + (50 * 15.00),
+        status: 'pending-approval',
+        orderDate: '2023-11-01',
+        expectedDeliveryDate: '2023-11-06',
+    },
+    {
+        id: 'PO-004',
+        vendorId: 'vend-3',
+        vendorName: 'Machinery Masters',
+        storeId: 'store-1',
+        items: [
+            { productId: 'prod-11', productName: 'Gooseneck Kettle', quantity: 10, cost: 60.00 },
+        ],
+        totalCost: 600.00,
+        status: 'pending',
+        orderDate: '2023-11-05',
+    },
+    {
+        id: 'PO-005',
+        vendorId: 'vend-1',
+        vendorName: 'Beans & Co.',
+        storeId: 'store-3',
+        items: [
+            { productId: 'prod-7', productName: 'Oat Milk (1L)', quantity: 20, cost: 2.75 },
+        ],
+        totalCost: 55.00,
+        status: 'cancelled',
+        orderDate: '2023-10-18',
     }
 ];
 
@@ -186,6 +342,18 @@ export const initialRfqs: RFQ[] = [
         creationDate: '2023-11-05',
         userId: 'user-2',
         userName: 'Manager Mike',
+    },
+    {
+        id: 'RFQ-003',
+        storeId: 'store-2',
+        items: [
+          { productId: 'prod-13', productName: 'Barista Apron', quantity: 50 },
+        ],
+        vendorIds: ['vend-2'],
+        status: 'closed',
+        creationDate: '2023-10-15',
+        userId: 'user-4',
+        userName: 'Inventory Ian'
     }
 ];
 
