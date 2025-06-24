@@ -72,15 +72,15 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
              <div className="p-2 bg-primary/20 rounded-lg">
                 <Store className="w-6 h-6 text-primary-foreground" />
              </div>
-             <h1 className="text-xl font-semibold text-sidebar-foreground">CZium POS</h1>
+             <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">CZium POS</h1>
           </SidebarHeader>
           <SidebarContent>
             <Nav />
           </SidebarContent>
           <SidebarFooter className="p-4 space-y-2">
-             <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/10">
+             <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/10 group-data-[collapsible=icon]:justify-center">
                 <LifeBuoy className="w-4 h-4" />
-                <span>Support</span>
+                <span className="group-data-[collapsible=icon]:hidden">Support</span>
              </Button>
              <div className="border-t border-sidebar-border/50 my-2"></div>
              <UserNav />
