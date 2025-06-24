@@ -1,3 +1,4 @@
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -48,6 +49,7 @@ export type Product = {
   vendorId?: string;
   reorderThreshold?: number;
   expiryDate?: string;
+  warrantyDate?: string;
 };
 
 export type InvoiceItem = {

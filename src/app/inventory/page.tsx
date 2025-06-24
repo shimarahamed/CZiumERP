@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
 import { isBefore, differenceInDays, parseISO } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ProductDetail from '@/components/ProductDetail';
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required."),
@@ -35,15 +36,17 @@ const productSchema = z.object({
   vendorId: z.string().optional(),
   reorderThreshold: z.coerce.number().int().min(0, "Reorder threshold must be non-negative.").optional(),
   expiryDate: z.date().optional().nullable(),
+  warrantyDate: z.date().optional().nullable(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
 
 export default function InventoryPage() {
-    const { products, setProducts, addActivityLog, currencySymbol, user, vendors, purchaseOrders } = useAppContext();
+    const { products, setProducts, addActivityLog, currencySymbol, user } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+    const [productToView, setProductToView] = useState<Product | null>(null);
     const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
     const form = useForm<ProductFormData>({
@@ -59,6 +62,7 @@ export default function InventoryPage() {
             vendorId: 'none',
             reorderThreshold: 0,
             expiryDate: null,
+            warrantyDate: null,
         }
     });
     
@@ -70,11 +74,12 @@ export default function InventoryPage() {
             form.reset({
               ...product,
               vendorId: product.vendorId ?? 'none',
-              reorderThreshold: product.reorderThreshold,
+              reorderThreshold: product.reorderThreshold ?? 0,
               expiryDate: product.expiryDate ? new Date(product.expiryDate) : null,
+              warrantyDate: product.warrantyDate ? new Date(product.warrantyDate) : null,
             });
         } else {
-            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: 'none', reorderThreshold: 0, expiryDate: null });
+            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: 'none', reorderThreshold: 0, expiryDate: null, warrantyDate: null });
         }
         setIsFormOpen(true);
     };
@@ -84,6 +89,7 @@ export default function InventoryPage() {
           ...data,
           vendorId: data.vendorId === 'none' ? undefined : data.vendorId,
           expiryDate: data.expiryDate ? data.expiryDate.toISOString() : undefined,
+          warrantyDate: data.warrantyDate ? data.warrantyDate.toISOString() : undefined,
           reorderThreshold: data.reorderThreshold,
         };
 
@@ -134,10 +140,6 @@ export default function InventoryPage() {
         
         return statuses;
     }
-    
-    const productPurchaseHistory = productToEdit ? purchaseOrders.filter(po => 
-        po.status === 'received' && po.items.some(item => item.productId === productToEdit?.id)
-    ) : [];
 
     return (
         <div className="flex flex-col h-full">
@@ -176,7 +178,12 @@ export default function InventoryPage() {
                                     return (
                                         <TableRow key={product.id}>
                                             <TableCell className="font-medium">
-                                                <div>{product.name}</div>
+                                                <div 
+                                                    className="cursor-pointer hover:underline"
+                                                    onClick={() => setProductToView(product)}
+                                                >
+                                                    {product.name}
+                                                </div>
                                                 <div className="text-sm text-muted-foreground md:hidden">
                                                     {currencySymbol} {product.price.toFixed(2)}
                                                 </div>
@@ -205,6 +212,7 @@ export default function InventoryPage() {
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => setProductToView(product)}>View Details</DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleOpenForm(product)}>Edit</DropdownMenuItem>
                                                         <DropdownMenuItem className="text-destructive" onClick={() => setProductToDelete(product)}>Delete</DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -249,7 +257,7 @@ export default function InventoryPage() {
                                         <FormControl><SelectTrigger><SelectValue placeholder="Select a vendor" /></SelectTrigger></FormControl>
                                         <SelectContent>
                                             <SelectItem value="none">None</SelectItem>
-                                            {vendors.map(v => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+                                            {useAppContext().vendors.map(v => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
                                         </SelectContent>
                                     </Select><FormMessage />
                                 </FormItem>
@@ -265,49 +273,17 @@ export default function InventoryPage() {
                                     <FormItem><FormLabel>Stock Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                  <FormField control={form.control} name="reorderThreshold" render={({ field }) => (
                                     <FormItem><FormLabel>Reorder Threshold</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="expiryDate" render={({ field }) => (
                                     <FormItem className="flex flex-col pt-2"><FormLabel>Expiry Date</FormLabel><FormControl><DatePicker date={field.value ?? undefined} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
                                 )}/>
+                                <FormField control={form.control} name="warrantyDate" render={({ field }) => (
+                                    <FormItem className="flex flex-col pt-2"><FormLabel>Warranty Date</FormLabel><FormControl><DatePicker date={field.value ?? undefined} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                )}/>
                             </div>
-                            
-                            {productToEdit && productPurchaseHistory.length > 0 && (
-                                <div className="space-y-2 pt-4">
-                                    <h3 className="text-lg font-medium">Purchase History</h3>
-                                    <Card>
-                                        <CardContent className="p-0 max-h-48 overflow-y-auto">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead>PO ID</TableHead>
-                                                        <TableHead>Vendor</TableHead>
-                                                        <TableHead>Date</TableHead>
-                                                        <TableHead className="text-right">Qty</TableHead>
-                                                        <TableHead className="text-right">Cost</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {productPurchaseHistory.map(po => {
-                                                        const item = po.items.find(i => i.productId === productToEdit.id)!;
-                                                        return (
-                                                            <TableRow key={po.id}>
-                                                                <TableCell>{po.id}</TableCell>
-                                                                <TableCell>{po.vendorName}</TableCell>
-                                                                <TableCell>{po.receivedDate ? new Date(po.receivedDate).toLocaleDateString() : 'N/A'}</TableCell>
-                                                                <TableCell className="text-right">{item.quantity}</TableCell>
-                                                                <TableCell className="text-right">{currencySymbol} {item.cost.toFixed(2)}</TableCell>
-                                                            </TableRow>
-                                                        );
-                                                    })}
-                                                </TableBody>
-                                            </Table>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            )}
                             
                             <DialogFooter className="pt-4">
                                 <Button type="submit">{productToEdit ? 'Save Changes' : 'Add Product'}</Button>
@@ -315,6 +291,10 @@ export default function InventoryPage() {
                         </form>
                     </Form>
                 </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!productToView} onOpenChange={(open) => !open && setProductToView(null)}>
+                {productToView && <ProductDetail product={productToView} />}
             </Dialog>
 
             <AlertDialog open={!!productToDelete} onOpenChange={(open) => !open && setProductToDelete(null)}>
