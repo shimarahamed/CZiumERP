@@ -55,7 +55,7 @@ export default function InventoryPage() {
             sku: '',
             category: '',
             description: '',
-            vendorId: '',
+            vendorId: 'none',
             reorderThreshold: 0,
             expiryDate: null,
         }
@@ -68,12 +68,12 @@ export default function InventoryPage() {
         if (product) {
             form.reset({
               ...product,
-              vendorId: product.vendorId ?? '',
+              vendorId: product.vendorId ?? 'none',
               reorderThreshold: product.reorderThreshold ?? 0,
               expiryDate: product.expiryDate ? new Date(product.expiryDate) : null,
             });
         } else {
-            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: '', reorderThreshold: 0, expiryDate: null });
+            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: 'none', reorderThreshold: 0, expiryDate: null });
         }
         setIsFormOpen(true);
     };
@@ -81,7 +81,7 @@ export default function InventoryPage() {
     const onSubmit = (data: ProductFormData) => {
         const productData = {
           ...data,
-          vendorId: data.vendorId || undefined,
+          vendorId: data.vendorId === 'none' ? undefined : data.vendorId,
           expiryDate: data.expiryDate ? data.expiryDate.toISOString() : undefined,
           reorderThreshold: data.reorderThreshold || undefined,
         };
@@ -242,10 +242,10 @@ export default function InventoryPage() {
                             </div>
                              <FormField control={form.control} name="vendorId" render={({ field }) => (
                                 <FormItem><FormLabel>Default Vendor</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl><SelectTrigger><SelectValue placeholder="Select a vendor" /></SelectTrigger></FormControl>
                                         <SelectContent>
-                                            <SelectItem value="">None</SelectItem>
+                                            <SelectItem value="none">None</SelectItem>
                                             {vendors.map(v => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
                                         </SelectContent>
                                     </Select><FormMessage />
