@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { MoreHorizontal, PlusCircle, Store } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Store, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -100,13 +100,18 @@ export default function StoresPage() {
         setStoreToEdit(null);
     };
     
-    const handleDeleteClick = (e: React.MouseEvent, store: StoreType) => {
-        e.stopPropagation();
-        setStoreToDelete(store);
-    };
-    
     const confirmDelete = () => {
         if (!storeToDelete) return;
+        if (storeToDelete.id === currentStore?.id) {
+            toast({ variant: 'destructive', title: 'Action Forbidden', description: 'You cannot delete the currently active store.' });
+            setStoreToDelete(null);
+            return;
+        }
+        if (stores.length <= 1) {
+            toast({ variant: 'destructive', title: 'Action Forbidden', description: 'You cannot delete the last remaining store.' });
+            setStoreToDelete(null);
+            return;
+        }
 
         addActivityLog('Store Deleted', `Deleted store: ${storeToDelete.name} (ID: ${storeToDelete.id})`);
         setStores(stores.filter(s => s.id !== storeToDelete.id));
@@ -114,10 +119,6 @@ export default function StoresPage() {
         setStoreToDelete(null);
     };
 
-    const handleEditClick = (e: React.MouseEvent, store: StoreType) => {
-        e.stopPropagation();
-        handleOpenForm(store);
-    };
 
     return (
         <div className="flex flex-col h-full">
@@ -137,66 +138,71 @@ export default function StoresPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Store Name</TableHead>
-                                    <TableHead>Address</TableHead>
-                                    <TableHead>Session Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stores.map(store => (
-                                    <TableRow 
-                                        key={store.id}
-                                        onClick={() => handleSelectStore(store.id)}
-                                        className={cn(
-                                            store.id === currentStore?.id ? 'bg-muted/80' : 'cursor-pointer hover:bg-muted/50'
-                                        )}
-                                    >
-                                        <TableCell className="font-medium flex items-center gap-2">
-                                            <Store className="h-4 w-4 text-muted-foreground"/>
-                                            <span>{store.name}</span>
-                                        </TableCell>
-                                        <TableCell>{store.address}</TableCell>
-                                        <TableCell>
-                                            {store.id === currentStore?.id ? (
-                                                <Badge variant="default">Active Session</Badge>
-                                            ) : (
-                                                <Badge variant="outline">Inactive</Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button 
-                                                        aria-haspopup="true" 
-                                                        size="icon" 
-                                                        variant="ghost"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    >
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={(e) => handleEditClick(e, store)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem 
-                                                        className="text-destructive" 
-                                                        onClick={(e) => handleDeleteClick(e, store)}
-                                                        disabled={store.id === currentStore?.id || stores.length <= 1}
-                                                    >
-                                                        Delete
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                        <div className="rounded-md border">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Status</TableHead>
+                                        <TableHead>Store Name</TableHead>
+                                        <TableHead>Address</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {stores.map(store => (
+                                        <TableRow 
+                                            key={store.id}
+                                            className={cn(
+                                                store.id === currentStore?.id && 'bg-muted/50'
+                                            )}
+                                        >
+                                            <TableCell>
+                                                {store.id === currentStore?.id ? (
+                                                    <Badge variant="default" className="gap-1.5 pl-2 pr-3">
+                                                        <CheckCircle className="h-3.5 w-3.5"/>
+                                                        Active
+                                                    </Badge>
+                                                ) : (
+                                                    <Button variant="outline" size="sm" onClick={() => handleSelectStore(store.id)}>
+                                                        Select
+                                                    </Button>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="font-medium flex items-center gap-2">
+                                                <Store className="h-4 w-4 text-muted-foreground"/>
+                                                <span>{store.name}</span>
+                                            </TableCell>
+                                            <TableCell>{store.address}</TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button 
+                                                            aria-haspopup="true" 
+                                                            size="icon" 
+                                                            variant="ghost"
+                                                        >
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleOpenForm(store)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem 
+                                                            className="text-destructive" 
+                                                            onClick={() => setStoreToDelete(store)}
+                                                            disabled={store.id === currentStore?.id || stores.length <= 1}
+                                                        >
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
                 </Card>
             </main>
