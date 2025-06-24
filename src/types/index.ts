@@ -104,7 +104,7 @@ export type PurchaseOrder = {
   storeId?: string;
   items: PurchaseOrderItem[];
   totalCost: number;
-  status: 'pending' | 'ordered' | 'received' | 'cancelled';
+  status: 'pending' | 'pending-approval' | 'ordered' | 'received' | 'cancelled';
   orderDate: string;
   expectedDeliveryDate?: string;
   receivedDate?: string;

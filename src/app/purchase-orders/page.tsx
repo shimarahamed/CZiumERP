@@ -5,7 +5,7 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, addDays } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2, FileText } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ const poItemSchema = z.object({
 
 const poSchema = z.object({
   vendorId: z.string().min(1, "Please select a vendor."),
-  status: z.enum(['pending', 'ordered', 'received', 'cancelled']),
+  status: z.enum(['pending', 'pending-approval', 'ordered', 'received', 'cancelled']),
   orderDate: z.date(),
   expectedDeliveryDate: z.date().optional(),
   items: z.array(poItemSchema).min(1, "PO must have at least one item."),
@@ -42,6 +42,7 @@ type POFormData = z.infer<typeof poSchema>;
 
 const statusVariant: { [key in PurchaseOrder['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     pending: 'secondary',
+    'pending-approval': 'secondary',
     ordered: 'default',
     received: 'outline',
     cancelled: 'destructive'
@@ -58,6 +59,7 @@ export default function PurchaseOrdersPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [poToEdit, setPoToEdit] = useState<PurchaseOrder | null>(null);
     const [poToMarkReceived, setPoToMarkReceived] = useState<PurchaseOrder | null>(null);
+    const [poToApprove, setPoToApprove] = useState<PurchaseOrder | null>(null);
     const [poToView, setPoToView] = useState<PurchaseOrder | null>(null);
 
     const form = useForm<POFormData>({
@@ -155,7 +157,7 @@ export default function PurchaseOrdersPage() {
                 storeId: currentStore?.id,
                 vendorId: data.vendorId,
                 vendorName: vendor.name,
-                status: data.status,
+                status: canManage ? data.status : 'pending-approval',
                 orderDate: format(data.orderDate, 'yyyy-MM-dd'),
                 expectedDeliveryDate: data.expectedDeliveryDate ? format(data.expectedDeliveryDate, 'yyyy-MM-dd') : undefined,
                 items: newPOItems,
@@ -167,6 +169,22 @@ export default function PurchaseOrdersPage() {
         }
         setIsFormOpen(false);
         setPoToEdit(null);
+    };
+
+    const handleApprove = () => {
+        if (!poToApprove) return;
+
+        setPurchaseOrders(currentPOs =>
+            currentPOs.map(po =>
+                po.id === poToApprove.id
+                    ? { ...po, status: 'ordered' }
+                    : po
+            )
+        );
+
+        addActivityLog('PO Approved', `PO #${poToApprove.id} was approved and is now 'Ordered'.`);
+        toast({ title: "Purchase Order Approved", description: `PO #${poToApprove.id} has been marked as ordered.` });
+        setPoToApprove(null);
     };
 
     const handleMarkAsReceived = () => {
@@ -207,11 +225,10 @@ export default function PurchaseOrdersPage() {
                                 <CardTitle>Purchase Orders</CardTitle>
                                 <CardDescription>Create and manage purchase orders for your vendors.</CardDescription>
                             </div>
-                            {canManage && (
-                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" /> Create Purchase Order
-                                </Button>
-                            )}
+                            
+                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
+                                <PlusCircle className="h-4 w-4" /> Create Purchase Order
+                            </Button>
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -232,12 +249,16 @@ export default function PurchaseOrdersPage() {
                                         <TableCell className="font-medium">{po.id}</TableCell>
                                         <TableCell>{po.vendorName}</TableCell>
                                         <TableCell className="hidden md:table-cell">{currencySymbol} {po.totalCost.toFixed(2)}</TableCell>
-                                        <TableCell><Badge variant={statusVariant[po.status]} className="capitalize">{po.status}</Badge></TableCell>
+                                        <TableCell>
+                                            <Badge variant={statusVariant[po.status]} className="capitalize">
+                                                {po.status.replace('-', ' ')}
+                                            </Badge>
+                                        </TableCell>
                                         <TableCell className="hidden lg:table-cell">{new Date(po.orderDate).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
+                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
@@ -247,7 +268,13 @@ export default function PurchaseOrdersPage() {
                                                         <FileText className="mr-2 h-4 w-4" />
                                                         View/Print PO
                                                     </DropdownMenuItem>
-                                                    {po.status !== 'received' && po.status !== 'cancelled' && (
+                                                    {canManage && po.status === 'pending-approval' && (
+                                                        <DropdownMenuItem onClick={() => setPoToApprove(po)}>
+                                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                                            Approve PO
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                    {po.status === 'ordered' && canManage && (
                                                         <DropdownMenuItem onClick={() => setPoToMarkReceived(po)}>Mark as Received</DropdownMenuItem>
                                                     )}
                                                     <DropdownMenuItem onClick={() => handleOpenForm(po)}>Edit</DropdownMenuItem>
@@ -278,18 +305,27 @@ export default function PurchaseOrdersPage() {
                                         </Select><FormMessage />
                                     </FormItem>
                                 )} />
-                                <FormField control={form.control} name="status" render={({ field }) => (
-                                    <FormItem><FormLabel>Status</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="pending">Pending</SelectItem>
-                                                <SelectItem value="ordered">Ordered</SelectItem>
-                                                <SelectItem value="received">Received</SelectItem>
-                                                <SelectItem value="cancelled">Cancelled</SelectItem>
-                                            </SelectContent>
-                                        </Select><FormMessage />
-                                    </FormItem>
-                                )}/>
+                                {canManage ? (
+                                    <FormField control={form.control} name="status" render={({ field }) => (
+                                        <FormItem><FormLabel>Status</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="pending">Pending</SelectItem>
+                                                    <SelectItem value="pending-approval">Pending Approval</SelectItem>
+                                                    <SelectItem value="ordered">Ordered</SelectItem>
+                                                    <SelectItem value="received">Received</SelectItem>
+                                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                                </SelectContent>
+                                            </Select><FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                ) : (
+                                    poToEdit ? (
+                                         <FormItem><FormLabel>Status</FormLabel><Input value={form.getValues('status').replace('-', ' ')} className="capitalize" disabled /></FormItem>
+                                    ) : (
+                                         <FormItem><FormLabel>Status</FormLabel><Input value="Pending Approval" disabled /></FormItem>
+                                    )
+                                )}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="orderDate" render={({ field }) => (
@@ -342,6 +378,19 @@ export default function PurchaseOrdersPage() {
                     </Form>
                 </DialogContent>
             </Dialog>
+            
+            <AlertDialog open={!!poToApprove} onOpenChange={(open) => !open && setPoToApprove(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Approve Purchase Order?</AlertDialogTitle>
+                        <AlertDialogDescription>This will change the status of PO #{poToApprove?.id} to "Ordered". This action signifies the PO is ready to be sent to the vendor.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleApprove}>Approve & Set to Ordered</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <AlertDialog open={!!poToMarkReceived} onOpenChange={(open) => !open && setPoToMarkReceived(null)}>
                 <AlertDialogContent>
