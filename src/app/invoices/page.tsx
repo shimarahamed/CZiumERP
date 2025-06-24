@@ -1,12 +1,12 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, Printer, FileText } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, Printer, FileText, Info } from "lucide-react";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -26,7 +26,7 @@ import Header from "@/components/Header";
 import InvoiceDetail from "@/components/InvoiceDetail";
 import FullInvoice from "@/components/FullInvoice";
 import { useAppContext } from "@/context/AppContext";
-import type { Invoice, InvoiceItem } from "@/types";
+import type { Invoice, InvoiceItem, CustomerTier } from "@/types";
 import { Combobox } from "@/components/ui/combobox";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -63,9 +63,12 @@ export default function InvoicesPage() {
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
     const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
     const [viewingFullInvoice, setViewingFullInvoice] = useState<Invoice | null>(null);
+    const [activeTier, setActiveTier] = useState<CustomerTier | null>(null);
     const { toast } = useToast();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const isInitialRender = useRef(true);
+
 
     const form = useForm<InvoiceFormData>({
         resolver: zodResolver(invoiceSchema),
@@ -89,6 +92,7 @@ export default function InvoicesPage() {
     const watchedItems = useWatch({ control: form.control, name: 'items' });
     const watchedDiscount = useWatch({ control: form.control, name: 'discount' }) || 0;
     const watchedTaxRate = useWatch({ control: form.control, name: 'taxRate' }) || 0;
+    const watchedCustomerId = useWatch({ control: form.control, name: 'customerId' });
 
     const subtotal = useMemo(() => watchedItems.reduce((acc, item) => {
         const product = products.find(p => p.id === item.productId);
@@ -114,26 +118,59 @@ export default function InvoicesPage() {
     }, [searchParams, handleOpenForm, router]);
 
     useEffect(() => {
-        if (isFormOpen && invoiceToEdit) {
-            form.reset({
-                customerId: invoiceToEdit.customerId || 'none',
-                status: invoiceToEdit.status as 'paid' | 'pending' | 'overdue',
-                date: new Date(invoiceToEdit.date),
-                items: invoiceToEdit.items.map(item => ({ productId: item.productId, quantity: item.quantity })),
-                discount: invoiceToEdit.discount || 0,
-                taxRate: invoiceToEdit.taxRate || 0,
-            });
-        } else if (isFormOpen && !invoiceToEdit) {
-            form.reset({
-                customerId: 'none',
-                status: 'pending',
-                date: new Date(),
-                items: [{ productId: '', quantity: 1 }],
-                discount: 0,
-                taxRate: 0,
-            });
+        if (isFormOpen) {
+            if (invoiceToEdit) {
+                form.reset({
+                    customerId: invoiceToEdit.customerId || 'none',
+                    status: invoiceToEdit.status as 'paid' | 'pending' | 'overdue',
+                    date: new Date(invoiceToEdit.date),
+                    items: invoiceToEdit.items.map(item => ({ productId: item.productId, quantity: item.quantity })),
+                    discount: invoiceToEdit.discount || 0,
+                    taxRate: invoiceToEdit.taxRate || 0,
+                });
+            } else {
+                form.reset({
+                    customerId: 'none',
+                    status: 'pending',
+                    date: new Date(),
+                    items: [{ productId: '', quantity: 1 }],
+                    discount: 0,
+                    taxRate: 0,
+                });
+            }
+            const customer = customers.find(c => c.id === form.getValues('customerId'));
+            if (customer?.tier && customer.tier !== 'Bronze') {
+                setActiveTier(customer.tier);
+            } else {
+                setActiveTier(null);
+            }
+            isInitialRender.current = true;
         }
-    }, [invoiceToEdit, isFormOpen, form]);
+    }, [invoiceToEdit, isFormOpen, form, customers]);
+
+    useEffect(() => {
+        if (isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+
+        const customer = customers.find(c => c.id === watchedCustomerId);
+        const tierDiscounts: Record<CustomerTier, number> = { Bronze: 0, Silver: 5, Gold: 10 };
+        
+        if (customer?.tier) {
+            const rate = tierDiscounts[customer.tier];
+            form.setValue('discount', rate, { shouldValidate: true });
+            if (rate > 0) {
+                setActiveTier(customer.tier);
+            } else {
+                setActiveTier(null);
+            }
+        } else {
+            form.setValue('discount', 0, { shouldValidate: true });
+            setActiveTier(null);
+        }
+    }, [watchedCustomerId, customers, form]);
+
 
     const handleScanSuccess = (productId: string) => {
         const product = products.find(p => p.id === productId);
@@ -438,7 +475,19 @@ export default function InvoicesPage() {
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="discount" render={({ field }) => (
-                                    <FormItem><FormLabel>Discount (%)</FormLabel><FormControl><Input type="number" step="0.1" placeholder="e.g. 5" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem>
+                                        <FormLabel>Discount (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.1" placeholder="e.g. 5" {...field} readOnly={!!activeTier}/>
+                                        </FormControl>
+                                        {activeTier && (
+                                            <FormDescription className="flex items-center gap-1 text-primary">
+                                                <Info className="h-3 w-3" />
+                                                {`A ${form.getValues('discount')}% ${activeTier} tier discount is applied.`}
+                                            </FormDescription>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
                                 )} />
                                 <FormField control={form.control} name="taxRate" render={({ field }) => (
                                     <FormItem><FormLabel>Tax Rate (%)</FormLabel><FormControl><Input type="number" step="0.1" placeholder="e.g. 8.5" {...field} /></FormControl><FormMessage /></FormItem>
