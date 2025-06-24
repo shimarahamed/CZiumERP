@@ -25,7 +25,7 @@ type NavCategory = {
 
 const navLinksConfig: Record<Role, string[]> = {
     admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Users', 'Activity Logs', 'Settings'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
 };

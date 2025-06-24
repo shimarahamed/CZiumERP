@@ -39,7 +39,9 @@ export default function StoresPage() {
         resolver: zodResolver(storeSchema),
     });
 
-    if (currentUser?.role !== 'admin') {
+    const canManageStores = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+
+    if (!canManageStores) {
         return (
             <div className="flex flex-col h-full">
                 <Header title="Access Denied" />
