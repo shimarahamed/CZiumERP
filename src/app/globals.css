@@ -95,7 +95,9 @@ body {
   .printable-receipt-area,
   .printable-receipt-area *,
   .printable-invoice-area,
-  .printable-invoice-area * {
+  .printable-invoice-area *,
+  .printable-po-area,
+  .printable-po-area * {
     visibility: visible;
   }
 
@@ -117,7 +119,8 @@ body {
     line-height: 1.2;
   }
   
-  .printable-invoice-area {
+  .printable-invoice-area,
+  .printable-po-area {
     position: absolute;
     left: 0;
     top: 0;

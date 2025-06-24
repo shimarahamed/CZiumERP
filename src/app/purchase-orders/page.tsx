@@ -5,7 +5,7 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, addDays } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, FileText } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { useAppContext } from "@/context/AppContext";
 import type { PurchaseOrder, PurchaseOrderItem } from "@/types";
+import FullPurchaseOrder from "@/components/FullPurchaseOrder";
 
 const poItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),
@@ -57,6 +58,7 @@ export default function PurchaseOrdersPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [poToEdit, setPoToEdit] = useState<PurchaseOrder | null>(null);
     const [poToMarkReceived, setPoToMarkReceived] = useState<PurchaseOrder | null>(null);
+    const [poToView, setPoToView] = useState<PurchaseOrder | null>(null);
 
     const form = useForm<POFormData>({
         resolver: zodResolver(poSchema),
@@ -241,6 +243,10 @@ export default function PurchaseOrdersPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => setPoToView(po)}>
+                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        View/Print PO
+                                                    </DropdownMenuItem>
                                                     {po.status !== 'received' && po.status !== 'cancelled' && (
                                                         <DropdownMenuItem onClick={() => setPoToMarkReceived(po)}>Mark as Received</DropdownMenuItem>
                                                     )}
@@ -310,7 +316,7 @@ export default function PurchaseOrdersPage() {
                                             <FormItem className="w-24"><FormLabel className="sr-only">Qty</FormLabel><FormControl><Input type="number" placeholder="Qty" {...field} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name={`items.${index}.cost`} render={({ field }) => (
-                                            <FormItem className="w-28"><FormLabel className="sr-only">Cost</FormLabel><FormControl><Input type="number" placeholder="Cost/item" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem className="w-28"><FormLabel className="sr-only">Cost/item</FormLabel><FormControl><Input type="number" placeholder="Cost/item" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4" /></Button>
                                     </div>
@@ -349,6 +355,10 @@ export default function PurchaseOrdersPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+            
+            <Dialog open={!!poToView} onOpenChange={(open) => !open && setPoToView(null)}>
+                {poToView && <FullPurchaseOrder purchaseOrder={poToView} />}
+            </Dialog>
         </div>
     );
 }
