@@ -117,7 +117,7 @@ export default function InventoryPage() {
         const statuses: { text: string; variant: 'destructive' | 'secondary' }[] = [];
         const now = new Date();
 
-        if (typeof product.reorderThreshold !== 'undefined' && product.stock <= product.reorderThreshold) {
+        if (product.stock < 10) {
             statuses.push({ text: 'Low Stock', variant: 'destructive' });
         }
 
