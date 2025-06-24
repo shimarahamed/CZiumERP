@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import type { PurchaseOrder } from '@/types';
@@ -24,6 +24,9 @@ const FullPurchaseOrder = ({ purchaseOrder }: FullPurchaseOrderProps) => {
 
     return (
         <DialogContent className="sm:max-w-4xl p-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Purchase Order {purchaseOrder.id}</DialogTitle>
+            </DialogHeader>
             <div className="printable-po-area bg-white text-black p-8">
                 <header className="flex justify-between items-start mb-8">
                     <div>

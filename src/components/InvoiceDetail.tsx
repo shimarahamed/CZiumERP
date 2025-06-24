@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Invoice } from '@/types';
 import { Printer, Store as StoreIcon, Mail } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
@@ -63,6 +63,9 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
 
     return (
         <DialogContent className="sm:max-w-sm p-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Invoice Receipt for {invoice.id}</DialogTitle>
+            </DialogHeader>
             <div className="printable-receipt-area p-4">
                 <div className="text-center mb-4">
                     <StoreIcon className="mx-auto h-10 w-10 mb-2" />
