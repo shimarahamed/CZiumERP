@@ -44,6 +44,7 @@ interface AppContextType {
   purchaseOrders: PurchaseOrder[];
   setPurchaseOrders: React.Dispatch<React.SetStateAction<PurchaseOrder[]>>;
   stores: Store[];
+  setStores: React.Dispatch<React.SetStateAction<Store[]>>;
   currentStore: Store | null;
   selectStore: (storeId: string) => void;
   isAuthenticated: boolean;
@@ -71,7 +72,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const [stores] = useState<Store[]>(initialStores);
+  const [stores, setStores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -84,6 +85,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Rehydrate state from localStorage on client-side mount
   useEffect(() => {
+    const loadedStores = getStoredState('stores', initialStores);
+    setStores(loadedStores);
+    
     setInvoices(getStoredState('invoices', initialInvoices));
     setCustomers(getStoredState('customers', initialCustomers));
     setProducts(getStoredState('products', initialProducts));
@@ -95,7 +99,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setUser(getStoredState('user', null));
     const storedStoreId = getStoredState('currentStoreId', null);
     if(storedStoreId){
-        setCurrentStore(initialStores.find(s => s.id === storedStoreId) || null);
+        setCurrentStore(loadedStores.find(s => s.id === storedStoreId) || null);
     }
     setCurrency(getStoredState('currency', 'USD'));
     
@@ -109,6 +113,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('vendors', JSON.stringify(vendors)); }, [vendors, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders)); }, [purchaseOrders, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(users)); }, [users, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('stores', JSON.stringify(stores)); }, [stores, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -187,6 +192,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('currency');
     localStorage.removeItem('purchaseOrders');
     localStorage.removeItem('users');
+    localStorage.removeItem('stores');
   };
 
 
@@ -198,6 +204,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       vendors, setVendors,
       purchaseOrders, setPurchaseOrders,
       stores,
+      setStores,
       currentStore,
       selectStore,
       isAuthenticated, user, users, setUsers, login, logout,

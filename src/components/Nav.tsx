@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, Building2, History, Settings, Undo2, ShoppingCart, UserCog } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -16,6 +16,7 @@ const links = [
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
   { href: '/vendors', label: 'Vendors', icon: Building2 },
+  { href: '/stores', label: 'Stores', icon: Store },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
   { href: '/users', label: 'Users', icon: UserCog },
@@ -24,7 +25,7 @@ const links = [
 ];
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'AI Upselling', 'Users', 'Activity Logs', 'Settings'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Users', 'Activity Logs', 'Settings'],
     manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
