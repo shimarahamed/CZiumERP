@@ -20,6 +20,7 @@ import type { Store as StoreType } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 const storeSchema = z.object({
   name: z.string().min(1, "Store name is required."),
@@ -31,6 +32,7 @@ type StoreFormData = z.infer<typeof storeSchema>;
 export default function StoresPage() {
     const { stores, setStores, addActivityLog, user: currentUser, currentStore, selectStore } = useAppContext();
     const { toast } = useToast();
+    const router = useRouter();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [storeToEdit, setStoreToEdit] = useState<StoreType | null>(null);
     const [storeToDelete, setStoreToDelete] = useState<StoreType | null>(null);
@@ -75,11 +77,9 @@ export default function StoresPage() {
             selectStore(storeId);
             toast({
                 title: "Store Switched",
-                description: `You are now managing ${store.name}. The page will now refresh.`,
+                description: `You are now managing ${store.name}.`,
             });
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            router.push('/');
         }
     };
 
