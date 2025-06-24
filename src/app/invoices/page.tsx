@@ -233,7 +233,7 @@ export default function InvoicesPage() {
                 taxRate: data.taxRate,
             } : inv));
             toast({ title: "Invoice Updated" });
-            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: ${currencySymbol}${totalAmount.toFixed(2)}`);
+            addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: ${currencySymbol} ${totalAmount.toFixed(2)}`);
         } else {
             const newInvoice: Invoice = {
                 id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
@@ -251,7 +251,7 @@ export default function InvoicesPage() {
             };
             setInvoices([newInvoice, ...invoices]);
             toast({ title: "Invoice Created" });
-            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for ${currencySymbol}${totalAmount.toFixed(2)}`);
+            addActivityLog('Invoice Created', `Created invoice #${newInvoice.id} for ${currencySymbol} ${totalAmount.toFixed(2)}`);
         }
         setIsFormOpen(false);
         setInvoiceToEdit(null);
@@ -284,10 +284,10 @@ export default function InvoicesPage() {
                         <TableCell onClick={() => onView(invoice)} className="cursor-pointer">
                             <div className="truncate">{invoice.customerName || 'N/A'}</div>
                             <div className="text-sm text-muted-foreground md:hidden">
-                                {currencySymbol}{invoice.amount.toFixed(2)}
+                                {currencySymbol} {invoice.amount.toFixed(2)}
                             </div>
                         </TableCell>
-                        <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
+                        <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer">{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
                         <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge></TableCell>
                         <TableCell onClick={() => onView(invoice)} className="hidden lg:table-cell cursor-pointer">{new Date(invoice.date).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
@@ -447,10 +447,10 @@ export default function InvoicesPage() {
 
                             <Card className="p-4 bg-muted/50">
                                 <div className="space-y-2">
-                                    <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{currencySymbol}{subtotal.toFixed(2)}</span></div>
-                                    <div className="flex justify-between"><span className="text-muted-foreground">Discount ({watchedDiscount}%)</span><span className="text-destructive">-{currencySymbol}{discountAmount.toFixed(2)}</span></div>
-                                    <div className="flex justify-between"><span className="text-muted-foreground">Tax ({watchedTaxRate}%)</span><span>+{currencySymbol}{taxAmount.toFixed(2)}</span></div>
-                                    <div className="flex justify-between font-bold text-lg"><span >Total Amount</span><span>{currencySymbol}{totalAmount.toFixed(2)}</span></div>
+                                    <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{currencySymbol} {subtotal.toFixed(2)}</span></div>
+                                    <div className="flex justify-between"><span className="text-muted-foreground">Discount ({watchedDiscount}%)</span><span className="text-destructive">-{currencySymbol} {discountAmount.toFixed(2)}</span></div>
+                                    <div className="flex justify-between"><span className="text-muted-foreground">Tax ({watchedTaxRate}%)</span><span>+{currencySymbol} {taxAmount.toFixed(2)}</span></div>
+                                    <div className="flex justify-between font-bold text-lg"><span >Total Amount</span><span>{currencySymbol} {totalAmount.toFixed(2)}</span></div>
                                 </div>
                             </Card>
 

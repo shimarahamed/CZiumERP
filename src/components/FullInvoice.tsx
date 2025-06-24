@@ -32,16 +32,16 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
       receipt += `Date: ${new Date(invoice.date).toLocaleDateString()}\n\n`;
       receipt += `Items:\n`;
       invoice.items.forEach(item => {
-        receipt += `- ${item.productName} (x${item.quantity}) @ ${currencySymbol}${item.price.toFixed(2)}\n`;
+        receipt += `- ${item.productName} (x${item.quantity}) @ ${currencySymbol} ${item.price.toFixed(2)}\n`;
       });
-      receipt += `\nSubtotal: ${currencySymbol}${subtotal.toFixed(2)}\n`;
+      receipt += `\nSubtotal: ${currencySymbol} ${subtotal.toFixed(2)}\n`;
       if (invoice.discount) {
-        receipt += `Discount (${invoice.discount}%): -${currencySymbol}${discountAmount.toFixed(2)}\n`;
+        receipt += `Discount (${invoice.discount}%): -${currencySymbol} ${discountAmount.toFixed(2)}\n`;
       }
       if (invoice.taxRate) {
-        receipt += `Tax (${invoice.taxRate}%): +${currencySymbol}${taxAmount.toFixed(2)}\n`;
+        receipt += `Tax (${invoice.taxRate}%): +${currencySymbol} ${taxAmount.toFixed(2)}\n`;
       }
-      receipt += `TOTAL: ${currencySymbol}${invoice.amount.toFixed(2)}\n\n`;
+      receipt += `TOTAL: ${currencySymbol} ${invoice.amount.toFixed(2)}\n\n`;
       receipt += `Thank you for your business!`;
       return receipt;
     }
@@ -114,8 +114,8 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell className="font-medium">{item.productName}</TableCell>
                                     <TableCell className="text-center">{item.quantity}</TableCell>
-                                    <TableCell className="text-right">{currencySymbol}{item.price.toFixed(2)}</TableCell>
-                                    <TableCell className="text-right">{currencySymbol}{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{currencySymbol} {item.price.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{currencySymbol} {(item.price * item.quantity).toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -126,20 +126,20 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <div className="w-full max-w-xs space-y-2">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Subtotal:</span>
-                            <span className="font-medium">{currencySymbol}{subtotal.toFixed(2)}</span>
+                            <span className="font-medium">{currencySymbol} {subtotal.toFixed(2)}</span>
                         </div>
                          <div className="flex justify-between">
                             <span className="text-muted-foreground">Discount ({invoice.discount || 0}%):</span>
-                            <span className="font-medium text-destructive">-{currencySymbol}{discountAmount.toFixed(2)}</span>
+                            <span className="font-medium text-destructive">-{currencySymbol} {discountAmount.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Tax ({invoice.taxRate || 0}%):</span>
-                            <span className="font-medium">{currencySymbol}{taxAmount.toFixed(2)}</span>
+                            <span className="font-medium">{currencySymbol} {taxAmount.toFixed(2)}</span>
                         </div>
                         <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total:</span>
-                            <span>{currencySymbol}{invoice.amount.toFixed(2)}</span>
+                            <span>{currencySymbol} {invoice.amount.toFixed(2)}</span>
                         </div>
                     </div>
                 </section>

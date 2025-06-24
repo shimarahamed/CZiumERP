@@ -30,16 +30,16 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
       receipt += `Date: ${new Date(invoice.date).toLocaleString()}\n\n`;
       receipt += `Items:\n`;
       invoice.items.forEach(item => {
-        receipt += `- ${item.productName} (x${item.quantity}) @ ${currencySymbol}${item.price.toFixed(2)}\n`;
+        receipt += `- ${item.productName} (x${item.quantity}) @ ${currencySymbol} ${item.price.toFixed(2)}\n`;
       });
-      receipt += `\nSubtotal: ${currencySymbol}${subtotal.toFixed(2)}\n`;
+      receipt += `\nSubtotal: ${currencySymbol} ${subtotal.toFixed(2)}\n`;
       if (invoice.discount) {
-        receipt += `Discount (${invoice.discount}%): -${currencySymbol}${discountAmount.toFixed(2)}\n`;
+        receipt += `Discount (${invoice.discount}%): -${currencySymbol} ${discountAmount.toFixed(2)}\n`;
       }
       if (invoice.taxRate) {
-        receipt += `Tax (${invoice.taxRate}%): +${currencySymbol}${taxAmount.toFixed(2)}\n`;
+        receipt += `Tax (${invoice.taxRate}%): +${currencySymbol} ${taxAmount.toFixed(2)}\n`;
       }
-      receipt += `TOTAL: ${currencySymbol}${invoice.amount.toFixed(2)}\n\n`;
+      receipt += `TOTAL: ${currencySymbol} ${invoice.amount.toFixed(2)}\n\n`;
       receipt += `Thank you for your business!`;
       return receipt;
     }
@@ -100,8 +100,8 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                          <div key={index} className="flex my-1">
                             <div className="flex-1 w-0 truncate pr-1">{item.productName}</div>
                             <div className="w-8 shrink-0 text-center">{item.quantity}</div>
-                            <div className="w-16 shrink-0 text-right break-words">{currencySymbol}{item.price.toFixed(2)}</div>
-                            <div className="w-16 shrink-0 text-right break-words">{currencySymbol}{(item.quantity * item.price).toFixed(2)}</div>
+                            <div className="w-16 shrink-0 text-right break-words">{currencySymbol} {item.price.toFixed(2)}</div>
+                            <div className="w-16 shrink-0 text-right break-words">{currencySymbol} {(item.quantity * item.price).toFixed(2)}</div>
                         </div>
                     ))}
                 </div>
@@ -111,15 +111,15 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
                 <div className="space-y-1">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>{currencySymbol}{subtotal.toFixed(2)}</span>
+                        <span>{currencySymbol} {subtotal.toFixed(2)}</span>
                     </div>
                      <div className="flex justify-between">
                         <span>Discount ({invoice.discount || 0}%)</span>
-                        <span>-{currencySymbol}{discountAmount.toFixed(2)}</span>
+                        <span>-{currencySymbol} {discountAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>Taxes ({invoice.taxRate || 0}%)</span>
-                        <span>{currencySymbol}{taxAmount.toFixed(2)}</span>
+                        <span>{currencySymbol} {taxAmount.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
 
                 <div className="flex justify-between font-bold text-base">
                     <span>TOTAL</span>
-                    <span>{currencySymbol}{invoice.amount.toFixed(2)}</span>
+                    <span>{currencySymbol} {invoice.amount.toFixed(2)}</span>
                 </div>
 
                 <div className="text-center mt-6">

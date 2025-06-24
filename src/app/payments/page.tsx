@@ -55,7 +55,7 @@ export default function PaymentsPage() {
         return;
     }
     
-    addActivityLog('Payment Processed', `Processed payment of ${currencySymbol}${amount} for invoice ${selectedInvoiceId}.`);
+    addActivityLog('Payment Processed', `Processed payment of ${currencySymbol} ${amount} for invoice ${selectedInvoiceId}.`);
 
     setInvoices(currentInvoices => 
         currentInvoices.map(inv => 
@@ -65,7 +65,7 @@ export default function PaymentsPage() {
 
     toast({
         title: "Payment Processed",
-        description: `Payment of ${currencySymbol}${amount} for invoice ${selectedInvoiceId} has been successfully processed.`,
+        description: `Payment of ${currencySymbol} ${amount} for invoice ${selectedInvoiceId} has been successfully processed.`,
     });
 
     // Clear the form
@@ -95,7 +95,7 @@ export default function PaymentsPage() {
                         </SelectTrigger>
                         <SelectContent>
                         {unpaidInvoices.map(invoice => (
-                            <SelectItem key={invoice.id} value={invoice.id}>{invoice.id} - {currencySymbol}{invoice.amount.toFixed(2)}</SelectItem>
+                            <SelectItem key={invoice.id} value={invoice.id}>{invoice.id} - {currencySymbol} {invoice.amount.toFixed(2)}</SelectItem>
                         ))}
                         </SelectContent>
                     </Select>

@@ -217,7 +217,7 @@ export default function PurchaseOrdersPage() {
                                     <TableRow key={po.id}>
                                         <TableCell className="font-medium">{po.id}</TableCell>
                                         <TableCell>{po.vendorName}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{currencySymbol}{po.totalCost.toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{currencySymbol} {po.totalCost.toFixed(2)}</TableCell>
                                         <TableCell><Badge variant={statusVariant[po.status]} className="capitalize">{po.status}</Badge></TableCell>
                                         <TableCell className="hidden lg:table-cell">{new Date(po.orderDate).toLocaleDateString()}</TableCell>
                                         <TableCell>
@@ -313,7 +313,7 @@ export default function PurchaseOrdersPage() {
                             <div className="flex justify-end pt-4">
                                 <div className="text-right">
                                     <p className="text-muted-foreground">Total Order Cost</p>
-                                    <p className="text-2xl font-bold">{currencySymbol}{totalCost.toFixed(2)}</p>
+                                    <p className="text-2xl font-bold">{currencySymbol} {totalCost.toFixed(2)}</p>
                                 </div>
                             </div>
 

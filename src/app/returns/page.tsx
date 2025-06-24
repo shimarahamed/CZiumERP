@@ -175,7 +175,7 @@ export default function ReturnsPage() {
         };
 
         // 4. Add Activity Log
-        addActivityLog('Refund Processed', `Processed refund of ${currencySymbol}${totalRefundAmount.toFixed(2)} for invoice ${data.invoiceId}. Reason: ${data.reason}`);
+        addActivityLog('Refund Processed', `Processed refund of ${currencySymbol} ${totalRefundAmount.toFixed(2)} for invoice ${data.invoiceId}. Reason: ${data.reason}`);
 
         // 5. Show Toast & Reset Form
         toast({ title: 'Refund Processed Successfully' });
@@ -216,7 +216,7 @@ export default function ReturnsPage() {
                                                     <SelectContent>
                                                         {paidInvoices.map(invoice => (
                                                             <SelectItem key={invoice.id} value={invoice.id}>
-                                                                {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol}{invoice.amount.toFixed(2)}
+                                                                {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol} {invoice.amount.toFixed(2)}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -290,7 +290,7 @@ export default function ReturnsPage() {
                                                                     />
                                                                 </TableCell>
                                                                 <TableCell>{field.productName}</TableCell>
-                                                                <TableCell className="text-right">{currencySymbol}{field.price.toFixed(2)}</TableCell>
+                                                                <TableCell className="text-right">{currencySymbol} {field.price.toFixed(2)}</TableCell>
                                                                 <TableCell className="text-center">{field.maxQuantity}</TableCell>
                                                                 <TableCell>
                                                                     <FormField
@@ -317,7 +317,7 @@ export default function ReturnsPage() {
                                         <div className="flex justify-end pt-4">
                                             <div className="text-right">
                                                 <p className="text-muted-foreground">Total Refund Amount</p>
-                                                <p className="text-2xl font-bold">{currencySymbol}{totalRefundAmount.toFixed(2)}</p>
+                                                <p className="text-2xl font-bold">{currencySymbol} {totalRefundAmount.toFixed(2)}</p>
                                             </div>
                                         </div>
                                     </div>

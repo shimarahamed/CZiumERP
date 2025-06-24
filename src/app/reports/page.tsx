@@ -62,7 +62,7 @@ const ReportView = React.forwardRef<HTMLDivElement, {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{currencySymbol}{totalRevenue.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">{currencySymbol} {totalRevenue.toFixed(2)}</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-50">
@@ -115,7 +115,7 @@ const ReportView = React.forwardRef<HTMLDivElement, {
                                 <TableRow key={sale.productId}>
                                     <TableCell>{sale.productName}</TableCell>
                                     <TableCell className="text-right">{sale.quantitySold}</TableCell>
-                                    <TableCell className="text-right">{currencySymbol}{sale.totalRevenue.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{currencySymbol} {sale.totalRevenue.toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -136,7 +136,7 @@ const ReportView = React.forwardRef<HTMLDivElement, {
                                 <TableRow key={sale.userId}>
                                     <TableCell>{sale.userName || 'Unknown User'}</TableCell>
                                     <TableCell className="text-right">{sale.invoicesCreated}</TableCell>
-                                    <TableCell className="text-right">{currencySymbol}{sale.totalRevenue.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{currencySymbol} {sale.totalRevenue.toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

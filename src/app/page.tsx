@@ -84,7 +84,7 @@ export default function DashboardPage() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{currencySymbol}{totalRevenue.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{currencySymbol} {totalRevenue.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">For this store's paid invoices</p>
             </CardContent>
           </Card>
@@ -94,7 +94,7 @@ export default function DashboardPage() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{currencySymbol}{totalProfit.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{currencySymbol} {totalProfit.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">{profitMargin.toFixed(1)}% profit margin</p>
             </CardContent>
           </Card>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                 <BarChart data={salesData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currencySymbol}${value / 1000}k`} />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currencySymbol} ${value / 1000}k`} />
                   <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                   <Legend content={<ChartLegendContent />} />
                   <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />

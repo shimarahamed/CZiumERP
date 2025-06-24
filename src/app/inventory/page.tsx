@@ -164,10 +164,10 @@ export default function InventoryPage() {
                                         <TableCell className="font-medium">
                                             <div>{product.name}</div>
                                             <div className="text-sm text-muted-foreground md:hidden">
-                                                {currencySymbol}{product.price.toFixed(2)}
+                                                {currencySymbol} {product.price.toFixed(2)}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="hidden md:table-cell">{currencySymbol}{product.price.toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{currencySymbol} {product.price.toFixed(2)}</TableCell>
                                         <TableCell>{product.stock}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1">

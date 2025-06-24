@@ -131,7 +131,7 @@ export default function ScannerPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-lg font-bold">{scannedProduct.name}</p>
-                    <p className="text-muted-foreground">Price: {currencySymbol}{scannedProduct.price.toFixed(2)}</p>
+                    <p className="text-muted-foreground">Price: {currencySymbol} {scannedProduct.price.toFixed(2)}</p>
                     <p className="text-muted-foreground">Stock: {scannedProduct.stock}</p>
                 </CardContent>
               </Card>

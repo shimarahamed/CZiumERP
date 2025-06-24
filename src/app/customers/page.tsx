@@ -261,7 +261,7 @@ export default function CustomersPage() {
                                         <TableRow key={invoice.id}>
                                             <TableCell className="font-medium">{invoice.id}</TableCell>
                                             <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
-                                            <TableCell>{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
+                                            <TableCell>{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
                                             <TableCell>
                                                 <Badge variant={statusVariant[invoice.status]} className="capitalize">
                                                     {invoice.status}
