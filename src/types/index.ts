@@ -45,7 +45,7 @@ export type Product = {
   price: number;
   cost: number;
   stock: number;
-  supplier?: string;
+  vendorId?: string;
   reorderThreshold?: number;
   expiryDate?: string;
 };

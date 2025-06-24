@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
 import { isBefore, differenceInDays, parseISO } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required."),
@@ -30,6 +31,7 @@ const productSchema = z.object({
   sku: z.string().optional(),
   category: z.string().optional(),
   description: z.string().optional(),
+  vendorId: z.string().optional(),
   reorderThreshold: z.coerce.number().int().min(0, "Reorder threshold must be non-negative.").optional(),
   expiryDate: z.date().optional().nullable(),
 });
@@ -37,7 +39,7 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 
 export default function InventoryPage() {
-    const { products, setProducts, addActivityLog, currencySymbol, user } = useAppContext();
+    const { products, setProducts, addActivityLog, currencySymbol, user, vendors, purchaseOrders } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
@@ -53,6 +55,7 @@ export default function InventoryPage() {
             sku: '',
             category: '',
             description: '',
+            vendorId: '',
             reorderThreshold: 0,
             expiryDate: null,
         }
@@ -65,11 +68,12 @@ export default function InventoryPage() {
         if (product) {
             form.reset({
               ...product,
+              vendorId: product.vendorId ?? '',
               reorderThreshold: product.reorderThreshold ?? 0,
               expiryDate: product.expiryDate ? new Date(product.expiryDate) : null,
             });
         } else {
-            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', reorderThreshold: 0, expiryDate: null });
+            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: '', reorderThreshold: 0, expiryDate: null });
         }
         setIsFormOpen(true);
     };
@@ -77,6 +81,7 @@ export default function InventoryPage() {
     const onSubmit = (data: ProductFormData) => {
         const productData = {
           ...data,
+          vendorId: data.vendorId || undefined,
           expiryDate: data.expiryDate ? data.expiryDate.toISOString() : undefined,
           reorderThreshold: data.reorderThreshold || undefined,
         };
@@ -126,6 +131,10 @@ export default function InventoryPage() {
         
         return statuses;
     }
+    
+    const productPurchaseHistory = productToEdit ? purchaseOrders.filter(po => 
+        po.status === 'received' && po.items.some(item => item.productId === productToEdit?.id)
+    ) : [];
 
     return (
         <div className="flex flex-col h-full">
@@ -159,42 +168,48 @@ export default function InventoryPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map(product => (
-                                    <TableRow key={product.id}>
-                                        <TableCell className="font-medium">
-                                            <div>{product.name}</div>
-                                            <div className="text-sm text-muted-foreground md:hidden">
-                                                {currencySymbol} {product.price.toFixed(2)}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell">{currencySymbol} {product.price.toFixed(2)}</TableCell>
-                                        <TableCell>{product.stock}</TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-wrap gap-1">
-                                                {getProductStatus(product).map(status => (
-                                                    <Badge key={status.text} variant={status.variant as any} className="whitespace-nowrap">{status.text}</Badge>
-                                                ))}
-                                                {getProductStatus(product).length === 0 && <span className="text-muted-foreground">-</span>}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell">{product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'N/A'}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(product)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => setProductToDelete(product)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {products.map(product => {
+                                    const statuses = getProductStatus(product);
+                                    return (
+                                        <TableRow key={product.id}>
+                                            <TableCell className="font-medium">
+                                                <div>{product.name}</div>
+                                                <div className="text-sm text-muted-foreground md:hidden">
+                                                    {currencySymbol} {product.price.toFixed(2)}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">{currencySymbol} {product.price.toFixed(2)}</TableCell>
+                                            <TableCell>{product.stock}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {statuses.length > 0 ? (
+                                                        statuses.map(status => (
+                                                            <Badge key={status.text} variant={status.variant} className="whitespace-nowrap">{status.text}</Badge>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-muted-foreground">-</span>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">{product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'N/A'}</TableCell>
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost" disabled={!canManage}>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleOpenForm(product)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive" onClick={() => setProductToDelete(product)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
                             </TableBody>
                         </Table>
                     </CardContent>
@@ -225,6 +240,17 @@ export default function InventoryPage() {
                                     <FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
+                             <FormField control={form.control} name="vendorId" render={({ field }) => (
+                                <FormItem><FormLabel>Default Vendor</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Select a vendor" /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="">None</SelectItem>
+                                            {vendors.map(v => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select><FormMessage />
+                                </FormItem>
+                            )} />
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField control={form.control} name="price" render={({ field }) => (
                                     <FormItem><FormLabel>Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
@@ -244,6 +270,42 @@ export default function InventoryPage() {
                                     <FormItem className="flex flex-col pt-2"><FormLabel>Expiry Date</FormLabel><FormControl><DatePicker date={field.value ?? undefined} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                             </div>
+                            
+                            {productToEdit && productPurchaseHistory.length > 0 && (
+                                <div className="space-y-2 pt-4">
+                                    <h3 className="text-lg font-medium">Purchase History</h3>
+                                    <Card>
+                                        <CardContent className="p-0 max-h-48 overflow-y-auto">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>PO ID</TableHead>
+                                                        <TableHead>Vendor</TableHead>
+                                                        <TableHead>Date</TableHead>
+                                                        <TableHead className="text-right">Qty</TableHead>
+                                                        <TableHead className="text-right">Cost</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {productPurchaseHistory.map(po => {
+                                                        const item = po.items.find(i => i.productId === productToEdit.id)!;
+                                                        return (
+                                                            <TableRow key={po.id}>
+                                                                <TableCell>{po.id}</TableCell>
+                                                                <TableCell>{po.vendorName}</TableCell>
+                                                                <TableCell>{po.receivedDate ? new Date(po.receivedDate).toLocaleDateString() : 'N/A'}</TableCell>
+                                                                <TableCell className="text-right">{item.quantity}</TableCell>
+                                                                <TableCell className="text-right">{currencySymbol} {item.cost.toFixed(2)}</TableCell>
+                                                            </TableRow>
+                                                        );
+                                                    })}
+                                                </TableBody>
+                                            </Table>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+                            
                             <DialogFooter className="pt-4">
                                 <Button type="submit">{productToEdit ? 'Save Changes' : 'Add Product'}</Button>
                             </DialogFooter>
