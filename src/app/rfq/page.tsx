@@ -241,15 +241,16 @@ export default function RFQPage() {
                                                 >
                                                 <FormControl>
                                                     <Checkbox
-                                                    checked={field.value?.includes(vendor.id)}
-                                                    onCheckedChange={(checked) => {
-                                                        const newValue = checked
-                                                        ? [...field.value, vendor.id]
-                                                        : field.value?.filter(
-                                                            (value) => value !== vendor.id
-                                                            );
-                                                        field.onChange(newValue);
-                                                    }}
+                                                        checked={field.value?.includes(vendor.id)}
+                                                        onCheckedChange={(checked) => {
+                                                            const currentValues = field.value || [];
+                                                            const newValue = checked
+                                                            ? [...currentValues, vendor.id]
+                                                            : currentValues.filter(
+                                                                (value) => value !== vendor.id
+                                                                );
+                                                            field.onChange(newValue);
+                                                        }}
                                                     />
                                                 </FormControl>
                                                 <FormLabel className="font-normal">
