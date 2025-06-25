@@ -16,7 +16,7 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from "@/context/AppContext";
 import type { Invoice, Refund, InvoiceItem } from "@/types";
-import { Undo2, Loader2 } from "lucide-react";
+import { Undo2, Loader2 } from "@/components/icons";
 
 const refundItemSchema = z.object({
   productId: z.string(),

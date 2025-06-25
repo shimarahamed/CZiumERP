@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -6,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppContext } from '@/context/AppContext';
-import { Store, CheckCircle } from 'lucide-react';
+import { Store, CheckCircle } from '@/components/icons';
 
 export default function SelectStorePage() {
   const { stores, selectStore, currentStore, logout, user } = useAppContext();

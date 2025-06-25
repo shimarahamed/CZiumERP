@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import jsQR from 'jsqr';
 import { useToast } from '@/hooks/use-toast';
-import { Barcode, Video, VideoOff } from 'lucide-react';
+import { Barcode, Video, VideoOff } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 

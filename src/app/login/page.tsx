@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAppContext } from '@/context/AppContext';
-import { Store } from 'lucide-react';
+import { Store } from '@/components/icons';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

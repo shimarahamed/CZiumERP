@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useMemo, useState, useRef } from 'react';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
-import { Download, DollarSign, FileText, Users, ShoppingBag } from "lucide-react";
+import { Download, DollarSign, FileText, Users, ShoppingBag } from "@/components/icons";
 import { useAppContext } from '@/context/AppContext';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';

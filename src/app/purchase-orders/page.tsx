@@ -5,7 +5,7 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, addDays } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle } from "@/components/icons";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";

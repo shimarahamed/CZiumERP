@@ -6,9 +6,10 @@ import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/compon
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import type { Invoice } from '@/types';
-import { Printer, Store as StoreIcon, Mail } from 'lucide-react';
+import { Printer, Mail } from '@/components/icons';
 import { useAppContext } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
+import { Store as StoreIcon } from '@/components/icons';
 
 interface FullInvoiceProps {
     invoice: Invoice;

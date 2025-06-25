@@ -4,9 +4,10 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Invoice } from '@/types';
-import { Printer, Store as StoreIcon, Mail } from 'lucide-react';
+import { Printer, Mail } from '@/components/icons';
 import { useAppContext } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
+import { Store as StoreIcon } from '@/components/icons';
 
 interface InvoiceDetailProps {
     invoice: Invoice;

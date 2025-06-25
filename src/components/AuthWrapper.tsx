@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -14,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import Nav from '@/components/Nav';
 import { Button } from '@/components/ui/button';
-import { LifeBuoy, Store } from 'lucide-react';
+import { LifeBuoy, Store } from '@/components/icons';
 import UserNav from './UserNav';
 
 const UNAUTH_ROUTES = ['/login'];

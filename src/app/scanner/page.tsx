@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAppContext } from '@/context/AppContext';
 import type { Product } from '@/types';
-import { Barcode, Video, VideoOff, CheckCircle } from 'lucide-react';
+import { Barcode, Video, VideoOff, CheckCircle } from '@/components/icons';
 import { cn } from '@/lib/utils';
 
 export default function ScannerPage() {
