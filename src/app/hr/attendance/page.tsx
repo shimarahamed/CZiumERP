@@ -1,125 +1,178 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DatePicker } from '@/components/ui/date-picker';
 import Header from "@/components/Header";
 import { useAppContext } from "@/context/AppContext";
 import { format } from 'date-fns';
-import { Clock, LogIn, LogOut } from 'lucide-react';
-import type { AttendanceEntry } from '@/types';
+import type { AttendanceEntry, AttendanceStatus } from '@/types';
+import { UserCheck, UserX, Plane, Clock, Users } from 'lucide-react';
 
 export default function AttendancePage() {
-  const { user, attendance, setAttendance, addActivityLog } = useAppContext();
-  const [latestEntry, setLatestEntry] = useState<AttendanceEntry | null>(null);
+  const { employees, attendance, setAttendance, addActivityLog, user: currentUser } = useAppContext();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
 
-  useEffect(() => {
-    if (user && attendance) {
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const userTodaysEntries = attendance
-        .filter(a => a.userId === user.id && a.date === today)
-        .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime());
-      
-      setLatestEntry(userTodaysEntries[0] || null);
+  const attendanceForDate = useMemo(() => {
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    return attendance.filter(a => a.date === dateStr);
+  }, [attendance, selectedDate]);
+  
+  const summary = useMemo(() => {
+    return {
+        present: attendanceForDate.filter(a => a.status === 'present').length,
+        absent: attendanceForDate.filter(a => a.status === 'absent').length,
+        leave: attendanceForDate.filter(a => a.status === 'leave').length,
+        'half-day': attendanceForDate.filter(a => a.status === 'half-day').length,
     }
-  }, [attendance, user]);
+  }, [attendanceForDate]);
 
-  const handleCheckIn = () => {
-    if (!user) return;
-    const now = new Date();
-    const newEntry: AttendanceEntry = {
-      id: `att-${Date.now()}`,
-      userId: user.id,
-      checkIn: now.toISOString(),
-      date: format(now, 'yyyy-MM-dd'),
-    };
-    setAttendance(prev => [newEntry, ...prev]);
-    addActivityLog('Checked In', `User ${user.email} checked in.`);
-  };
+  const handleMarkAttendance = (employeeId: string, status: AttendanceStatus) => {
+    if (!canManage) return;
 
-  const handleCheckOut = () => {
-    if (!user || !latestEntry) return;
-    const now = new Date();
-    setAttendance(prev => 
-      prev.map(entry => 
-        entry.id === latestEntry.id ? { ...entry, checkOut: now.toISOString() } : entry
-      )
+    const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+    const employee = employees.find(e => e.id === employeeId);
+    if (!employee) return;
+
+    setAttendance(prev => {
+        const existingEntryIndex = prev.findIndex(
+            a => a.employeeId === employeeId && a.date === formattedDate
+        );
+
+        if (existingEntryIndex > -1) {
+            const updatedAttendance = [...prev];
+            updatedAttendance[existingEntryIndex].status = status;
+            return updatedAttendance;
+        } else {
+            const newEntry: AttendanceEntry = {
+                id: `att-${Date.now()}`,
+                employeeId: employeeId,
+                date: formattedDate,
+                status: status,
+            };
+            return [newEntry, ...prev];
+        }
+    });
+
+    addActivityLog(
+        'Attendance Marked', 
+        `Marked ${employee.name} as ${status.replace('-', ' ')} for ${format(selectedDate, 'PPP')}`
     );
-    addActivityLog('Checked Out', `User ${user.email} checked out.`);
   };
-
-  const isCheckedIn = latestEntry && !latestEntry.checkOut;
-
-  const userAttendanceHistory = (user && attendance)
-    ? attendance.filter(a => a.userId === user.id).sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
-    : [];
   
   return (
     <div className="flex flex-col h-full">
-      <Header title="Attendance" />
-      <main className="flex-1 overflow-auto p-4 md:p-6 grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Clock In/Out</CardTitle>
-            <CardDescription>Manage your daily attendance.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center gap-6 p-10">
-             <Clock className="w-24 h-24 text-primary" />
-             {isCheckedIn ? (
-                <div className="text-center">
-                    <p className="text-lg">You are currently checked in.</p>
-                    <p className="text-sm text-muted-foreground">
-                        Checked in at {format(new Date(latestEntry.checkIn), 'p')}
-                    </p>
-                </div>
-             ) : (
-                <p className="text-lg text-muted-foreground">You are currently checked out.</p>
-             )}
-             
-            {isCheckedIn ? (
-                <Button size="lg" onClick={handleCheckOut} className="w-full max-w-xs">
-                    <LogOut className="mr-2 h-4 w-4" /> Check Out
-                </Button>
-            ) : (
-                <Button size="lg" onClick={handleCheckIn} className="w-full max-w-xs">
-                    <LogIn className="mr-2 h-4 w-4" /> Check In
-                </Button>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>My Attendance History</CardTitle>
-                <CardDescription>Your recent check-in and check-out times.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Check In</TableHead>
-                            <TableHead>Check Out</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {userAttendanceHistory.length > 0 ? (
-                            userAttendanceHistory.slice(0, 10).map(entry => (
-                                <TableRow key={entry.id}>
-                                    <TableCell>{format(new Date(entry.date), 'MMM d, yyyy')}</TableCell>
-                                    <TableCell>{format(new Date(entry.checkIn), 'p')}</TableCell>
-                                    <TableCell>{entry.checkOut ? format(new Date(entry.checkOut), 'p') : 'N/A'}</TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
+      <Header title="Manual Attendance" />
+      <main className="flex-1 overflow-auto p-4 md:p-6 grid gap-6 md:grid-cols-3">
+        <div className="md:col-span-2">
+            <Card>
+                <CardHeader className="flex flex-col md:flex-row justify-between md:items-center">
+                    <div>
+                        <CardTitle>Mark Employee Attendance</CardTitle>
+                        <CardDescription>Select a date and mark the status for each employee.</CardDescription>
+                    </div>
+                    <DatePicker date={selectedDate} setDate={setSelectedDate} />
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={3} className="text-center">No attendance history found.</TableCell>
+                                <TableHead>Employee</TableHead>
+                                <TableHead className="w-[150px]">Status</TableHead>
                             </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
+                        </TableHeader>
+                        <TableBody>
+                            {employees.map(employee => {
+                                const currentStatus = attendanceForDate.find(a => a.employeeId === employee.id)?.status;
+                                return (
+                                <TableRow key={employee.id}>
+                                    <TableCell className="font-medium">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar>
+                                                <AvatarImage src={employee.avatar} alt={employee.name} data-ai-hint="person user" />
+                                                <AvatarFallback>{employee.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex flex-col min-w-0">
+                                               <span className="truncate">{employee.name}</span>
+                                               <span className="text-sm text-muted-foreground truncate">{employee.jobTitle}</span>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Select
+                                            value={currentStatus || 'absent'}
+                                            onValueChange={(status: AttendanceStatus) => handleMarkAttendance(employee.id, status)}
+                                            disabled={!canManage}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="present">Present</SelectItem>
+                                                <SelectItem value="absent">Absent</SelectItem>
+                                                <SelectItem value="leave">On Leave</SelectItem>
+                                                <SelectItem value="half-day">Half-day</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </TableCell>
+                                </TableRow>
+                                )
+                            })}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
+        <div className="md:col-span-1">
+             <Card>
+                <CardHeader>
+                    <CardTitle>Attendance Summary</CardTitle>
+                    <CardDescription>{format(selectedDate, 'PPP')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                           <Users className="w-5 h-5 text-muted-foreground" />
+                           <span className="font-medium">Total Employees</span>
+                        </div>
+                        <span className="font-bold text-lg">{employees.length}</span>
+                    </div>
+                     <div className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg">
+                        <div className="flex items-center gap-3">
+                           <UserCheck className="w-5 h-5 text-green-600" />
+                           <span className="font-medium text-green-700">Present</span>
+                        </div>
+                        <span className="font-bold text-lg text-green-700">{summary.present}</span>
+                    </div>
+                     <div className="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
+                        <div className="flex items-center gap-3">
+                           <UserX className="w-5 h-5 text-red-600" />
+                           <span className="font-medium text-red-700">Absent</span>
+                        </div>
+                        <span className="font-bold text-lg text-red-700">{summary.absent}</span>
+                    </div>
+                     <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded-lg">
+                        <div className="flex items-center gap-3">
+                           <Plane className="w-5 h-5 text-blue-600" />
+                           <span className="font-medium text-blue-700">On Leave</span>
+                        </div>
+                        <span className="font-bold text-lg text-blue-700">{summary.leave}</span>
+                    </div>
+                     <div className="flex items-center justify-between p-3 bg-yellow-500/10 rounded-lg">
+                        <div className="flex items-center gap-3">
+                           <Clock className="w-5 h-5 text-yellow-600" />
+                           <span className="font-medium text-yellow-700">Half-day</span>
+                        </div>
+                        <span className="font-bold text-lg text-yellow-700">{summary['half-day']}</span>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
       </main>
     </div>
   );

@@ -3,6 +3,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -178,12 +179,13 @@ export type Asset = {
   assignedTo?: string; // User ID
 };
 
+export type AttendanceStatus = 'present' | 'absent' | 'leave' | 'half-day';
+
 export type AttendanceEntry = {
   id: string;
-  userId: string;
-  checkIn: string; // ISO Date String
-  checkOut?: string; // ISO Date String
+  employeeId: string;
   date: string; // YYYY-MM-DD
+  status: AttendanceStatus;
 };
 
 export type LeaveRequest = {
