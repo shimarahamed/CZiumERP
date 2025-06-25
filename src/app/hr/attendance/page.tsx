@@ -13,6 +13,18 @@ import { format } from 'date-fns';
 import type { AttendanceEntry, AttendanceStatus } from '@/types';
 import { UserCheck, UserX, Plane, Clock, Users } from '@/components/icons';
 
+const AttendanceSummaryCard = ({ title, value, icon }: { title: string, value: number, icon: React.ReactNode }) => (
+    <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            {icon}
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold">{value}</div>
+        </CardContent>
+    </Card>
+);
+
 export default function AttendancePage() {
   const { employees, attendance, setAttendance, addActivityLog, user: currentUser } = useAppContext();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -25,13 +37,18 @@ export default function AttendancePage() {
   }, [attendance, selectedDate]);
   
   const summary = useMemo(() => {
+    const employeeStatuses = employees.map(emp => {
+      const attendanceRecord = attendanceForDate.find(a => a.employeeId === emp.id);
+      return attendanceRecord ? attendanceRecord.status : 'absent';
+    });
+
     return {
-        present: attendanceForDate.filter(a => a.status === 'present').length,
-        absent: attendanceForDate.filter(a => a.status === 'absent').length,
-        leave: attendanceForDate.filter(a => a.status === 'leave').length,
-        'half-day': attendanceForDate.filter(a => a.status === 'half-day').length,
-    }
-  }, [attendanceForDate]);
+      present: employeeStatuses.filter(s => s === 'present').length,
+      absent: employeeStatuses.filter(s => s === 'absent').length,
+      leave: employeeStatuses.filter(s => s === 'leave').length,
+      'half-day': employeeStatuses.filter(s => s === 'half-day').length
+    };
+  }, [employees, attendanceForDate]);
 
   const handleMarkAttendance = (employeeId: string, status: AttendanceStatus) => {
     if (!canManage) return;
@@ -45,17 +62,18 @@ export default function AttendancePage() {
             a => a.employeeId === employeeId && a.date === formattedDate
         );
 
+        const newEntry: AttendanceEntry = {
+            id: `att-${Date.now()}-${employeeId}`,
+            employeeId: employeeId,
+            date: formattedDate,
+            status: status,
+        };
+
         if (existingEntryIndex > -1) {
             const updatedAttendance = [...prev];
-            updatedAttendance[existingEntryIndex].status = status;
+            updatedAttendance[existingEntryIndex] = newEntry;
             return updatedAttendance;
         } else {
-            const newEntry: AttendanceEntry = {
-                id: `att-${Date.now()}`,
-                employeeId: employeeId,
-                date: formattedDate,
-                status: status,
-            };
             return [newEntry, ...prev];
         }
     });
@@ -69,111 +87,72 @@ export default function AttendancePage() {
   return (
     <div className="flex flex-col h-full">
       <Header title="Manual Attendance" />
-      <main className="flex-1 overflow-auto p-4 md:p-6 grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
-            <Card>
-                <CardHeader className="flex flex-col md:flex-row justify-between md:items-center">
-                    <div>
-                        <CardTitle>Mark Employee Attendance</CardTitle>
-                        <CardDescription>Select a date and mark the status for each employee.</CardDescription>
-                    </div>
-                    <DatePicker date={selectedDate} setDate={setSelectedDate} />
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Employee</TableHead>
-                                <TableHead className="w-[150px]">Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {employees.map(employee => {
-                                const currentStatus = attendanceForDate.find(a => a.employeeId === employee.id)?.status;
-                                return (
-                                <TableRow key={employee.id}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarImage src={employee.avatar} alt={employee.name} data-ai-hint="person user" />
-                                                <AvatarFallback>{employee.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="flex flex-col min-w-0">
-                                               <span className="truncate">{employee.name}</span>
-                                               <span className="text-sm text-muted-foreground truncate">{employee.jobTitle}</span>
-                                            </div>
+      <main className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-6">
+            <AttendanceSummaryCard title="Total Employees" value={employees.length} icon={<Users className="h-4 w-4 text-muted-foreground" />} />
+            <AttendanceSummaryCard title="Present" value={summary.present} icon={<UserCheck className="h-4 w-4 text-green-500" />} />
+            <AttendanceSummaryCard title="Absent" value={summary.absent} icon={<UserX className="h-4 w-4 text-red-500" />} />
+            <AttendanceSummaryCard title="On Leave" value={summary.leave} icon={<Plane className="h-4 w-4 text-blue-500" />} />
+            <AttendanceSummaryCard title="Half-day" value={summary['half-day']} icon={<Clock className="h-4 w-4 text-yellow-500" />} />
+        </div>
+
+        <Card>
+            <CardHeader className="flex flex-col md:flex-row justify-between md:items-center">
+                <div>
+                    <CardTitle>Mark Employee Attendance</CardTitle>
+                    <CardDescription>Select a date and mark the status for each employee.</CardDescription>
+                </div>
+                <DatePicker date={selectedDate} setDate={setSelectedDate} />
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Employee</TableHead>
+                            <TableHead className="w-[180px]">Status for {format(selectedDate, 'PPP')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {employees.map(employee => {
+                            const currentStatus = attendanceForDate.find(a => a.employeeId === employee.id)?.status;
+                            return (
+                            <TableRow key={employee.id}>
+                                <TableCell className="font-medium">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar>
+                                            <AvatarImage src={employee.avatar} alt={employee.name} data-ai-hint="person user" />
+                                            <AvatarFallback>{employee.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col min-w-0">
+                                           <span className="truncate">{employee.name}</span>
+                                           <span className="text-sm text-muted-foreground truncate">{employee.jobTitle}</span>
                                         </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Select
-                                            value={currentStatus || 'absent'}
-                                            onValueChange={(status: AttendanceStatus) => handleMarkAttendance(employee.id, status)}
-                                            disabled={!canManage}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="present">Present</SelectItem>
-                                                <SelectItem value="absent">Absent</SelectItem>
-                                                <SelectItem value="leave">On Leave</SelectItem>
-                                                <SelectItem value="half-day">Half-day</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </TableCell>
-                                </TableRow>
-                                )
-                            })}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
-        <div className="md:col-span-1">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Attendance Summary</CardTitle>
-                    <CardDescription>{format(selectedDate, 'PPP')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                           <Users className="w-5 h-5 text-muted-foreground" />
-                           <span className="font-medium">Total Employees</span>
-                        </div>
-                        <span className="font-bold text-lg">{employees.length}</span>
-                    </div>
-                     <div className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg">
-                        <div className="flex items-center gap-3">
-                           <UserCheck className="w-5 h-5 text-green-600" />
-                           <span className="font-medium text-green-700">Present</span>
-                        </div>
-                        <span className="font-bold text-lg text-green-700">{summary.present}</span>
-                    </div>
-                     <div className="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
-                        <div className="flex items-center gap-3">
-                           <UserX className="w-5 h-5 text-red-600" />
-                           <span className="font-medium text-red-700">Absent</span>
-                        </div>
-                        <span className="font-bold text-lg text-red-700">{summary.absent}</span>
-                    </div>
-                     <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded-lg">
-                        <div className="flex items-center gap-3">
-                           <Plane className="w-5 h-5 text-blue-600" />
-                           <span className="font-medium text-blue-700">On Leave</span>
-                        </div>
-                        <span className="font-bold text-lg text-blue-700">{summary.leave}</span>
-                    </div>
-                     <div className="flex items-center justify-between p-3 bg-yellow-500/10 rounded-lg">
-                        <div className="flex items-center gap-3">
-                           <Clock className="w-5 h-5 text-yellow-600" />
-                           <span className="font-medium text-yellow-700">Half-day</span>
-                        </div>
-                        <span className="font-bold text-lg text-yellow-700">{summary['half-day']}</span>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Select
+                                        value={currentStatus || 'absent'}
+                                        onValueChange={(status: AttendanceStatus) => handleMarkAttendance(employee.id, status)}
+                                        disabled={!canManage}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="present">Present</SelectItem>
+                                            <SelectItem value="absent">Absent</SelectItem>
+                                            <SelectItem value="leave">On Leave</SelectItem>
+                                            <SelectItem value="half-day">Half-day</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
+                            </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
       </main>
     </div>
   );
