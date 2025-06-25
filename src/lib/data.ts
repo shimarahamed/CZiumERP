@@ -1,10 +1,10 @@
 import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset } from '@/types';
 
 export const initialUsers: User[] = [
-  { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
-  { id: 'user-2', name: 'Manager Mike', email: 'manager@czium.com', avatar: 'https://placehold.co/40x40', role: 'manager', password: 'password' },
-  { id: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', role: 'cashier', password: 'password' },
-  { id: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', role: 'inventory-staff', password: 'password' },
+  { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password', jobTitle: 'System Administrator', department: 'IT', dateOfJoining: '2020-01-01', salary: 120000 },
+  { id: 'user-2', name: 'Manager Mike', email: 'manager@czium.com', avatar: 'https://placehold.co/40x40', role: 'manager', password: 'password', jobTitle: 'Store Manager', department: 'Operations', dateOfJoining: '2021-03-15', salary: 85000 },
+  { id: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', role: 'cashier', password: 'password', jobTitle: 'Cashier', department: 'Sales', dateOfJoining: '2022-06-01', salary: 45000 },
+  { id: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', role: 'inventory-staff', password: 'password', jobTitle: 'Inventory Specialist', department: 'Logistics', dateOfJoining: '2022-09-20', salary: 55000 },
 ];
 
 export const initialStores: Store[] = [

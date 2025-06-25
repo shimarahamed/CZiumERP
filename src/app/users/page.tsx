@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -20,18 +21,24 @@ import type { User, Role } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required."),
   email: z.string().email("Invalid email address."),
   role: z.enum(['admin', 'manager', 'cashier', 'inventory-staff']),
   password: z.string().min(6, "Password must be at least 6 characters.").optional().or(z.literal('')),
+  jobTitle: z.string().optional(),
+  department: z.string().optional(),
+  dateOfJoining: z.date().optional().nullable(),
+  salary: z.coerce.number().min(0, "Salary must be non-negative").optional(),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
 
 export default function UsersPage() {
-    const { users, setUsers, addActivityLog, user: currentUser } = useAppContext();
+    const { users, setUsers, addActivityLog, user: currentUser, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [userToEdit, setUserToEdit] = useState<User | null>(null);
@@ -43,13 +50,11 @@ export default function UsersPage() {
 
     useEffect(() => {
       if (!isFormOpen) {
-        form.reset({ name: '', email: '', role: 'cashier', password: '' });
+        form.reset({ name: '', email: '', role: 'cashier', password: '', jobTitle: '', department: '', dateOfJoining: null, salary: 0 });
         setUserToEdit(null);
       }
     }, [isFormOpen, form]);
     
-    // This page should only be accessible by admins. This is a client-side check.
-    // A server-side check would be needed in a real app.
     if (currentUser?.role !== 'admin') {
         return (
             <div className="flex flex-col h-full">
@@ -76,34 +81,42 @@ export default function UsersPage() {
                 email: user.email,
                 role: user.role,
                 password: '',
+                jobTitle: user.jobTitle,
+                department: user.department,
+                dateOfJoining: user.dateOfJoining ? new Date(user.dateOfJoining) : null,
+                salary: user.salary,
             });
         } else {
-            form.reset({ name: '', email: '', role: 'cashier', password: '' });
+            form.reset({ name: '', email: '', role: 'cashier', password: '', jobTitle: '', department: '', dateOfJoining: new Date(), salary: 0 });
         }
         setIsFormOpen(true);
     };
 
     const onSubmit = (data: UserFormData) => {
+        const userData = {
+            ...data,
+            dateOfJoining: data.dateOfJoining ? data.dateOfJoining.toISOString() : undefined
+        };
+
         if (userToEdit) {
             const updatedUsers = users.map(u => u.id === userToEdit.id ? { 
                 ...u, 
-                ...data, 
-                // Only update password if a new one is provided
+                ...userData, 
                 password: data.password ? data.password : u.password 
             } : u);
             setUsers(updatedUsers);
-            toast({ title: "User Updated", description: `${data.name}'s details have been updated.` });
-            addActivityLog('User Updated', `Updated user: ${data.name} (ID: ${userToEdit.id})`);
+            toast({ title: "Employee Updated", description: `${data.name}'s details have been updated.` });
+            addActivityLog('Employee Updated', `Updated employee: ${data.name} (ID: ${userToEdit.id})`);
         } else {
             const newUser: User = {
                 id: `user-${Date.now()}`,
                 avatar: `https://placehold.co/40x40`,
-                ...data,
-                password: data.password || 'password' // Default password if not set
+                ...userData,
+                password: data.password || 'password'
             };
             setUsers([newUser, ...users]);
-            toast({ title: "User Added", description: `${data.name} has been added.` });
-            addActivityLog('User Added', `Added new user: ${data.name}`);
+            toast({ title: "Employee Added", description: `${data.name} has been added.` });
+            addActivityLog('Employee Added', `Added new employee: ${data.name}`);
         }
         setIsFormOpen(false);
     };
@@ -115,26 +128,26 @@ export default function UsersPage() {
             return;
         };
 
-        addActivityLog('User Deleted', `Deleted user: ${userToDelete.name} (ID: ${userToDelete.id})`);
+        addActivityLog('Employee Deleted', `Deleted employee: ${userToDelete.name} (ID: ${userToDelete.id})`);
         setUsers(users.filter(u => u.id !== userToDelete.id));
-        toast({ title: "User Deleted", description: `${userToDelete.name} has been deleted.` });
+        toast({ title: "Employee Deleted", description: `${userToDelete.name} has been deleted.` });
         setUserToDelete(null);
     };
 
     return (
         <div className="flex flex-col h-full">
-            <Header title="User Management" />
+            <Header title="Employee Management" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
-                                <CardTitle>Users</CardTitle>
-                                <CardDescription>Manage user accounts and permissions.</CardDescription>
+                                <CardTitle>Employees</CardTitle>
+                                <CardDescription>Manage employee accounts, roles, and information.</CardDescription>
                             </div>
                             <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
                                 <PlusCircle className="h-4 w-4" />
-                                Add User
+                                Add Employee
                             </Button>
                         </div>
                     </CardHeader>
@@ -142,8 +155,8 @@ export default function UsersPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Email</TableHead>
+                                    <TableHead>Employee</TableHead>
+                                    <TableHead className="hidden md:table-cell">Job Title</TableHead>
                                     <TableHead>Role</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
@@ -159,11 +172,12 @@ export default function UsersPage() {
                                                 </Avatar>
                                                 <div className="flex flex-col min-w-0">
                                                    <span className="truncate">{user.name}</span>
+                                                   <span className="text-sm text-muted-foreground truncate">{user.email}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell><Badge variant="secondary" className="capitalize">{user.role}</Badge></TableCell>
+                                        <TableCell className="hidden md:table-cell">{user.jobTitle || 'N/A'}</TableCell>
+                                        <TableCell><Badge variant="secondary" className="capitalize">{user.role.replace('-', ' ')}</Badge></TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -188,43 +202,60 @@ export default function UsersPage() {
             </main>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
-                        <DialogTitle>{userToEdit ? 'Edit User' : 'Add New User'}</DialogTitle>
+                        <DialogTitle>{userToEdit ? 'Edit Employee' : 'Add New Employee'}</DialogTitle>
                         <DialogDescription>
-                            {userToEdit ? 'Update user details and permissions.' : 'Fill in the details to add a new user.'}
+                            {userToEdit ? 'Update employee details and permissions.' : 'Fill in the details to add a new employee.'}
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                            <FormField control={form.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-2">
+                             <FormField control={form.control} name="name" render={({ field }) => (
+                                <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="email" render={({ field }) => (
                                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                            <FormField control={form.control} name="role" render={({ field }) => (
-                                <FormItem><FormLabel>Role</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="admin">Admin</SelectItem>
-                                            <SelectItem value="manager">Manager</SelectItem>
-                                            <SelectItem value="cashier">Cashier</SelectItem>
-                                            <SelectItem value="inventory-staff">Inventory Staff</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                <FormMessage /></FormItem>
-                            )} />
-                             <FormField control={form.control} name="password" render={({ field }) => (
+                            <FormField control={form.control} name="password" render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>New Password</FormLabel>
+                                    <FormLabel>Password</FormLabel>
                                     <FormControl><Input type="password" {...field} placeholder={userToEdit ? "Leave blank to keep current password" : "Minimum 6 characters"} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="jobTitle" render={({ field }) => (
+                                    <FormItem><FormLabel>Job Title</FormLabel><FormControl><Input {...field} placeholder="e.g. Store Manager" /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="department" render={({ field }) => (
+                                    <FormItem><FormLabel>Department</FormLabel><FormControl><Input {...field} placeholder="e.g. Sales" /></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="role" render={({ field }) => (
+                                    <FormItem><FormLabel>Role</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="admin">Admin</SelectItem>
+                                                <SelectItem value="manager">Manager</SelectItem>
+                                                <SelectItem value="cashier">Cashier</SelectItem>
+                                                <SelectItem value="inventory-staff">Inventory Staff</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    <FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="dateOfJoining" render={({ field }) => (
+                                    <FormItem className="flex flex-col pt-2"><FormLabel>Date of Joining</FormLabel><FormControl><DatePicker date={field.value ?? undefined} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                            </div>
+                             <FormField control={form.control} name="salary" render={({ field }) => (
+                                <FormItem><FormLabel>Salary ({currencySymbol})</FormLabel><FormControl><Input type="number" step="100" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            
                             <DialogFooter>
-                                <Button type="submit">{userToEdit ? 'Save Changes' : 'Add User'}</Button>
+                                <Button type="submit">{userToEdit ? 'Save Changes' : 'Add Employee'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -235,7 +266,7 @@ export default function UsersPage() {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>This action cannot be undone. This will permanently delete the user account.</AlertDialogDescription>
+                        <AlertDialogDescription>This action cannot be undone. This will permanently delete the employee's account.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>

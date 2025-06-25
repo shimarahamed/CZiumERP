@@ -25,4 +25,7 @@ export {
   ShoppingBag,
   AreaChart,
   Hourglass,
+  Clock,
+  CalendarPlus,
+  Banknote,
 } from 'lucide-react';
