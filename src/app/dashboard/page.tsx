@@ -7,14 +7,14 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent }
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart } from "lucide-react";
+import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart, Hourglass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 import { format, differenceInDays, parseISO } from 'date-fns';
 
 export default function DashboardPage() {
-  const { invoices, currentStore, currencySymbol, products, user } = useAppContext();
+  const { invoices, currentStore, currencySymbol, products, user, stores } = useAppContext();
   
   const storeInvoices = useMemo(() => {
     if (currentStore?.id === 'all') {
@@ -24,6 +24,8 @@ export default function DashboardPage() {
   }, [invoices, currentStore]);
   
   const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
+  const pendingInvoices = storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue');
+
 
   const chartConfig = {
     revenue: {
@@ -46,6 +48,32 @@ export default function DashboardPage() {
   const averageSaleValue = paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0;
   const totalItemsSold = paidInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
   const activeCustomers = new Set(paidInvoices.map(inv => inv.customerId).filter(Boolean)).size;
+
+  const totalPendingAmount = pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+
+  const topPerformingStore = useMemo(() => {
+    if (currentStore?.id !== 'all' || paidInvoices.length === 0) {
+      return null;
+    }
+
+    const salesByStore = new Map<string, { name: string, revenue: number }>();
+    paidInvoices.forEach(invoice => {
+        if (!invoice.storeId) return;
+        const store = stores.find(s => s.id === invoice.storeId);
+        if (!store) return;
+
+        const existing = salesByStore.get(store.id);
+        if (existing) {
+            existing.revenue += invoice.amount;
+        } else {
+            salesByStore.set(store.id, { name: store.name, revenue: invoice.amount });
+        }
+    });
+
+    if (salesByStore.size === 0) return null;
+
+    return Array.from(salesByStore.values()).sort((a, b) => b.revenue - a.revenue)[0];
+  }, [currentStore?.id, paidInvoices, stores]);
 
 
   const lowStockItems = products.filter(p => 
@@ -92,7 +120,7 @@ export default function DashboardPage() {
         </Button>
       </Header>
       <div className="flex-1 overflow-auto p-4 md:p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -153,6 +181,30 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">Customers with paid invoices</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Payments</CardTitle>
+              <Hourglass className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{currencySymbol} {totalPendingAmount.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">From {pendingInvoices.length} invoices</p>
+            </CardContent>
+          </Card>
+          {topPerformingStore && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Top Performing Store</CardTitle>
+                <Trophy className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold truncate">{topPerformingStore.name}</div>
+                <p className="text-xs text-muted-foreground">
+                  {currencySymbol} {topPerformingStore.revenue.toFixed(2)} in revenue
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
         <div className="grid gap-4 mt-6 md:grid-cols-2 lg:grid-cols-7">
           <Card className="lg:col-span-4">
