@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
@@ -15,7 +16,13 @@ import { format, differenceInDays, parseISO } from 'date-fns';
 export default function DashboardPage() {
   const { invoices, customers, currentStore, currencySymbol, products } = useAppContext();
   
-  const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
+  const storeInvoices = useMemo(() => {
+    if (currentStore?.id === 'all') {
+      return invoices;
+    }
+    return invoices.filter(i => i.storeId === currentStore?.id);
+  }, [invoices, currentStore]);
+
   const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
 
   const chartConfig = {
@@ -65,6 +72,8 @@ export default function DashboardPage() {
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 5);
 
+  const kpiSubtitle = currentStore?.id === 'all' ? "Across all stores" : "For this store's paid invoices";
+
 
   return (
     <div className="flex flex-col h-full">
@@ -85,7 +94,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{currencySymbol} {totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">For this store's paid invoices</p>
+              <p className="text-xs text-muted-foreground">{kpiSubtitle}</p>
             </CardContent>
           </Card>
           <Card>
@@ -105,7 +114,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">+{paidInvoices.length}</div>
-              <p className="text-xs text-muted-foreground">Paid invoices in this store</p>
+              <p className="text-xs text-muted-foreground">{kpiSubtitle}</p>
             </CardContent>
           </Card>
           <Card>
@@ -140,7 +149,7 @@ export default function DashboardPage() {
           <Card className="lg:col-span-3">
             <CardHeader>
               <CardTitle>Dashboard Insights</CardTitle>
-              <p className="text-sm text-muted-foreground">Key metrics and alerts for your store.</p>
+              <p className="text-sm text-muted-foreground">Key metrics and alerts for your business.</p>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-[250px] overflow-y-auto">

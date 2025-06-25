@@ -1,5 +1,7 @@
+
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +9,14 @@ import { useAppContext } from '@/context/AppContext';
 import { Store, CheckCircle } from 'lucide-react';
 
 export default function SelectStorePage() {
-  const { stores, selectStore, currentStore, logout } = useAppContext();
+  const { stores, selectStore, currentStore, logout, user } = useAppContext();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'manager') {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const handleSelectStore = (storeId: string) => {
     selectStore(storeId);
@@ -19,6 +27,10 @@ export default function SelectStorePage() {
     logout();
     router.push('/login');
   };
+
+  if (user?.role === 'admin' || user?.role === 'manager') {
+    return null; // Prevent flicker while redirecting
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">

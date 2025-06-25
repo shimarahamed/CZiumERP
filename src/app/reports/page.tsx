@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useMemo, useState, useRef } from 'react';
@@ -44,7 +45,7 @@ const ReportView = React.forwardRef<HTMLDivElement, {
     return (
         <div ref={ref} className="printable-invoice-area bg-white text-black p-4 sm:p-8">
             <div className="mb-8 text-center">
-                <h1 className="text-3xl font-bold mb-1">Sales Report for {currentStore?.name}</h1>
+                <h1 className="text-3xl font-bold mb-1">Sales Report for {currentStore?.id === 'all' ? 'All Stores' : currentStore?.name}</h1>
                 {dateRange?.from && (
                     <p className="text-gray-600">
                         Period: {dateRange.from.toLocaleDateString()}
@@ -162,13 +163,15 @@ export default function ReportsPage() {
     };
 
     const filteredInvoices = useMemo(() => {
-        const storePaidInvoices = invoices.filter(inv => inv.storeId === currentStore?.id && inv.status === 'paid');
+        const baseInvoices = (currentStore?.id === 'all' ? invoices : invoices.filter(inv => inv.storeId === currentStore?.id))
+            .filter(inv => inv.status === 'paid');
+
         if (date?.from) {
-            return storePaidInvoices.filter(inv => 
+            return baseInvoices.filter(inv => 
                 isWithinInterval(parseISO(inv.date), { start: date.from!, end: date.to || new Date() })
             );
         }
-        return storePaidInvoices;
+        return baseInvoices;
     }, [invoices, currentStore, date]);
     
     const productSales = useMemo((): ProductSale[] => {

@@ -22,7 +22,7 @@ type HeaderProps = {
 };
 
 export default function Header({ title, children }: HeaderProps) {
-  const { currentStore, stores, selectStore, logout } = useAppContext();
+  const { currentStore, stores, selectStore, user } = useAppContext();
   const router = useRouter();
 
   const handleStoreChange = (storeId: string) => {
@@ -34,6 +34,8 @@ export default function Header({ title, children }: HeaderProps) {
   const handleSwitchStore = () => {
     router.push('/select-store');
   }
+
+  const isAdminOrManager = user?.role === 'admin' || user?.role === 'manager';
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-card px-4 md:px-6 sticky top-0 z-10">
@@ -52,6 +54,11 @@ export default function Header({ title, children }: HeaderProps) {
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Switch Store</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {isAdminOrManager && (
+                  <DropdownMenuItem onClick={() => handleStoreChange('all')} disabled={currentStore?.id === 'all'}>
+                    All Stores
+                  </DropdownMenuItem>
+                )}
                 {stores.map(store => (
                     <DropdownMenuItem key={store.id} onClick={() => handleStoreChange(store.id)} disabled={store.id === currentStore?.id}>
                         {store.name}

@@ -66,6 +66,9 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// A static object for the "All Stores" view
+const allStoresView: Store = { id: 'all', name: 'All Stores', address: 'Global Administrator View' };
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Initialize with server-safe defaults
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
@@ -99,11 +102,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setRfqs(getStoredState('rfqs', initialRfqs));
     setUsers(getStoredState('users', initialUsers));
     setActivityLogs(getStoredState('activityLogs', []));
-    setIsAuthenticated(getStoredState('isAuthenticated', false));
-    setUser(getStoredState('user', null));
+    
+    const storedAuth = getStoredState('isAuthenticated', false);
+    setIsAuthenticated(storedAuth);
+    const storedUser = getStoredState('user', null);
+    setUser(storedUser);
+
     const storedStoreId = getStoredState('currentStoreId', null);
     if(storedStoreId){
-        setCurrentStore(loadedStores.find(s => s.id === storedStoreId) || null);
+        if (storedStoreId === 'all' && (storedUser?.role === 'admin' || storedUser?.role === 'manager')) {
+            setCurrentStore(allStoresView);
+        } else {
+            setCurrentStore(loadedStores.find(s => s.id === storedStoreId) || null);
+        }
     }
     setCurrency(getStoredState('currency', 'AED'));
     
@@ -165,12 +176,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setUser(loggedInUser);
       
       addActivityLog('User Login', `User ${loggedInUser.email} logged in.`);
+      
+      if (loggedInUser.role === 'admin' || loggedInUser.role === 'manager') {
+        selectStore('all');
+      } else {
+        // For other roles, ensure no store is selected initially so they go to select-store page
+        setCurrentStore(null);
+      }
+
       return true;
     }
     return false;
   };
 
   const selectStore = (storeId: string) => {
+    if (storeId === 'all') {
+      setCurrentStore(allStoresView);
+      addActivityLog('Store Selected', 'Session set to All Stores (Global View)');
+      return;
+    }
+
     const store = stores.find(s => s.id === storeId);
     if (store) {
         setCurrentStore(store);
