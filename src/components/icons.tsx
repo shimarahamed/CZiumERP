@@ -16,4 +16,13 @@ export {
   Store, 
   ClipboardList,
   Archive,
+  DollarSign,
+  TrendingUp,
+  PlusCircle,
+  AlertCircle,
+  AlertTriangle,
+  Trophy,
+  ShoppingBag,
+  AreaChart,
+  Hourglass,
 } from 'lucide-react';

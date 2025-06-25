@@ -7,7 +7,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent }
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart, Hourglass } from "lucide-react";
+import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart, Hourglass } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
