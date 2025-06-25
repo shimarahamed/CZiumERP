@@ -15,7 +15,7 @@ export default function AttendancePage() {
   const [latestEntry, setLatestEntry] = useState<AttendanceEntry | null>(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && attendance) {
       const today = format(new Date(), 'yyyy-MM-dd');
       const userTodaysEntries = attendance
         .filter(a => a.userId === user.id && a.date === today)
@@ -51,7 +51,7 @@ export default function AttendancePage() {
 
   const isCheckedIn = latestEntry && !latestEntry.checkOut;
 
-  const userAttendanceHistory = user 
+  const userAttendanceHistory = (user && attendance)
     ? attendance.filter(a => a.userId === user.id).sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
     : [];
   
