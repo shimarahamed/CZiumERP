@@ -33,32 +33,37 @@ const navLinksConfig: Record<Role, string[]> = {
 
 const categories: NavCategory[] = [
   {
-    label: 'Point of Sale',
+    label: 'General',
     links: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/reports', label: 'Reports', icon: BarChart3 },
+      { href: '/activity', label: 'Activity Logs', icon: History },
+    ],
+  },
+  {
+    label: 'Sales',
+    links: [
       { href: '/invoices', label: 'Invoices', icon: FileText },
       { href: '/payments', label: 'Payments', icon: CreditCard },
       { href: '/returns', label: 'Returns', icon: Undo2 },
+      { href: '/customers', label: 'Customers', icon: Users },
       { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
     ],
   },
   {
-    label: 'Management',
+    label: 'Procurement',
     links: [
-      { href: '/customers', label: 'Customers', icon: Users },
       { href: '/inventory', label: 'Inventory', icon: Package },
       { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
-      { href: '/vendors', label: 'Vendors', icon: Building2 },
       { href: '/rfq', label: 'Request for Quotation', icon: ClipboardList },
+      { href: '/vendors', label: 'Vendors', icon: Building2 },
     ],
   },
   {
     label: 'Administration',
     links: [
-      { href: '/reports', label: 'Reports', icon: BarChart3 },
       { href: '/stores', label: 'Stores', icon: Store },
       { href: '/users', label: 'Users', icon: UserCog },
-      { href: '/activity', label: 'Activity Logs', icon: History },
       { href: '/settings', label: 'Settings', icon: Settings },
     ],
   }
