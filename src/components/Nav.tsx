@@ -1,10 +1,11 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
-  Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, FileQuestion
+  Building2, History, Settings, Undo2, ShoppingCart, UsersCog, Store, ClipboardList
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -48,7 +49,7 @@ const categories: NavCategory[] = [
       { href: '/inventory', label: 'Inventory', icon: Package },
       { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
       { href: '/vendors', label: 'Vendors', icon: Building2 },
-      { href: '/rfq', label: 'Request for Quotation', icon: FileQuestion },
+      { href: '/rfq', label: 'Request for Quotation', icon: ClipboardList },
     ],
   },
   {
@@ -56,7 +57,7 @@ const categories: NavCategory[] = [
     links: [
       { href: '/reports', label: 'Reports', icon: BarChart3 },
       { href: '/stores', label: 'Stores', icon: Store },
-      { href: '/users', label: 'Users', icon: UserCog },
+      { href: '/users', label: 'Users', icon: UsersCog },
       { href: '/activity', label: 'Activity Logs', icon: History },
       { href: '/settings', label: 'Settings', icon: Settings },
     ],
