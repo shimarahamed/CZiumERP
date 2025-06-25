@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -22,6 +21,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Asset, AssetStatus } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
+import { MoreHorizontal, PlusCircle } from '@/components/icons';
 
 const assetSchema = z.object({
   name: z.string().min(1, "Asset name is required."),

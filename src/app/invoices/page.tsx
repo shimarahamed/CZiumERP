@@ -6,7 +6,6 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info } from "lucide-react";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +29,7 @@ import type { Invoice, InvoiceItem, CustomerTier } from "@/types";
 import { Combobox } from "@/components/ui/combobox";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info } from "@/components/icons";
 
 const invoiceItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),

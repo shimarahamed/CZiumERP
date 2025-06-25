@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useMemo } from 'react';
@@ -10,7 +11,7 @@ import Header from "@/components/Header";
 import { useAppContext } from "@/context/AppContext";
 import { format } from 'date-fns';
 import type { AttendanceEntry, AttendanceStatus } from '@/types';
-import { UserCheck, UserX, Plane, Clock, Users } from 'lucide-react';
+import { UserCheck, UserX, Plane, Clock, Users } from '@/components/icons';
 
 export default function AttendancePage() {
   const { employees, attendance, setAttendance, addActivityLog, user: currentUser } = useAppContext();
