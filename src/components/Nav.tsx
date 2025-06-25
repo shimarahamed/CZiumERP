@@ -6,7 +6,7 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
-  Archive, Clock, CalendarPlus, Banknote
+  Archive, Clock, CalendarPlus, Banknote, UserRoundCog
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -26,8 +26,8 @@ type NavCategory = {
 
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Assets', 'Employees', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings', 'Assets'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings', 'Assets', 'Employees'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
 };
@@ -69,7 +69,7 @@ const categories: NavCategory[] = [
   {
     label: 'Human Resources',
     links: [
-      { href: '/users', label: 'Employees', icon: UserCog },
+      { href: '/hr/employees', label: 'Employees', icon: UserCog },
       { href: '/hr/attendance', label: 'Attendance', icon: Clock },
       { href: '/hr/leave-requests', label: 'Leave Requests', icon: CalendarPlus },
       { href: '/hr/payroll', label: 'Payroll', icon: Banknote },
@@ -79,6 +79,7 @@ const categories: NavCategory[] = [
     label: 'Administration',
     links: [
       { href: '/stores', label: 'Stores', icon: Store },
+      { href: '/users', label: 'User Accounts', icon: UserRoundCog },
       { href: '/settings', label: 'Settings', icon: Settings },
     ],
   }

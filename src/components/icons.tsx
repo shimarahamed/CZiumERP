@@ -13,6 +13,7 @@ export {
   Undo2, 
   ShoppingCart, 
   UserCog, 
+  UserRoundCog,
   Store, 
   ClipboardList,
   Archive,

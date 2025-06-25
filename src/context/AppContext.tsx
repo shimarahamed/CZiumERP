@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -48,6 +48,8 @@ interface AppContextType {
   setRfqs: React.Dispatch<React.SetStateAction<RFQ[]>>;
   assets: Asset[];
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
+  employees: Employee[];
+  setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
   stores: Store[];
   setStores: React.Dispatch<React.SetStateAction<Store[]>>;
   currentStore: Store | null;
@@ -86,6 +88,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [rfqs, setRfqs] = useState<RFQ[]>(initialRfqs);
   const [assets, setAssets] = useState<Asset[]>(initialAssets);
   const [users, setUsers] = useState<User[]>(initialUsers);
+  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [stores, setStores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [attendance, setAttendance] = useState<AttendanceEntry[]>(initialAttendance);
@@ -112,6 +115,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setRfqs(getStoredState('rfqs', initialRfqs));
     setAssets(getStoredState('assets', initialAssets));
     setUsers(getStoredState('users', initialUsers));
+    setEmployees(getStoredState('employees', initialEmployees));
     setActivityLogs(getStoredState('activityLogs', []));
     setAttendance(getStoredState('attendance', initialAttendance));
     setLeaveRequests(getStoredState('leaveRequests', initialLeaveRequests));
@@ -143,6 +147,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('rfqs', JSON.stringify(rfqs)); }, [rfqs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('assets', JSON.stringify(assets)); }, [assets, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(users)); }, [users, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('employees', JSON.stringify(employees)); }, [employees, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('stores', JSON.stringify(stores)); }, [stores, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('attendance', JSON.stringify(attendance)); }, [attendance, isHydrated]);
@@ -238,6 +243,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('currency');
     localStorage.removeItem('purchaseOrders');
     localStorage.removeItem('users');
+    localStorage.removeItem('employees');
     localStorage.removeItem('stores');
     localStorage.removeItem('rfqs');
     localStorage.removeItem('assets');
@@ -255,6 +261,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       purchaseOrders, setPurchaseOrders,
       rfqs, setRfqs,
       assets, setAssets,
+      employees, setEmployees,
       stores,
       setStores,
       currentStore,
