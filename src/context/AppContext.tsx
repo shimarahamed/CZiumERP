@@ -150,7 +150,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addActivityLog = (action: string, details: string) => {
-    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@cziumpos.com', avatar: '', role: 'admin' } : null);
+    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@czium.com', avatar: '', role: 'admin' } : null);
     if (!currentUser) return;
 
     const storeInfo = currentStore ? ` (Store: ${currentStore.name})` : '';

@@ -72,7 +72,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
              <div className="p-2 bg-primary/20 rounded-lg">
                 <Store className="w-6 h-6 text-primary-foreground" />
              </div>
-             <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">CZium POS</h1>
+             <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">CZium ERP</h1>
           </SidebarHeader>
           <SidebarContent>
             <Nav />

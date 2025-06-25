@@ -5,7 +5,7 @@ import { AppProvider } from '@/context/AppContext';
 import AuthWrapper from '@/components/AuthWrapper';
 
 export const metadata: Metadata = {
-  title: 'CZium POS',
+  title: 'CZium ERP',
   description: 'Modern POS for your business',
   manifest: '/manifest.json',
 };

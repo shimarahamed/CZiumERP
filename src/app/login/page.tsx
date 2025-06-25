@@ -39,7 +39,7 @@ export default function LoginPage() {
                     <Store className="w-8 h-8 text-primary" />
                 </div>
             </div>
-          <CardTitle className="text-2xl">CZium POS Login</CardTitle>
+          <CardTitle className="text-2xl">CZium ERP Login</CardTitle>
           <CardDescription>Enter your credentials to access your dashboard. <br/> (Hint: password is "password")</CardDescription>
         </CardHeader>
         <CardContent>
@@ -49,7 +49,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@cziumpos.com"
+                placeholder="admin@czium.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
