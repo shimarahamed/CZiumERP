@@ -1,4 +1,4 @@
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password', jobTitle: 'System Administrator', department: 'IT', dateOfJoining: '2020-01-01', salary: 120000 },
@@ -363,6 +363,9 @@ export const initialAssets: Asset[] = [
   { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2023-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
   { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2020-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2' },
 ];
+
+export const initialAttendance: AttendanceEntry[] = [];
+export const initialLeaveRequests: LeaveRequest[] = [];
 
 
 export const salesData: Sale[] = [

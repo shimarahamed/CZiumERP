@@ -1,21 +1,208 @@
+'use client'
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { format } from 'date-fns';
+import { PlusCircle, Check, X } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from '@/components/ui/textarea';
 import Header from "@/components/Header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useAppContext } from '@/context/AppContext';
+import type { LeaveRequest } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+const leaveRequestSchema = z.object({
+  dateRange: z.object({
+    from: z.date({ required_error: "Start date is required." }),
+    to: z.date({ required_error: "End date is required." }),
+  }),
+  reason: z.string().min(10, "Reason must be at least 10 characters long."),
+});
+
+type LeaveRequestFormData = z.infer<typeof leaveRequestSchema>;
+
+const statusVariant: { [key in LeaveRequest['status']]: 'default' | 'secondary' | 'destructive' } = {
+    pending: 'secondary',
+    approved: 'default',
+    rejected: 'destructive',
+};
 
 export default function LeaveRequestsPage() {
-  return (
-    <div className="flex flex-col h-full">
-      <Header title="Leave Requests" />
-      <main className="flex-1 overflow-auto p-4 md:p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Coming Soon</CardTitle>
-            <CardDescription>This feature is under active development.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>The employee leave request and approval system is currently being built. Please check back later!</p>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
-  );
+    const { user, leaveRequests, setLeaveRequests, addActivityLog } = useAppContext();
+    const { toast } = useToast();
+    const [isFormOpen, setIsFormOpen] = useState(false);
+
+    const form = useForm<LeaveRequestFormData>({
+        resolver: zodResolver(leaveRequestSchema),
+    });
+
+    const canManage = user?.role === 'admin' || user?.role === 'manager';
+    const myRequests = leaveRequests.filter(lr => lr.userId === user?.id).sort((a,b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+    const teamRequests = leaveRequests.filter(lr => lr.status === 'pending').sort((a,b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+
+    const onSubmit = (data: LeaveRequestFormData) => {
+        if (!user) return;
+        const newRequest: LeaveRequest = {
+            id: `lr-${Date.now()}`,
+            userId: user.id,
+            userName: user.name,
+            startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
+            endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
+            reason: data.reason,
+            status: 'pending',
+            requestedAt: new Date().toISOString(),
+        };
+        setLeaveRequests(prev => [newRequest, ...prev]);
+        addActivityLog('Leave Requested', `User ${user.email} requested leave.`);
+        toast({ title: 'Leave Request Submitted', description: 'Your request has been sent for approval.' });
+        setIsFormOpen(false);
+        form.reset();
+    };
+    
+    const handleUpdateRequest = (requestId: string, status: 'approved' | 'rejected') => {
+        if(!user) return;
+        setLeaveRequests(prev => 
+            prev.map(req => req.id === requestId ? { ...req, status } : req)
+        );
+        const req = leaveRequests.find(r => r.id === requestId);
+        addActivityLog(`Leave Request ${status.charAt(0).toUpperCase() + status.slice(1)}`, `Request from ${req?.userName} was ${status} by ${user.email}`);
+        toast({ title: `Request ${status.charAt(0).toUpperCase() + status.slice(1)}` });
+    };
+
+    return (
+        <div className="flex flex-col h-full">
+            <Header title="Leave Requests" />
+            <main className="flex-1 overflow-auto p-4 md:p-6">
+                 <Tabs defaultValue="my-requests" className="w-full">
+                    <div className="flex justify-between items-start">
+                        <TabsList>
+                            <TabsTrigger value="my-requests">My Requests</TabsTrigger>
+                            {canManage && <TabsTrigger value="team-requests">Team Requests</TabsTrigger>}
+                        </TabsList>
+                         <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
+                            <PlusCircle className="h-4 w-4" />
+                            New Request
+                        </Button>
+                    </div>
+                    <TabsContent value="my-requests">
+                        <Card className="mt-4">
+                            <CardHeader>
+                                <CardTitle>My Leave History</CardTitle>
+                                <CardDescription>A log of your past and pending leave requests.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Dates</TableHead>
+                                            <TableHead>Reason</TableHead>
+                                            <TableHead>Status</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {myRequests.map(req => (
+                                            <TableRow key={req.id}>
+                                                <TableCell>{format(new Date(req.startDate), 'MMM d, yyyy')} - {format(new Date(req.endDate), 'MMM d, yyyy')}</TableCell>
+                                                <TableCell className="truncate max-w-xs">{req.reason}</TableCell>
+                                                <TableCell><Badge variant={statusVariant[req.status]} className="capitalize">{req.status}</Badge></TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    {canManage && (
+                    <TabsContent value="team-requests">
+                         <Card className="mt-4">
+                            <CardHeader>
+                                <CardTitle>Pending Team Requests</CardTitle>
+                                <CardDescription>Review and approve/reject leave requests from your team.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Employee</TableHead>
+                                            <TableHead>Dates</TableHead>
+                                            <TableHead>Reason</TableHead>
+                                            <TableHead>Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {teamRequests.map(req => (
+                                            <TableRow key={req.id}>
+                                                <TableCell>{req.userName}</TableCell>
+                                                <TableCell>{format(new Date(req.startDate), 'MMM d')} - {format(new Date(req.endDate), 'MMM d, yyyy')}</TableCell>
+                                                <TableCell className="truncate max-w-xs">{req.reason}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-2">
+                                                        <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUpdateRequest(req.id, 'approved')}>
+                                                            <Check className="h-4 w-4 text-green-500" />
+                                                        </Button>
+                                                        <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUpdateRequest(req.id, 'rejected')}>
+                                                            <X className="h-4 w-4 text-red-500" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    )}
+                 </Tabs>
+            </main>
+
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>New Leave Request</DialogTitle>
+                    </DialogHeader>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                            <FormField
+                                control={form.control}
+                                name="dateRange"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Leave Dates</FormLabel>
+                                        <DateRangePicker date={field.value} setDate={field.onChange} />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="reason"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Reason</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Please provide a reason for your leave..." {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <DialogFooter>
+                                <Button type="submit">Submit Request</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
 }

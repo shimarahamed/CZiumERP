@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -65,6 +65,10 @@ interface AppContextType {
   currencySymbol: string;
   currencySymbols: CurrencySymbols;
   isHydrated: boolean;
+  attendance: AttendanceEntry[];
+  setAttendance: React.Dispatch<React.SetStateAction<AttendanceEntry[]>>;
+  leaveRequests: LeaveRequest[];
+  setLeaveRequests: React.Dispatch<React.SetStateAction<LeaveRequest[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -84,6 +88,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [stores, setStores] = useState<Store[]>(initialStores);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceEntry[]>(initialAttendance);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -107,6 +113,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setAssets(getStoredState('assets', initialAssets));
     setUsers(getStoredState('users', initialUsers));
     setActivityLogs(getStoredState('activityLogs', []));
+    setAttendance(getStoredState('attendance', initialAttendance));
+    setLeaveRequests(getStoredState('leaveRequests', initialLeaveRequests));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -137,6 +145,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(users)); }, [users, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('stores', JSON.stringify(stores)); }, [stores, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('attendance', JSON.stringify(attendance)); }, [attendance, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests)); }, [leaveRequests, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore, isHydrated]);
@@ -231,6 +241,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('stores');
     localStorage.removeItem('rfqs');
     localStorage.removeItem('assets');
+    localStorage.removeItem('attendance');
+    localStorage.removeItem('leaveRequests');
   };
 
 
@@ -253,7 +265,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
       currencySymbol,
       currencySymbols,
-      isHydrated
+      isHydrated,
+      attendance, setAttendance,
+      leaveRequests, setLeaveRequests
     }}>
       {children}
     </AppContext.Provider>

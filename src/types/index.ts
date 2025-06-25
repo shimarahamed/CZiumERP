@@ -1,6 +1,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -166,4 +167,23 @@ export type Asset = {
   status: AssetStatus;
   location: string;
   assignedTo?: string; // User ID
+};
+
+export type AttendanceEntry = {
+  id: string;
+  userId: string;
+  checkIn: string; // ISO Date String
+  checkOut?: string; // ISO Date String
+  date: string; // YYYY-MM-DD
+};
+
+export type LeaveRequest = {
+  id: string;
+  userId: string;
+  userName: string;
+  reason: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string; // ISO Date String
 };
