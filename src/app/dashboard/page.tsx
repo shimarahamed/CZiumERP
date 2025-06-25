@@ -7,14 +7,14 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent }
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy } from "lucide-react";
+import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 import { format, differenceInDays, parseISO } from 'date-fns';
 
 export default function DashboardPage() {
-  const { invoices, customers, currentStore, currencySymbol, products, user } = useAppContext();
+  const { invoices, currentStore, currencySymbol, products, user } = useAppContext();
   
   const storeInvoices = useMemo(() => {
     if (currentStore?.id === 'all') {
@@ -42,6 +42,11 @@ export default function DashboardPage() {
 
   const totalProfit = totalRevenue - totalCost;
   const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+  
+  const averageSaleValue = paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0;
+  const totalItemsSold = paidInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+  const activeCustomers = new Set(paidInvoices.map(inv => inv.customerId).filter(Boolean)).size;
+
 
   const lowStockItems = products.filter(p => 
     typeof p.reorderThreshold !== 'undefined' && p.stock <= p.reorderThreshold
@@ -86,8 +91,8 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </Header>
-      <main className="flex-1 overflow-auto p-4 md:p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -108,9 +113,19 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">{profitMargin.toFixed(1)}% profit margin</p>
             </CardContent>
           </Card>
+           <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Sale Value</CardTitle>
+              <AreaChart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{currencySymbol} {averageSaleValue.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">{kpiSubtitle}</p>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Sales</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -118,14 +133,24 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">{kpiSubtitle}</p>
             </CardContent>
           </Card>
+           <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Items Sold</CardTitle>
+              <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalItemsSold}</div>
+              <p className="text-xs text-muted-foreground">{kpiSubtitle}</p>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Customers</CardTitle>
+              <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+{customers.length}</div>
-              <p className="text-xs text-muted-foreground">Global customer count</p>
+              <div className="text-2xl font-bold">+{activeCustomers}</div>
+              <p className="text-xs text-muted-foreground">Customers with paid invoices</p>
             </CardContent>
           </Card>
         </div>
@@ -219,7 +244,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
