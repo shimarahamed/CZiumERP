@@ -6,7 +6,7 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, Printer, FileText, Info } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info } from "lucide-react";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -333,7 +333,7 @@ export default function InvoicesPage() {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button variant="ghost" size="icon" onClick={() => onView(invoice)}>
-                                                <Printer className="h-4 w-4" />
+                                                <ScrollText className="h-4 w-4" />
                                                 <span className="sr-only">View Receipt</span>
                                             </Button>
                                         </TooltipTrigger>
@@ -538,3 +538,5 @@ export default function InvoicesPage() {
         </div>
     );
 }
+
+    
