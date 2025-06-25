@@ -16,7 +16,7 @@ export {
   UserCog, 
   UserRoundCog,
   Store, 
-  ClipboardList,
+  ClipboardList, 
   Archive,
   DollarSign,
   TrendingUp,
@@ -59,4 +59,7 @@ export {
   PanelLeft,
   Check,
   X,
+  UserCheck,
+  UserX,
+  Plane
 } from 'lucide-react';
