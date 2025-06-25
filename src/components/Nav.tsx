@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
-  Building2, History, Settings, Undo2, ShoppingCart, UsersCog, Store, ClipboardList
+  Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -57,7 +57,7 @@ const categories: NavCategory[] = [
     links: [
       { href: '/reports', label: 'Reports', icon: BarChart3 },
       { href: '/stores', label: 'Stores', icon: Store },
-      { href: '/users', label: 'Users', icon: UsersCog },
+      { href: '/users', label: 'Users', icon: UserCog },
       { href: '/activity', label: 'Activity Logs', icon: History },
       { href: '/settings', label: 'Settings', icon: Settings },
     ],
