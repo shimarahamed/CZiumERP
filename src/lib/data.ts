@@ -1,4 +1,4 @@
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -355,6 +355,13 @@ export const initialRfqs: RFQ[] = [
         userId: 'user-4',
         userName: 'Inventory Ian'
     }
+];
+
+export const initialAssets: Asset[] = [
+  { id: 'asset-1', name: 'Company Van', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2022-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
+  { id: 'asset-2', name: 'Head Office Printer', category: 'Office Equipment', serialNumber: 'PRINTER-XYZ', purchaseDate: '2021-05-20', purchaseCost: 800, status: 'in-use', location: 'Head Office' },
+  { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2023-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
+  { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2020-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2' },
 ];
 
 

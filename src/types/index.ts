@@ -1,4 +1,5 @@
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -146,4 +147,18 @@ export type Currency = 'USD' | 'EUR' | 'JPY' | 'GBP' | 'AED' | 'LKR';
 
 export type CurrencySymbols = {
   [key in Currency]: string;
+};
+
+export type AssetStatus = 'in-use' | 'in-storage' | 'under-maintenance' | 'retired';
+
+export type Asset = {
+  id: string;
+  name: string;
+  category: string;
+  serialNumber?: string;
+  purchaseDate: string;
+  purchaseCost: number;
+  status: AssetStatus;
+  location: string;
+  assignedTo?: string; // User ID
 };

@@ -15,4 +15,5 @@ export {
   UserCog, 
   Store, 
   ClipboardList,
+  Archive,
 } from 'lucide-react';
