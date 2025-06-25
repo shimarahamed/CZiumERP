@@ -431,6 +431,155 @@ export const initialInvoices: Invoice[] = [
     amount: 18.00,
     status: 'paid',
     date: '2023-11-19'
+  },
+  {
+    id: 'INV-026',
+    storeId: 'store-1',
+    customerId: 'cust-6',
+    customerName: 'Emily White',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 }
+    ],
+    amount: 71.25,
+    status: 'paid',
+    date: '2023-11-20',
+    discount: 5,
+    taxRate: 0,
+  },
+  {
+    id: 'INV-027',
+    storeId: 'store-2',
+    customerId: 'cust-7',
+    customerName: 'Michael Green',
+    userId: 'user-2',
+    userName: 'Manager Mike',
+    items: [
+      { productId: 'prod-13', productName: 'Barista Apron', quantity: 2, price: 30.00, cost: 18.00 }
+    ],
+    amount: 63.00,
+    status: 'pending',
+    date: '2023-11-21',
+    discount: 0,
+    taxRate: 5,
+  },
+  {
+    id: 'INV-028',
+    storeId: 'store-3',
+    customerId: 'cust-4',
+    customerName: 'Alice Johnson',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-12', productName: 'Travel Mug', quantity: 4, price: 25.00, cost: 15.00 }
+    ],
+    amount: 90.00,
+    status: 'paid',
+    date: '2023-11-22',
+    discount: 10,
+    taxRate: 0,
+  },
+  {
+    id: 'INV-029',
+    storeId: 'store-1',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-8', productName: 'Assorted Pastries', quantity: 10, price: 3.50, cost: 1.50 }
+    ],
+    amount: 35.00,
+    status: 'paid',
+    date: '2023-11-22',
+  },
+  {
+    id: 'INV-030',
+    storeId: 'store-2',
+    customerId: 'cust-1',
+    customerName: 'John Doe',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 3, price: 22.00, cost: 12.00 }
+    ],
+    amount: 62.70,
+    status: 'paid',
+    date: '2023-08-15',
+    discount: 5,
+    taxRate: 0,
+  },
+  {
+    id: 'INV-031',
+    storeId: 'store-3',
+    customerId: 'cust-2',
+    customerName: 'Jane Smith',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-7', productName: 'Oat Milk (1L)', quantity: 5, price: 4.75, cost: 2.75 }
+    ],
+    amount: 24.94,
+    status: 'overdue',
+    date: '2023-09-30',
+    discount: 0,
+    taxRate: 5,
+  },
+  {
+    id: 'INV-032',
+    storeId: 'store-1',
+    customerId: 'cust-5',
+    customerName: 'Bob Brown',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-14', productName: 'Syrup Variety Pack', quantity: 2, price: 18.00, cost: 10.00 }
+    ],
+    amount: 36.00,
+    status: 'paid',
+    date: '2023-11-23',
+  },
+  {
+    id: 'INV-033',
+    storeId: 'store-2',
+    customerId: 'cust-8',
+    customerName: 'Sarah Black',
+    userId: 'user-2',
+    userName: 'Manager Mike',
+    items: [
+      { productId: 'prod-11', productName: 'Gooseneck Kettle', quantity: 1, price: 89.99, cost: 60.00 },
+      { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00, cost: 20.00 }
+    ],
+    amount: 136.49,
+    status: 'pending',
+    date: '2023-11-24',
+    taxRate: 5,
+  },
+  {
+    id: 'INV-034',
+    storeId: 'store-3',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-9', productName: 'Cleaning Tablets', quantity: 1, price: 15.00, cost: 8.00 }
+    ],
+    amount: 15,
+    status: 'paid',
+    date: '2023-11-25',
+  },
+  {
+    id: 'INV-035',
+    storeId: 'store-1',
+    customerId: 'cust-4',
+    customerName: 'Alice Johnson',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 1, price: 129.50, cost: 80.00 }
+    ],
+    amount: 116.55,
+    status: 'paid',
+    date: '2023-11-26',
+    discount: 10
   }
 ];
 
