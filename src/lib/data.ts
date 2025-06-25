@@ -1,3 +1,4 @@
+
 import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee } from '@/types';
 
 export const initialUsers: User[] = [
@@ -254,6 +255,183 @@ export const initialInvoices: Invoice[] = [
     discount: 5,
     taxRate: 0
   },
+    {
+    id: 'INV-014',
+    storeId: 'store-2',
+    customerId: 'cust-2',
+    customerName: 'Jane Smith',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
+        { productId: 'prod-14', productName: 'Syrup Variety Pack', quantity: 2, price: 18.00, cost: 10.00 }
+    ],
+    amount: 116.55,
+    status: 'paid',
+    date: '2023-11-12',
+    discount: 0,
+    taxRate: 5,
+  },
+  {
+    id: 'INV-015',
+    storeId: 'store-3',
+    customerId: 'cust-7',
+    customerName: 'Michael Green',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-11', productName: 'Gooseneck Kettle', quantity: 1, price: 89.99, cost: 60.00 }
+    ],
+    amount: 89.99,
+    status: 'pending',
+    date: '2023-11-13'
+  },
+  {
+    id: 'INV-016',
+    storeId: 'store-1',
+    customerId: 'cust-8',
+    customerName: 'Sarah Black',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-12', productName: 'Travel Mug', quantity: 3, price: 25.00, cost: 15.00 }
+    ],
+    amount: 75.00,
+    status: 'overdue',
+    date: '2023-10-05'
+  },
+  {
+    id: 'INV-017',
+    storeId: 'store-1',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-8', productName: 'Assorted Pastries', quantity: 5, price: 3.50, cost: 1.50 }
+    ],
+    amount: 17.50,
+    status: 'paid',
+    date: '2023-11-14'
+  },
+  {
+    id: 'INV-018',
+    storeId: 'store-3',
+    customerId: 'cust-4',
+    customerName: 'Alice Johnson',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 },
+    ],
+    amount: 472.49,
+    status: 'paid',
+    date: '2023-11-15',
+    discount: 10,
+    taxRate: 5
+  },
+  {
+    id: 'INV-019',
+    storeId: 'store-2',
+    customerId: 'cust-6',
+    customerName: 'Emily White',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-2', productName: 'Coffee Grinder', quantity: 1, price: 129.50, cost: 80.00 }
+    ],
+    amount: 123.03,
+    status: 'paid',
+    date: '2023-11-15',
+    discount: 5,
+    taxRate: 0
+  },
+  {
+    id: 'INV-020',
+    storeId: 'store-1',
+    customerId: 'cust-5',
+    customerName: 'Bob Brown',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 2, price: 22.00, cost: 12.00 }
+    ],
+    amount: 44.00,
+    status: 'paid',
+    date: '2023-11-16'
+  },
+  {
+    id: 'INV-021',
+    storeId: 'store-2',
+    customerId: 'cust-3',
+    customerName: 'Sam Wilson',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00, cost: 20.00 },
+        { productId: 'prod-6', productName: 'Almond Milk (1L)', quantity: 3, price: 4.50, cost: 2.50 }
+    ],
+    amount: 53.50,
+    status: 'pending',
+    date: '2023-11-17'
+  },
+  {
+    id: 'INV-022',
+    storeId: 'store-3',
+    customerId: 'cust-1',
+    customerName: 'John Doe',
+    userId: 'user-2',
+    userName: 'Manager Mike',
+    items: [
+        { productId: 'prod-9', productName: 'Cleaning Tablets', quantity: 4, price: 15.00, cost: 8.00 },
+    ],
+    amount: 57,
+    status: 'paid',
+    date: '2023-11-18',
+    discount: 5,
+    taxRate: 0
+  },
+  {
+    id: 'INV-023',
+    storeId: 'store-1',
+    customerId: 'cust-2',
+    customerName: 'Jane Smith',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-13', productName: 'Barista Apron', quantity: 1, price: 30.00, cost: 18.00 }
+    ],
+    amount: 31.5,
+    status: 'paid',
+    date: '2023-08-20',
+    taxRate: 5
+  },
+    {
+    id: 'INV-024',
+    storeId: 'store-2',
+    customerId: 'cust-3',
+    customerName: 'Sam Wilson',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-12', productName: 'Travel Mug', quantity: 1, price: 25.00, cost: 15.00 }
+    ],
+    amount: 25,
+    status: 'overdue',
+    date: '2023-10-10'
+  },
+  {
+    id: 'INV-025',
+    storeId: 'store-3',
+    customerId: 'cust-8',
+    customerName: 'Sarah Black',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+      { productId: 'prod-14', productName: 'Syrup Variety Pack', quantity: 1, price: 18.00, cost: 10.00 }
+    ],
+    amount: 18.00,
+    status: 'paid',
+    date: '2023-11-19'
+  }
 ];
 
 export const initialPurchaseOrders: PurchaseOrder[] = [
