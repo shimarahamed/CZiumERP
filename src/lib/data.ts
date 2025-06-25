@@ -404,7 +404,7 @@ export const initialInvoices: Invoice[] = [
     date: '2023-08-20',
     taxRate: 5
   },
-    {
+  {
     id: 'INV-024',
     storeId: 'store-2',
     customerId: 'cust-3',
