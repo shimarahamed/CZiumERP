@@ -103,8 +103,10 @@ export default function PaymentsPage() {
                             const store = stores.find(s => s.id === invoice.storeId);
                             return (
                                 <SelectItem key={invoice.id} value={invoice.id}>
-                                    {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol} {invoice.amount.toFixed(2)}
-                                    {currentStore?.id === 'all' && store && <span className="text-muted-foreground ml-2">({store.name})</span>}
+                                    <div className="truncate">
+                                        {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol} {invoice.amount.toFixed(2)}
+                                        {currentStore?.id === 'all' && store && <span className="text-muted-foreground ml-2">({store.name})</span>}
+                                    </div>
                                 </SelectItem>
                             )
                         })}
