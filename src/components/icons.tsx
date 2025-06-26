@@ -36,6 +36,9 @@ export {
   Lightbulb,
   Loader2,
   LogOut,
+} from 'lucide-react';
+
+export {
   Mail,
   MoreHorizontal,
   Package,
