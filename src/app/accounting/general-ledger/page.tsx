@@ -49,7 +49,7 @@ export default function GeneralLedgerPage() {
                                 placeholder="Search by account or description..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
+                                className="max-w-full md:max-w-sm bg-secondary"
                             />
                         </div>
                     </CardHeader>

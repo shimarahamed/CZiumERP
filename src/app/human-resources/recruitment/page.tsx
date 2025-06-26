@@ -113,7 +113,7 @@ export default function RecruitmentPage() {
                             placeholder="Search candidates..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full md:w-auto md:min-w-[250px]"
+                            className="w-full md:w-auto md:min-w-[250px] bg-secondary"
                         />
                         <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
                             <PlusCircle className="h-4 w-4" /> Add Candidate

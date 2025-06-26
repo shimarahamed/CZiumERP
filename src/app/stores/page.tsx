@@ -149,7 +149,7 @@ export default function StoresPage() {
                                     placeholder="Search by name or address..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px]"
+                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
                                 />
                                 <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
                                     <PlusCircle className="h-4 w-4" />

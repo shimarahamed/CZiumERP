@@ -168,7 +168,7 @@ export default function InventoryPage() {
                                     placeholder="Search products..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-[300px]"
+                                    className="w-full md:w-[300px] bg-secondary"
                                 />
                                 {canManage && (
                                     <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>

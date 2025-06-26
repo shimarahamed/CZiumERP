@@ -156,7 +156,7 @@ export default function RFQPage() {
                                     placeholder="Search by RFQ ID..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px]"
+                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
                                 />
                                 {canManage && (
                                     <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
