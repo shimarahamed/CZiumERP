@@ -1,5 +1,6 @@
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee } from '@/types';
+
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -784,4 +785,29 @@ export const salesData: Sale[] = [
     { month: 'Apr', revenue: 4500 },
     { month: 'May', revenue: 6000 },
     { month: 'Jun', revenue: 5500 },
+];
+
+export const initialLedgerEntries: LedgerEntry[] = [
+  { id: 'gl-1', date: '2023-10-01', account: 'Accounts Receivable', description: 'Invoice INV-001', debit: 524.99, credit: 0 },
+  { id: 'gl-2', date: '2023-10-01', account: 'Sales Revenue', description: 'Invoice INV-001', debit: 0, credit: 524.99 },
+  { id: 'gl-3', date: '2023-10-02', account: 'Cash', description: 'Payment for INV-001', debit: 524.99, credit: 0 },
+  { id: 'gl-4', date: '2023-10-02', account: 'Accounts Receivable', description: 'Payment for INV-001', debit: 0, credit: 524.99 },
+  { id: 'gl-5', date: '2023-10-15', account: 'Inventory', description: 'PO-002 Received', debit: 1700, credit: 0 },
+  { id: 'gl-6', date: '2023-10-15', account: 'Accounts Payable', description: 'PO-002', debit: 0, credit: 1700 },
+  { id: 'gl-7', date: '2023-10-20', account: 'Rent Expense', description: 'October Rent Payment', debit: 5000, credit: 0 },
+  { id: 'gl-8', date: '2023-10-20', account: 'Cash', description: 'October Rent', debit: 0, credit: 5000 },
+];
+
+export const initialTaxRates: TaxRate[] = [
+  { id: 'tax-1', name: 'Standard VAT', rate: 5, isDefault: true },
+  { id: 'tax-2', name: 'Zero Rate', rate: 0 },
+  { id: 'tax-3', name: 'Luxury Goods Tax', rate: 10 },
+];
+
+export const initialBudgets: Budget[] = [
+  { id: 'bud-1', category: 'Marketing & Advertising', period: 'Monthly', budgetedAmount: 2000, actualAmount: 1570.50 },
+  { id: 'bud-2', category: 'Operations & Utilities', period: 'Monthly', budgetedAmount: 10000, actualAmount: 9542.75 },
+  { id: 'bud-3', category: 'Employee Payroll', period: 'Monthly', budgetedAmount: 25000, actualAmount: 24800 },
+  { id: 'bud-4', category: 'IT & Software', period: 'Quarterly', budgetedAmount: 5000, actualAmount: 5250 },
+  { id: 'bud-5', category: 'Capital Expenditures', period: 'Yearly', budgetedAmount: 50000, actualAmount: 25000 },
 ];

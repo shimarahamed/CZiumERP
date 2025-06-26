@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -71,6 +71,12 @@ interface AppContextType {
   setAttendance: React.Dispatch<React.SetStateAction<AttendanceEntry[]>>;
   leaveRequests: LeaveRequest[];
   setLeaveRequests: React.Dispatch<React.SetStateAction<LeaveRequest[]>>;
+  ledgerEntries: LedgerEntry[];
+  setLedgerEntries: React.Dispatch<React.SetStateAction<LedgerEntry[]>>;
+  taxRates: TaxRate[];
+  setTaxRates: React.Dispatch<React.SetStateAction<TaxRate[]>>;
+  budgets: Budget[];
+  setBudgets: React.Dispatch<React.SetStateAction<Budget[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -93,6 +99,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [attendance, setAttendance] = useState<AttendanceEntry[]>(initialAttendance);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
+  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>(initialLedgerEntries);
+  const [taxRates, setTaxRates] = useState<TaxRate[]>(initialTaxRates);
+  const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -119,6 +128,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setActivityLogs(getStoredState('activityLogs', []));
     setAttendance(getStoredState('attendance', initialAttendance));
     setLeaveRequests(getStoredState('leaveRequests', initialLeaveRequests));
+    setLedgerEntries(getStoredState('ledgerEntries', initialLedgerEntries));
+    setTaxRates(getStoredState('taxRates', initialTaxRates));
+    setBudgets(getStoredState('budgets', initialBudgets));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -152,6 +164,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('attendance', JSON.stringify(attendance)); }, [attendance, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests)); }, [leaveRequests, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('ledgerEntries', JSON.stringify(ledgerEntries)); }, [ledgerEntries, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('taxRates', JSON.stringify(taxRates)); }, [taxRates, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('budgets', JSON.stringify(budgets)); }, [budgets, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore, isHydrated]);
@@ -249,6 +264,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('assets');
     localStorage.removeItem('attendance');
     localStorage.removeItem('leaveRequests');
+    localStorage.removeItem('ledgerEntries');
+    localStorage.removeItem('taxRates');
+    localStorage.removeItem('budgets');
   };
 
 
@@ -274,7 +292,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       currencySymbols,
       isHydrated,
       attendance, setAttendance,
-      leaveRequests, setLeaveRequests
+      leaveRequests, setLeaveRequests,
+      ledgerEntries, setLedgerEntries,
+      taxRates, setTaxRates,
+      budgets, setBudgets
     }}>
       {children}
     </AppContext.Provider>

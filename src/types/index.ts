@@ -4,6 +4,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -197,4 +198,28 @@ export type LeaveRequest = {
   endDate: string; // YYYY-MM-DD
   status: 'pending' | 'approved' | 'rejected';
   requestedAt: string; // ISO Date String
+};
+
+export type LedgerEntry = {
+  id: string;
+  date: string;
+  account: string;
+  description: string;
+  debit: number;
+  credit: number;
+};
+
+export type TaxRate = {
+  id: string;
+  name: string;
+  rate: number; // e.g., 5 for 5%
+  isDefault?: boolean;
+};
+
+export type Budget = {
+  id: string;
+  category: string;
+  period: 'Monthly' | 'Quarterly' | 'Yearly';
+  budgetedAmount: number;
+  actualAmount: number;
 };

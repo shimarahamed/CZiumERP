@@ -1,9 +1,169 @@
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from '@/components/ui/checkbox';
+import Header from "@/components/Header";
+import { useToast } from "@/hooks/use-toast";
+import { useAppContext } from '@/context/AppContext';
+import type { TaxRate } from '@/types';
+import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { Badge } from '@/components/ui/badge';
+
+const taxRateSchema = z.object({
+  name: z.string().min(1, "Tax rate name is required."),
+  rate: z.coerce.number().min(0, "Rate must be a non-negative number."),
+  isDefault: z.boolean().optional(),
+});
+
+type TaxRateFormData = z.infer<typeof taxRateSchema>;
 
 export default function TaxManagementPage() {
-  return (
-    <div>
-      <h1>Tax Management</h1>
-      <p>This feature is under active development. Please check back later!</p>
-    </div>
-  );
+    const { taxRates, setTaxRates, addActivityLog, user } = useAppContext();
+    const { toast } = useToast();
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [rateToEdit, setRateToEdit] = useState<TaxRate | null>(null);
+    const [rateToDelete, setRateToDelete] = useState<TaxRate | null>(null);
+
+    const form = useForm<TaxRateFormData>({
+        resolver: zodResolver(taxRateSchema),
+    });
+
+    const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    if (!canManage) {
+        return (
+            <div className="flex flex-col h-full">
+                <Header title="Access Denied" />
+                <main className="flex-1 overflow-auto p-4 md:p-6">
+                    <Card><CardHeader><CardTitle>Permission Required</CardTitle></CardHeader>
+                    <CardContent><p>You do not have permission to manage tax settings.</p></CardContent></Card>
+                </main>
+            </div>
+        );
+    }
+
+    const handleOpenForm = (rate: TaxRate | null = null) => {
+        setRateToEdit(rate);
+        form.reset(rate || { name: '', rate: 0, isDefault: false });
+        setIsFormOpen(true);
+    };
+
+    const onSubmit = (data: TaxRateFormData) => {
+        setTaxRates(prev => {
+            let newRates = [...prev];
+            // If setting a new default, unset the old one
+            if (data.isDefault) {
+                newRates = newRates.map(r => ({ ...r, isDefault: false }));
+            }
+
+            if (rateToEdit) {
+                newRates = newRates.map(r => r.id === rateToEdit.id ? { ...r, ...data } : r);
+                toast({ title: "Tax Rate Updated" });
+                addActivityLog('Tax Rate Updated', `Updated rate: ${data.name}`);
+            } else {
+                const newRate: TaxRate = { id: `tax-${Date.now()}`, ...data };
+                newRates.push(newRate);
+                toast({ title: "Tax Rate Added" });
+                addActivityLog('Tax Rate Added', `Added new rate: ${data.name}`);
+            }
+            return newRates;
+        });
+
+        setIsFormOpen(false);
+        setRateToEdit(null);
+    };
+    
+    const handleDelete = () => {
+        if (!rateToDelete) return;
+        addActivityLog('Tax Rate Deleted', `Deleted rate: ${rateToDelete.name}`);
+        setTaxRates(taxRates.filter(r => r.id !== rateToDelete.id));
+        toast({ title: "Tax Rate Deleted" });
+        setRateToDelete(null);
+    };
+
+    return (
+        <div className="flex flex-col h-full">
+            <Header title="Tax Management" />
+            <main className="flex-1 overflow-auto p-4 md:p-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle>Tax Rates</CardTitle>
+                                <CardDescription>Manage tax rates for your business.</CardDescription>
+                            </div>
+                            <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                                <PlusCircle className="h-4 w-4" /> Add Tax Rate
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow><TableHead>Name</TableHead><TableHead>Rate (%)</TableHead><TableHead>Default</TableHead><TableHead><span className="sr-only">Actions</span></TableHead></TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {taxRates.map(rate => (
+                                    <TableRow key={rate.id}>
+                                        <TableCell>{rate.name}</TableCell>
+                                        <TableCell>{rate.rate}%</TableCell>
+                                        <TableCell>{rate.isDefault && <Badge>Default</Badge>}</TableCell>
+                                        <TableCell>
+                                            <DropdownMenu><DropdownMenuTrigger asChild><Button aria-haspopup="true" size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end"><DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => handleOpenForm(rate)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => setRateToDelete(rate)}>Delete</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </main>
+
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>{rateToEdit ? 'Edit Tax Rate' : 'Add New Tax Rate'}</DialogTitle></DialogHeader>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                            <FormField control={form.control} name="name" render={({ field }) => (
+                                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name="rate" render={({ field }) => (
+                                <FormItem><FormLabel>Rate (%)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name="isDefault" render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Set as default tax rate</FormLabel></div>
+                                </FormItem>
+                            )} />
+                            <DialogFooter><Button type="submit">{rateToEdit ? 'Save Changes' : 'Add Rate'}</Button></DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={!!rateToDelete} onOpenChange={(open) => !open && setRateToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader><AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the tax rate.</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive">Delete</AlertDialogAction></AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
 }
