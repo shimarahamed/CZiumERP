@@ -35,6 +35,7 @@ export default function VendorsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [vendorToEdit, setVendorToEdit] = useState<Vendor | null>(null);
     const [vendorToDelete, setVendorToDelete] = useState<Vendor | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<VendorFormData>({
         resolver: zodResolver(vendorSchema),
@@ -61,6 +62,16 @@ export default function VendorsPage() {
         });
         return stats;
     }, [purchaseOrders]);
+    
+    const filteredVendors = useMemo(() => {
+        if (!searchTerm) return vendors;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return vendors.filter(vendor =>
+            vendor.name.toLowerCase().includes(lowercasedFilter) ||
+            vendor.contactPerson.toLowerCase().includes(lowercasedFilter) ||
+            vendor.email.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [vendors, searchTerm]);
 
     const handleOpenForm = (vendor: Vendor | null = null) => {
         setVendorToEdit(vendor);
@@ -120,6 +131,14 @@ export default function VendorsPage() {
                                 </Button>
                             )}
                         </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search by name, contact, or email..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -133,7 +152,7 @@ export default function VendorsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {vendors.map(vendor => {
+                                {filteredVendors.map(vendor => {
                                     const stats = vendorStats.get(vendor.id) || { totalOrders: 0, totalSpent: 0 };
                                     return (
                                         <TableRow key={vendor.id}>

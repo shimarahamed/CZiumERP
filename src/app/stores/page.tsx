@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,12 +37,22 @@ export default function StoresPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [storeToEdit, setStoreToEdit] = useState<StoreType | null>(null);
     const [storeToDelete, setStoreToDelete] = useState<StoreType | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<StoreFormData>({
         resolver: zodResolver(storeSchema),
     });
 
     const canManageStores = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+
+    const filteredStores = useMemo(() => {
+        if (!searchTerm) return stores;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return stores.filter(store =>
+            store.name.toLowerCase().includes(lowercasedFilter) ||
+            store.address.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [stores, searchTerm]);
 
     if (!canManageStores) {
         return (
@@ -138,6 +149,14 @@ export default function StoresPage() {
                                 Add Store
                             </Button>
                         </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search by name or address..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <div className="rounded-md border">
@@ -151,7 +170,7 @@ export default function StoresPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {stores.map(store => (
+                                    {filteredStores.map(store => (
                                         <TableRow 
                                             key={store.id}
                                             className={cn(

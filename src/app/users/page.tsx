@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,6 +37,7 @@ export default function UsersPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [userToEdit, setUserToEdit] = useState<User | null>(null);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<UserFormData>({
         resolver: zodResolver(userSchema),
@@ -48,6 +50,15 @@ export default function UsersPage() {
       }
     }, [isFormOpen, form]);
     
+    const filteredUsers = useMemo(() => {
+        if (!searchTerm) return users;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return users.filter(user =>
+            user.name.toLowerCase().includes(lowercasedFilter) ||
+            user.email.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [users, searchTerm]);
+
     if (currentUser?.role !== 'admin') {
         return (
             <div className="flex flex-col h-full">
@@ -134,6 +145,14 @@ export default function UsersPage() {
                                 Add User
                             </Button>
                         </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search by name or email..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -145,7 +164,7 @@ export default function UsersPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {users.map(user => (
+                                {filteredUsers.map(user => (
                                     <TableRow key={user.id}>
                                         <TableCell className="font-medium">
                                             <div className="flex items-center gap-3">

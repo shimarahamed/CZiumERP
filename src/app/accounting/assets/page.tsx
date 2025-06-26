@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -50,12 +50,24 @@ export default function AssetsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [assetToEdit, setAssetToEdit] = useState<Asset | null>(null);
     const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<AssetFormData>({
         resolver: zodResolver(assetSchema),
     });
 
     const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+    
+    const filteredAssets = useMemo(() => {
+        if (!searchTerm) return assets;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return assets.filter(asset =>
+            asset.name.toLowerCase().includes(lowercasedFilter) ||
+            asset.category.toLowerCase().includes(lowercasedFilter) ||
+            (asset.serialNumber && asset.serialNumber.toLowerCase().includes(lowercasedFilter)) ||
+            asset.location.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [assets, searchTerm]);
 
     if (!canManage) {
         return (
@@ -143,6 +155,14 @@ export default function AssetsPage() {
                                 Add Asset
                             </Button>
                         </div>
+                         <div className="mt-4">
+                            <Input
+                                placeholder="Search by name, category, S/N, or location..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -157,7 +177,7 @@ export default function AssetsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {assets.map(asset => {
+                                {filteredAssets.map(asset => {
                                     const assignedUser = users.find(u => u.id === asset.assignedTo);
                                     const locationName = stores.find(s => s.id === asset.location)?.name || asset.location;
                                     return (

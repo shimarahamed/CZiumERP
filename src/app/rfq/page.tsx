@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -52,6 +53,7 @@ export default function RFQPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [rfqToEdit, setRfqToEdit] = useState<RFQ | null>(null);
     const [rfqToDelete, setRfqToDelete] = useState<RFQ | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<RFQFormData>({
         resolver: zodResolver(rfqSchema),
@@ -67,6 +69,14 @@ export default function RFQPage() {
     });
     
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const filteredRfqs = useMemo(() => {
+        if (!searchTerm) return rfqs;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return rfqs.filter(rfq =>
+            rfq.id.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [rfqs, searchTerm]);
 
     const handleOpenForm = (rfq: RFQ | null = null) => {
         setRfqToEdit(rfq);
@@ -147,6 +157,14 @@ export default function RFQPage() {
                                 </Button>
                             )}
                         </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search by RFQ ID..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                          <Table>
@@ -160,7 +178,7 @@ export default function RFQPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {rfqs.map(rfq => (
+                                {filteredRfqs.map(rfq => (
                                     <TableRow key={rfq.id}>
                                         <TableCell className="font-medium">{rfq.id}</TableCell>
                                         <TableCell>{new Date(rfq.creationDate).toLocaleDateString()}</TableCell>

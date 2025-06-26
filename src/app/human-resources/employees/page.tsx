@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -39,12 +39,24 @@ export default function EmployeesPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
     const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<EmployeeFormData>({
         resolver: zodResolver(employeeSchema),
     });
 
     const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+
+    const filteredEmployees = useMemo(() => {
+        if (!searchTerm) return employees;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return employees.filter(employee =>
+            employee.name.toLowerCase().includes(lowercasedFilter) ||
+            employee.email.toLowerCase().includes(lowercasedFilter) ||
+            (employee.jobTitle && employee.jobTitle.toLowerCase().includes(lowercasedFilter)) ||
+            (employee.department && employee.department.toLowerCase().includes(lowercasedFilter))
+        );
+    }, [employees, searchTerm]);
 
     if (!canManage) {
         return (
@@ -133,6 +145,14 @@ export default function EmployeesPage() {
                                 Add Employee
                             </Button>
                         </div>
+                         <div className="mt-4">
+                            <Input
+                                placeholder="Search employees..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -146,7 +166,7 @@ export default function EmployeesPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {employees.map(employee => (
+                                {filteredEmployees.map(employee => (
                                     <TableRow key={employee.id}>
                                         <TableCell className="font-medium">
                                             <div className="flex items-center gap-3">

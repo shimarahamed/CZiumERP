@@ -1,13 +1,27 @@
+
 'use client'
 
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import { useAppContext } from "@/context/AppContext";
 import { format } from 'date-fns';
+import { Input } from '@/components/ui/input';
 
 export default function ActivityLogPage() {
     const { activityLogs } = useAppContext();
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredLogs = useMemo(() => {
+        if (!searchTerm) return activityLogs;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return activityLogs.filter(log =>
+            log.user.toLowerCase().includes(lowercasedFilter) ||
+            log.action.toLowerCase().includes(lowercasedFilter) ||
+            log.details.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [activityLogs, searchTerm]);
 
     return (
         <div className="flex flex-col h-full">
@@ -17,6 +31,14 @@ export default function ActivityLogPage() {
                     <CardHeader>
                         <CardTitle>Audit Trail</CardTitle>
                         <CardDescription>A log of all significant actions performed in the system.</CardDescription>
+                         <div className="mt-4">
+                            <Input
+                                placeholder="Search logs..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -29,8 +51,8 @@ export default function ActivityLogPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {activityLogs.length > 0 ? (
-                                    activityLogs.map(log => (
+                                {filteredLogs.length > 0 ? (
+                                    filteredLogs.map(log => (
                                         <TableRow key={log.id}>
                                             <TableCell className="hidden md:table-cell">
                                                 {format(new Date(log.timestamp), "yyyy-MM-dd, HH:mm:ss")}

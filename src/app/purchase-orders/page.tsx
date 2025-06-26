@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -64,6 +65,7 @@ export default function PurchaseOrdersPage() {
     const [poToMarkReceived, setPoToMarkReceived] = useState<PurchaseOrder | null>(null);
     const [poToApprove, setPoToApprove] = useState<PurchaseOrder | null>(null);
     const [poToView, setPoToView] = useState<PurchaseOrder | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<POFormData>({
         resolver: zodResolver(poSchema),
@@ -89,6 +91,15 @@ export default function PurchaseOrdersPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
     const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
+
+    const filteredPurchaseOrders = useMemo(() => {
+        if (!searchTerm) return purchaseOrders;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return purchaseOrders.filter(po => 
+            po.id.toLowerCase().includes(lowercasedFilter) ||
+            po.vendorName.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [purchaseOrders, searchTerm]);
 
     const availableProductsForPO = useMemo(() => {
         if (!watchedVendorId) {
@@ -275,6 +286,14 @@ export default function PurchaseOrdersPage() {
                                 </Button>
                             )}
                         </div>
+                         <div className="mt-4">
+                            <Input
+                                placeholder="Search by PO ID or Vendor..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                          <Table>
@@ -289,7 +308,7 @@ export default function PurchaseOrdersPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {purchaseOrders.map(po => (
+                                {filteredPurchaseOrders.map(po => (
                                     <TableRow key={po.id}>
                                         <TableCell className="font-medium">{po.id}</TableCell>
                                         <TableCell>{po.vendorName}</TableCell>

@@ -68,6 +68,7 @@ export default function InvoicesPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isInitialRender = useRef(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
 
     const form = useForm<InvoiceFormData>({
@@ -93,6 +94,15 @@ export default function InvoicesPage() {
         }
         return invoices.filter(i => i.storeId === currentStore?.id);
     }, [invoices, currentStore]);
+
+    const filteredStoreInvoices = useMemo(() => {
+        if (!searchTerm) return storeInvoices;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return storeInvoices.filter(invoice => 
+            invoice.id.toLowerCase().includes(lowercasedFilter) ||
+            (invoice.customerName && invoice.customerName.toLowerCase().includes(lowercasedFilter))
+        );
+    }, [storeInvoices, searchTerm]);
 
     const watchedItems = useWatch({ control: form.control, name: 'items' });
     const watchedDiscount = useWatch({ control: form.control, name: 'discount' }) || 0;
@@ -392,6 +402,14 @@ export default function InvoicesPage() {
                                 <PlusCircle className="h-4 w-4" /> Create Invoice
                             </Button>
                         </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search by Invoice ID or Customer Name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="all">
@@ -402,11 +420,11 @@ export default function InvoicesPage() {
                                 <TabsTrigger value="overdue">Overdue</TabsTrigger>
                                 <TabsTrigger value="refunded">Refunded</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="all"><InvoiceTable invoices={storeInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="paid"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="pending"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="overdue"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="refunded"><InvoiceTable invoices={storeInvoices.filter(i => i.status === 'refunded' || i.status === 'partially-refunded')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="all"><InvoiceTable invoices={filteredStoreInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="paid"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="pending"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="overdue"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="refunded"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'refunded' || i.status === 'partially-refunded')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                         </Tabs>
                     </CardContent>
                 </Card>
@@ -543,7 +561,3 @@ export default function InvoicesPage() {
         </div>
     );
 }
-
-    
-
-    

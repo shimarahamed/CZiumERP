@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -34,12 +35,20 @@ export default function TaxManagementPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [rateToEdit, setRateToEdit] = useState<TaxRate | null>(null);
     const [rateToDelete, setRateToDelete] = useState<TaxRate | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<TaxRateFormData>({
         resolver: zodResolver(taxRateSchema),
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+    
+    const filteredTaxRates = useMemo(() => {
+        if (!searchTerm) return taxRates;
+        return taxRates.filter(rate =>
+            rate.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [taxRates, searchTerm]);
 
     if (!canManage) {
         return (
@@ -107,6 +116,14 @@ export default function TaxManagementPage() {
                                 <PlusCircle className="h-4 w-4" /> Add Tax Rate
                             </Button>
                         </div>
+                         <div className="mt-4">
+                            <Input
+                                placeholder="Search by name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -114,7 +131,7 @@ export default function TaxManagementPage() {
                                 <TableRow><TableHead>Name</TableHead><TableHead>Rate (%)</TableHead><TableHead>Default</TableHead><TableHead><span className="sr-only">Actions</span></TableHead></TableRow>
                             </TableHeader>
                             <TableBody>
-                                {taxRates.map(rate => (
+                                {filteredTaxRates.map(rate => (
                                     <TableRow key={rate.id}>
                                         <TableCell>{rate.name}</TableCell>
                                         <TableCell>{rate.rate}%</TableCell>

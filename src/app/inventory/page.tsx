@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,6 +48,7 @@ export default function InventoryPage() {
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
     const [productToView, setProductToView] = useState<Product | null>(null);
     const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<ProductFormData>({
         resolver: zodResolver(productSchema),
@@ -67,6 +68,16 @@ export default function InventoryPage() {
     });
     
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const filteredProducts = useMemo(() => {
+        if (!searchTerm) return products;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return products.filter(product =>
+            product.name.toLowerCase().includes(lowercasedFilter) ||
+            (product.sku && product.sku.toLowerCase().includes(lowercasedFilter)) ||
+            (product.category && product.category.toLowerCase().includes(lowercasedFilter))
+        );
+    }, [products, searchTerm]);
 
     const handleOpenForm = (product: Product | null = null) => {
         setProductToEdit(product);
@@ -159,6 +170,14 @@ export default function InventoryPage() {
                                 </Button>
                             )}
                         </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search products by name, SKU, or category..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -173,7 +192,7 @@ export default function InventoryPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map(product => {
+                                {filteredProducts.map(product => {
                                     const statuses = getProductStatus(product);
                                     return (
                                         <TableRow key={product.id}>

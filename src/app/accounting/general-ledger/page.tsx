@@ -1,29 +1,40 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import { useAppContext } from "@/context/AppContext";
 import { format, parseISO } from 'date-fns';
 import type { LedgerEntry } from '@/types';
+import { Input } from '@/components/ui/input';
 
 export default function GeneralLedgerPage() {
     const { ledgerEntries, currencySymbol } = useAppContext();
+    const [searchTerm, setSearchTerm] = useState('');
 
     const processedEntries = useMemo(() => {
         if (!Array.isArray(ledgerEntries)) return [];
         
+        let filtered = ledgerEntries;
+        if (searchTerm) {
+            const lowercasedFilter = searchTerm.toLowerCase();
+            filtered = ledgerEntries.filter(entry =>
+                entry.account.toLowerCase().includes(lowercasedFilter) ||
+                entry.description.toLowerCase().includes(lowercasedFilter)
+            );
+        }
+
         let balance = 0;
         // Sort entries by date to calculate running balance correctly
-        return [...ledgerEntries]
+        return filtered
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .map(entry => {
                 balance += entry.debit - entry.credit;
                 return { ...entry, balance };
             });
-    }, [ledgerEntries]);
+    }, [ledgerEntries, searchTerm]);
 
     return (
         <div className="flex flex-col h-full">
@@ -33,6 +44,14 @@ export default function GeneralLedgerPage() {
                     <CardHeader>
                         <CardTitle>General Ledger</CardTitle>
                         <CardDescription>A complete record of all financial transactions.</CardDescription>
+                         <div className="mt-4">
+                            <Input
+                                placeholder="Search by account or description..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <Table>

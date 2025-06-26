@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { format } from 'date-fns';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-
+import { Input } from '@/components/ui/input';
 
 const reviewSchema = z.object({
     employeeId: z.string().min(1, "Please select an employee."),
@@ -42,6 +43,7 @@ export default function PerformancePage() {
     const { performanceReviews, setPerformanceReviews, employees, addActivityLog, user } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<ReviewFormData>({
         resolver: zodResolver(reviewSchema),
@@ -49,6 +51,17 @@ export default function PerformancePage() {
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+    
+     const filteredReviews = useMemo(() => {
+        if (!searchTerm) return performanceReviews;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return performanceReviews.filter(review =>
+            review.employeeName.toLowerCase().includes(lowercasedFilter) ||
+            review.reviewerName.toLowerCase().includes(lowercasedFilter) ||
+            review.comments.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [performanceReviews, searchTerm]);
+
     if (!canManage) {
         return (
             <div className="flex flex-col h-full"><Header title="Access Denied" />
@@ -86,7 +99,7 @@ export default function PerformancePage() {
             <main className="flex-1 p-4 md:p-6">
                 <Card>
                      <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Performance Reviews</CardTitle>
                                 <CardDescription>Track and manage employee performance evaluations.</CardDescription>
@@ -94,6 +107,14 @@ export default function PerformancePage() {
                             <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
                                 <PlusCircle className="h-4 w-4" /> Add Review
                             </Button>
+                        </div>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search reviews..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-full md:max-w-sm"
+                            />
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -108,7 +129,7 @@ export default function PerformancePage() {
                                 </TableRow>
                             </TableHeader>
                              <TableBody>
-                                {performanceReviews.map(review => (
+                                {filteredReviews.map(review => (
                                     <TableRow key={review.id}>
                                         <TableCell className="font-medium">{review.employeeName}</TableCell>
                                         <TableCell>{review.reviewerName}</TableCell>

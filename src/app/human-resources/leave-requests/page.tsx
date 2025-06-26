@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlusCircle, Check, X } from '@/components/icons';
+import { Input } from '@/components/ui/input';
 
 const leaveRequestSchema = z.object({
   dateRange: z.object({
@@ -41,14 +42,28 @@ export default function LeaveRequestsPage() {
     const { user, leaveRequests, setLeaveRequests, addActivityLog } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<LeaveRequestFormData>({
         resolver: zodResolver(leaveRequestSchema),
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
-    const myRequests = leaveRequests.filter(lr => lr.userId === user?.id).sort((a,b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
-    const teamRequests = leaveRequests.filter(lr => lr.status === 'pending').sort((a,b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+
+    const filteredMyRequests = useMemo(() => {
+        const baseRequests = leaveRequests.filter(lr => lr.userId === user?.id).sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+        if (!searchTerm) return baseRequests;
+        return baseRequests.filter(req => req.reason.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [leaveRequests, user?.id, searchTerm]);
+    
+    const filteredTeamRequests = useMemo(() => {
+        const baseRequests = leaveRequests.filter(lr => lr.status === 'pending').sort((a,b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+        if (!searchTerm) return baseRequests;
+        return baseRequests.filter(req => 
+            req.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.reason.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [leaveRequests, searchTerm]);
 
     const onSubmit = (data: LeaveRequestFormData) => {
         if (!user) return;
@@ -84,15 +99,23 @@ export default function LeaveRequestsPage() {
             <Header title="Leave Requests" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                  <Tabs defaultValue="my-requests" className="w-full">
-                    <div className="flex justify-between items-start">
+                    <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
                         <TabsList>
                             <TabsTrigger value="my-requests">My Requests</TabsTrigger>
                             {canManage && <TabsTrigger value="team-requests">Team Requests</TabsTrigger>}
                         </TabsList>
-                         <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
-                            <PlusCircle className="h-4 w-4" />
-                            New Request
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                            <Input
+                                placeholder="Search requests..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full md:w-auto"
+                            />
+                             <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
+                                <PlusCircle className="h-4 w-4" />
+                                New Request
+                            </Button>
+                        </div>
                     </div>
                     <TabsContent value="my-requests">
                         <Card className="mt-4">
@@ -110,7 +133,7 @@ export default function LeaveRequestsPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {myRequests.map(req => (
+                                        {filteredMyRequests.map(req => (
                                             <TableRow key={req.id}>
                                                 <TableCell>{format(new Date(req.startDate), 'MMM d, yyyy')} - {format(new Date(req.endDate), 'MMM d, yyyy')}</TableCell>
                                                 <TableCell className="truncate max-w-xs">{req.reason}</TableCell>
@@ -140,7 +163,7 @@ export default function LeaveRequestsPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {teamRequests.map(req => (
+                                        {filteredTeamRequests.map(req => (
                                             <TableRow key={req.id}>
                                                 <TableCell>{req.userName}</TableCell>
                                                 <TableCell>{format(new Date(req.startDate), 'MMM d')} - {format(new Date(req.endDate), 'MMM d, yyyy')}</TableCell>
