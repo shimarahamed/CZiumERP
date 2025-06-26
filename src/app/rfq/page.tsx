@@ -151,19 +151,19 @@ export default function RFQPage() {
                                 <CardTitle>Requests for Quotation</CardTitle>
                                 <CardDescription>Create and manage RFQs to send to your vendors.</CardDescription>
                             </div>
-                            {canManage && (
-                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" /> Create RFQ
-                                </Button>
-                            )}
-                        </div>
-                        <div className="mt-4">
-                            <Input
-                                placeholder="Search by RFQ ID..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search by RFQ ID..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-auto md:min-w-[250px]"
+                                />
+                                {canManage && (
+                                    <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                                        <PlusCircle className="h-4 w-4" /> Create RFQ
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>

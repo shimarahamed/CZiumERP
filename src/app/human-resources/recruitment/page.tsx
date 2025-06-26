@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -46,6 +47,7 @@ export default function RecruitmentPage() {
     const { candidates, setCandidates, addActivityLog, user } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<CandidateFormData>({
         resolver: zodResolver(candidateSchema),
@@ -53,6 +55,17 @@ export default function RecruitmentPage() {
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const filteredCandidates = useMemo(() => {
+        if (!searchTerm) return candidates;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return candidates.filter(candidate =>
+            candidate.name.toLowerCase().includes(lowercasedFilter) ||
+            candidate.email.toLowerCase().includes(lowercasedFilter) ||
+            candidate.position.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [candidates, searchTerm]);
+
     if (!canManage) {
         return (
             <div className="flex flex-col h-full"><Header title="Access Denied" />
@@ -90,14 +103,22 @@ export default function RecruitmentPage() {
         <div className="flex flex-col h-full">
             <Header title="Recruitment Pipeline" />
             <main className="flex-1 flex flex-col p-4 md:p-6">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold">Candidates</h1>
                         <p className="text-muted-foreground">Track applicants through your hiring process.</p>
                     </div>
-                    <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
-                        <PlusCircle className="h-4 w-4" /> Add Candidate
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                        <Input
+                            placeholder="Search candidates..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full md:w-auto md:min-w-[250px]"
+                        />
+                        <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
+                            <PlusCircle className="h-4 w-4" /> Add Candidate
+                        </Button>
+                    </div>
                 </div>
                 
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 overflow-x-auto">
@@ -106,10 +127,10 @@ export default function RecruitmentPage() {
                             <div className="flex items-center gap-2 px-2">
                                 <span className={cn("h-2 w-2 rounded-full", column.color)} />
                                 <h2 className="font-semibold text-lg">{column.title}</h2>
-                                <span className="text-sm text-muted-foreground">({candidates.filter(c => c.status === column.status).length})</span>
+                                <span className="text-sm text-muted-foreground">({filteredCandidates.filter(c => c.status === column.status).length})</span>
                             </div>
                             <div className="flex-1 flex flex-col gap-4 bg-muted/50 p-4 rounded-lg min-h-[200px]">
-                                {candidates.filter(c => c.status === column.status).map(candidate => (
+                                {filteredCandidates.filter(c => c.status === column.status).map(candidate => (
                                     <Card key={candidate.id}>
                                         <CardHeader className="p-4">
                                             <div className="flex justify-between items-start">

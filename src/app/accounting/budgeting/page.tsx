@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -35,12 +36,21 @@ export default function BudgetingPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
     const [budgetToDelete, setBudgetToDelete] = useState<Budget | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const form = useForm<BudgetFormData>({
         resolver: zodResolver(budgetSchema),
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const filteredBudgets = useMemo(() => {
+        if (!searchTerm) return budgets;
+        const lowercasedFilter = searchTerm.toLowerCase();
+        return budgets.filter(budget =>
+            budget.category.toLowerCase().includes(lowercasedFilter)
+        );
+    }, [budgets, searchTerm]);
 
     if (!canManage) {
         return (
@@ -84,18 +94,26 @@ export default function BudgetingPage() {
         <div className="flex flex-col h-full">
             <Header title="Budgeting & Reporting" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold">Budgets</h1>
                         <p className="text-muted-foreground">Monitor and manage departmental and operational budgets.</p>
                     </div>
-                    <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
-                        <PlusCircle className="h-4 w-4" /> New Budget
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                        <Input
+                            placeholder="Search by category..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full md:w-auto md:min-w-[250px]"
+                        />
+                        <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                            <PlusCircle className="h-4 w-4" /> New Budget
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {budgets.map(budget => {
+                    {filteredBudgets.map(budget => {
                         const percentage = budget.budgetedAmount > 0 ? (budget.actualAmount / budget.budgetedAmount) * 100 : 0;
                         return (
                             <Card key={budget.id}>

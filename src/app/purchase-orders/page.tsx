@@ -279,20 +279,19 @@ export default function PurchaseOrdersPage() {
                                 <CardTitle>Purchase Orders</CardTitle>
                                 <CardDescription>Create and manage purchase orders for your vendors.</CardDescription>
                             </div>
-                            
-                            {canCreatePo && (
-                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" /> Create Purchase Order
-                                </Button>
-                            )}
-                        </div>
-                         <div className="mt-4">
-                            <Input
-                                placeholder="Search by PO ID or Vendor..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search by PO ID or Vendor..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-auto md:min-w-[250px]"
+                                />
+                                {canCreatePo && (
+                                    <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                                        <PlusCircle className="h-4 w-4" /> Create Purchase Order
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>

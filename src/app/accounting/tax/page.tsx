@@ -107,22 +107,22 @@ export default function TaxManagementPage() {
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
                                 <CardTitle>Tax Rates</CardTitle>
                                 <CardDescription>Manage tax rates for your business.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
-                                <PlusCircle className="h-4 w-4" /> Add Tax Rate
-                            </Button>
-                        </div>
-                         <div className="mt-4">
-                            <Input
-                                placeholder="Search by name..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search by name..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-auto md:min-w-[250px]"
+                                />
+                                <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                                    <PlusCircle className="h-4 w-4" /> Add Tax Rate
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>

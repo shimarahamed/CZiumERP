@@ -104,17 +104,17 @@ export default function PerformancePage() {
                                 <CardTitle>Performance Reviews</CardTitle>
                                 <CardDescription>Track and manage employee performance evaluations.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
-                                <PlusCircle className="h-4 w-4" /> Add Review
-                            </Button>
-                        </div>
-                        <div className="mt-4">
-                            <Input
-                                placeholder="Search reviews..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search reviews..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-auto md:min-w-[250px]"
+                                />
+                                <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
+                                    <PlusCircle className="h-4 w-4" /> Add Review
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>

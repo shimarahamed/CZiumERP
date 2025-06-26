@@ -144,18 +144,18 @@ export default function StoresPage() {
                                 <CardTitle>Stores</CardTitle>
                                 <CardDescription>Select a store to manage its session, or use the actions to edit/delete.</CardDescription>
                             </div>
-                            <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                <PlusCircle className="h-4 w-4" />
-                                Add Store
-                            </Button>
-                        </div>
-                        <div className="mt-4">
-                            <Input
-                                placeholder="Search by name or address..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search by name or address..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-auto md:min-w-[250px]"
+                                />
+                                <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                                    <PlusCircle className="h-4 w-4" />
+                                    Add Store
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>
