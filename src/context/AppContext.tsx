@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -77,6 +77,10 @@ interface AppContextType {
   setTaxRates: React.Dispatch<React.SetStateAction<TaxRate[]>>;
   budgets: Budget[];
   setBudgets: React.Dispatch<React.SetStateAction<Budget[]>>;
+  candidates: Candidate[];
+  setCandidates: React.Dispatch<React.SetStateAction<Candidate[]>>;
+  performanceReviews: PerformanceReview[];
+  setPerformanceReviews: React.Dispatch<React.SetStateAction<PerformanceReview[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -102,6 +106,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>(initialLedgerEntries);
   const [taxRates, setTaxRates] = useState<TaxRate[]>(initialTaxRates);
   const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
+  const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
+  const [performanceReviews, setPerformanceReviews] = useState<PerformanceReview[]>(initialPerformanceReviews);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -131,6 +137,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setLedgerEntries(getStoredState('ledgerEntries', initialLedgerEntries));
     setTaxRates(getStoredState('taxRates', initialTaxRates));
     setBudgets(getStoredState('budgets', initialBudgets));
+    setCandidates(getStoredState('candidates', initialCandidates));
+    setPerformanceReviews(getStoredState('performanceReviews', initialPerformanceReviews));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -167,6 +175,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('ledgerEntries', JSON.stringify(ledgerEntries)); }, [ledgerEntries, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('taxRates', JSON.stringify(taxRates)); }, [taxRates, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('budgets', JSON.stringify(budgets)); }, [budgets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('candidates', JSON.stringify(candidates)); }, [candidates, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('performanceReviews', JSON.stringify(performanceReviews)); }, [performanceReviews, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore, isHydrated]);
@@ -267,6 +277,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('ledgerEntries');
     localStorage.removeItem('taxRates');
     localStorage.removeItem('budgets');
+    localStorage.removeItem('candidates');
+    localStorage.removeItem('performanceReviews');
   };
 
 
@@ -295,7 +307,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       leaveRequests, setLeaveRequests,
       ledgerEntries, setLedgerEntries,
       taxRates, setTaxRates,
-      budgets, setBudgets
+      budgets, setBudgets,
+      candidates, setCandidates,
+      performanceReviews, setPerformanceReviews
     }}>
       {children}
     </AppContext.Provider>

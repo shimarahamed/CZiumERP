@@ -5,6 +5,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -222,4 +223,28 @@ export type Budget = {
   period: 'Monthly' | 'Quarterly' | 'Yearly';
   budgetedAmount: number;
   actualAmount: number;
+};
+
+export type CandidateStatus = 'applied' | 'interviewing' | 'offer' | 'hired' | 'rejected';
+
+export type Candidate = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  position: string;
+  status: CandidateStatus;
+  applicationDate: string; // ISO string
+  avatar: string;
+};
+
+export type PerformanceReview = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  reviewerId: string;
+  reviewerName: string;
+  date: string; // ISO string
+  rating: number; // 1-5
+  comments: string;
 };

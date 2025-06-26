@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -810,4 +810,18 @@ export const initialBudgets: Budget[] = [
   { id: 'bud-3', category: 'Employee Payroll', period: 'Monthly', budgetedAmount: 25000, actualAmount: 24800 },
   { id: 'bud-4', category: 'IT & Software', period: 'Quarterly', budgetedAmount: 5000, actualAmount: 5250 },
   { id: 'bud-5', category: 'Capital Expenditures', period: 'Yearly', budgetedAmount: 50000, actualAmount: 25000 },
+];
+
+export const initialCandidates: Candidate[] = [
+  { id: 'cand-1', name: 'Alicia Keys', email: 'alicia@example.com', phone: '111-222-3333', position: 'Senior Sales Associate', status: 'interviewing', applicationDate: '2023-11-10', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-2', name: 'Ben Carter', email: 'ben@example.com', phone: '222-333-4444', position: 'Barista', status: 'applied', applicationDate: '2023-11-15', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-3', name: 'Charlie Davis', email: 'charlie@example.com', phone: '333-444-5555', position: 'Barista', status: 'offer', applicationDate: '2023-11-05', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-4', name: 'Diana Evans', email: 'diana@example.com', phone: '444-555-6666', position: 'Store Manager', status: 'hired', applicationDate: '2023-10-20', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-5', name: 'Frank Green', email: 'frank@example.com', phone: '555-666-7777', position: 'Senior Sales Associate', status: 'rejected', applicationDate: '2023-11-12', avatar: 'https://placehold.co/40x40' },
+];
+
+export const initialPerformanceReviews: PerformanceReview[] = [
+  { id: 'pr-1', employeeId: 'emp-3', employeeName: 'Cashier Chloe', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2023-09-30', rating: 4, comments: 'Chloe has excellent customer service skills and is always punctual. Could improve upselling techniques.' },
+  { id: 'pr-2', employeeId: 'emp-4', employeeName: 'Inventory Ian', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2023-10-15', rating: 5, comments: 'Ian is extremely organized and has significantly improved inventory accuracy. A model employee.' },
+  { id: 'pr-3', employeeId: 'emp-5', employeeName: 'Warehouse William', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2023-10-25', rating: 3, comments: 'William is a hard worker but needs to be more careful with handling fragile items. Some breakages reported this quarter.' },
 ];

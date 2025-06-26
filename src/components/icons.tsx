@@ -65,4 +65,8 @@ export {
   Sparkles,
   BookCopy,
   Target,
+  UserPlus,
+  Star,
+  Briefcase,
+  Phone
 } from 'lucide-react';
