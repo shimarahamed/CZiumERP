@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -5,7 +6,7 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
-  Archive, Clock, CalendarPlus, Banknote, UserRoundCog
+  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -25,8 +26,8 @@ type NavCategory = {
 
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings', 'Assets', 'Employees'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
 };
@@ -60,18 +61,21 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Operations',
+    label: 'Finance & Accounting',
     links: [
-      { href: '/assets', label: 'Assets', icon: Archive },
+      { href: '/accounting/general-ledger', label: 'General Ledger', icon: BookCopy },
+      { href: '/accounting/assets', label: 'Assets', icon: Archive },
+      { href: '/accounting/tax', label: 'Tax Management', icon: LandmarkIcon },
+      { href: '/accounting/budgeting', label: 'Budgeting', icon: Target },
     ],
   },
   {
     label: 'Human Resources',
     links: [
-      { href: '/hr/employees', label: 'Employees', icon: UserCog },
-      { href: '/hr/attendance', label: 'Attendance', icon: Clock },
-      { href: '/hr/leave-requests', label: 'Leave Requests', icon: CalendarPlus },
-      { href: '/hr/payroll', label: 'Payroll', icon: Banknote },
+      { href: '/human-resources/employees', label: 'Employees', icon: UserCog },
+      { href: '/human-resources/attendance', label: 'Attendance', icon: Clock },
+      { href: '/human-resources/leave-requests', label: 'Leave Requests', icon: CalendarPlus },
+      { href: '/human-resources/payroll', label: 'Payroll', icon: Banknote },
     ],
   },
   {

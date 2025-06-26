@@ -1,3 +1,4 @@
+
 export { 
   // General & Nav
   LayoutDashboard, 
@@ -61,5 +62,7 @@ export {
   UserCheck,
   UserX,
   Plane,
-  Sparkles
+  Sparkles,
+  BookCopy,
+  Target,
 } from 'lucide-react';
