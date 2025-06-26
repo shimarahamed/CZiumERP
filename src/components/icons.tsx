@@ -60,5 +60,6 @@ export {
   X,
   UserCheck,
   UserX,
-  Plane
+  Plane,
+  Sparkles
 } from 'lucide-react';

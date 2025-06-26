@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { getUpsellRecommendations } from '@/ai/flows/upsell-recommendations';
 import type { UpsellRecommendationsOutput } from '@/ai/flows/upsell-recommendations';
-import { Lightbulb, Loader2, Sparkles } from 'lucide-react';
+import { Lightbulb, Loader2, Sparkles } from '@/components/icons';
 import { useAppContext } from '@/context/AppContext';
 
 const formSchema = z.object({
