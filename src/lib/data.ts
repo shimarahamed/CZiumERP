@@ -580,6 +580,80 @@ export const initialInvoices: Invoice[] = [
     status: 'paid',
     date: '2023-11-26',
     discount: 10
+  },
+  {
+    id: 'INV-036',
+    storeId: 'store-1',
+    customerId: 'cust-7',
+    customerName: 'Michael Green',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-12', productName: 'Travel Mug', quantity: 2, price: 25.00, cost: 15.00 },
+        { productId: 'prod-8', productName: 'Assorted Pastries', quantity: 4, price: 3.50, cost: 1.50 }
+    ],
+    amount: 67.20,
+    status: 'paid',
+    date: '2023-07-28',
+    taxRate: 5,
+  },
+  {
+    id: 'INV-037',
+    storeId: 'store-2',
+    customerId: 'cust-1',
+    customerName: 'John Doe',
+    userId: 'user-2',
+    userName: 'Manager Mike',
+    items: [
+        { productId: 'prod-13', productName: 'Barista Apron', quantity: 1, price: 30.00, cost: 18.00 }
+    ],
+    amount: 28.50,
+    status: 'overdue',
+    date: '2023-10-12',
+    discount: 5,
+    taxRate: 0,
+  },
+  {
+    id: 'INV-038',
+    storeId: 'store-3',
+    customerId: 'cust-4',
+    customerName: 'Alice Johnson',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 10, price: 22.00, cost: 12.00 }
+    ],
+    amount: 198.00,
+    status: 'paid',
+    date: '2023-08-05',
+    discount: 10,
+  },
+  {
+    id: 'INV-039',
+    storeId: 'store-1',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-6', productName: 'Almond Milk (1L)', quantity: 6, price: 4.50, cost: 2.50 }
+    ],
+    amount: 27.00,
+    status: 'pending',
+    date: '2023-11-28',
+  },
+  {
+    id: 'INV-040',
+    storeId: 'store-2',
+    customerId: 'cust-5',
+    customerName: 'Bob Brown',
+    userId: 'user-3',
+    userName: 'Cashier Chloe',
+    items: [
+        { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
+    ],
+    amount: 78.75,
+    status: 'paid',
+    date: '2023-11-28',
+    taxRate: 5,
   }
 ];
 
