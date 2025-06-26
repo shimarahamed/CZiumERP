@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from "react";
@@ -14,7 +15,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { Invoice } from "@/types";
 
 export default function PaymentsPage() {
-  const { invoices, setInvoices, customers, addActivityLog, currentStore, currencySymbol } = useAppContext();
+  const { invoices, setInvoices, customers, addActivityLog, currentStore, currencySymbol, stores } = useAppContext();
   const [unpaidInvoices, setUnpaidInvoices] = useState<Invoice[]>([]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
   const [amount, setAmount] = useState<number | string>('');
@@ -86,7 +87,7 @@ export default function PaymentsPage() {
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>New Transaction</CardTitle>
-            <CardDescription>Select an invoice from {currentStore?.name} to complete the transaction.</CardDescription>
+            <CardDescription>Select an invoice from {currentStore?.id === 'all' ? 'any store' : currentStore?.name} to complete the transaction.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
@@ -98,11 +99,15 @@ export default function PaymentsPage() {
                         <SelectValue placeholder="Select an unpaid invoice" />
                         </SelectTrigger>
                         <SelectContent>
-                        {unpaidInvoices.map(invoice => (
-                            <SelectItem key={invoice.id} value={invoice.id}>
-                                {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol} {invoice.amount.toFixed(2)}
-                            </SelectItem>
-                        ))}
+                        {unpaidInvoices.map(invoice => {
+                            const store = stores.find(s => s.id === invoice.storeId);
+                            return (
+                                <SelectItem key={invoice.id} value={invoice.id}>
+                                    {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol} {invoice.amount.toFixed(2)}
+                                    {currentStore?.id === 'all' && store && <span className="text-muted-foreground ml-2">({store.name})</span>}
+                                </SelectItem>
+                            )
+                        })}
                         </SelectContent>
                     </Select>
                 </div>
