@@ -11,7 +11,7 @@ export default function BudgetingPage() {
           <CardHeader>
             <CardTitle>Coming Soon</CardTitle>
             <CardDescription>This feature is under active development.</CardDescription>
-          </CardHeader>
+          </Header>
           <CardContent>
             <p>The budgeting and advanced financial reporting module is currently being built. This will allow you to set financial targets and track your performance against them. Please check back later!</p>
           </CardContent>

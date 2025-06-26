@@ -11,7 +11,7 @@ export default function GeneralLedgerPage() {
           <CardHeader>
             <CardTitle>Coming Soon</CardTitle>
             <CardDescription>This feature is under active development.</CardDescription>
-          </CardHeader>
+          </Header>
           <CardContent>
             <p>A full general ledger, including accounts payable and receivable tracking, is currently being built. Please check back later!</p>
           </CardContent>
