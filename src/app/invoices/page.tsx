@@ -87,7 +87,12 @@ export default function InvoicesPage() {
         name: "items"
     });
 
-    const storeInvoices = invoices.filter(i => i.storeId === currentStore?.id);
+    const storeInvoices = useMemo(() => {
+        if (currentStore?.id === 'all') {
+          return invoices;
+        }
+        return invoices.filter(i => i.storeId === currentStore?.id);
+    }, [invoices, currentStore]);
 
     const watchedItems = useWatch({ control: form.control, name: 'items' });
     const watchedDiscount = useWatch({ control: form.control, name: 'discount' }) || 0;
@@ -538,5 +543,7 @@ export default function InvoicesPage() {
         </div>
     );
 }
+
+    
 
     
