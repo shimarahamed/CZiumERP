@@ -22,9 +22,13 @@ export default function PaymentsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const storeUnpaidInvoices = invoices.filter(inv => 
-        inv.storeId === currentStore?.id && (inv.status === 'pending' || inv.status === 'overdue')
-    );
+    const storeUnpaidInvoices = invoices.filter(inv => {
+        const isUnpaid = inv.status === 'pending' || inv.status === 'overdue';
+        if (currentStore?.id === 'all') {
+            return isUnpaid;
+        }
+        return inv.storeId === currentStore?.id && isUnpaid;
+    });
     setUnpaidInvoices(storeUnpaidInvoices);
   }, [invoices, currentStore]);
 
@@ -95,7 +99,9 @@ export default function PaymentsPage() {
                         </SelectTrigger>
                         <SelectContent>
                         {unpaidInvoices.map(invoice => (
-                            <SelectItem key={invoice.id} value={invoice.id}>{invoice.id} - {currencySymbol} {invoice.amount.toFixed(2)}</SelectItem>
+                            <SelectItem key={invoice.id} value={invoice.id}>
+                                {invoice.id} - {invoice.customerName || 'Walk-in'} - {currencySymbol} {invoice.amount.toFixed(2)}
+                            </SelectItem>
                         ))}
                         </SelectContent>
                     </Select>
