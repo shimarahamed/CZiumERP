@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -12,6 +13,8 @@ export default function GeneralLedgerPage() {
     const { ledgerEntries, currencySymbol } = useAppContext();
 
     const processedEntries = useMemo(() => {
+        if (!Array.isArray(ledgerEntries)) return [];
+        
         let balance = 0;
         // Sort entries by date to calculate running balance correctly
         return [...ledgerEntries]
