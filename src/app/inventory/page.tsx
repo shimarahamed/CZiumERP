@@ -163,20 +163,20 @@ export default function InventoryPage() {
                                 <CardTitle>Product Inventory</CardTitle>
                                 <CardDescription>Manage your products, stock levels, and costs.</CardDescription>
                             </div>
-                            {canManage && (
-                                <Button size="sm" className="gap-1 w-full md:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" />
-                                    Add Product
-                                </Button>
-                            )}
-                        </div>
-                        <div className="mt-4">
-                            <Input
-                                placeholder="Search products by name, SKU, or category..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search products..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-[300px]"
+                                />
+                                {canManage && (
+                                    <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                                        <PlusCircle className="h-4 w-4" />
+                                        Add Product
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>
