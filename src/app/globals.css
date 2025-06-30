@@ -93,8 +93,18 @@
   .printable-invoice-area,
   .printable-invoice-area *,
   .printable-po-area,
-  .printable-po-area * {
+  .printable-po-area *,
+  .printable-report-area,
+  .printable-report-area * {
     visibility: visible;
+  }
+
+  .printable-report-area [data-state="inactive"] {
+    display: none !important;
+  }
+  
+  .printable-report-area .non-printable {
+    display: none !important;
   }
 
   .printable-receipt-area {
@@ -116,7 +126,8 @@
   }
   
   .printable-invoice-area,
-  .printable-po-area {
+  .printable-po-area,
+  .printable-report-area {
     position: absolute;
     left: 0;
     top: 0;

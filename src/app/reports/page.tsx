@@ -6,221 +6,153 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
-import { Download, DollarSign, FileText, Users, ShoppingBag } from "@/components/icons";
+import { Download, DollarSign, FileText, Users, ShoppingBag, BarChart3, Package, TrendingUp, Sparkles, Loader2 } from "@/components/icons";
 import { useAppContext } from '@/context/AppContext';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
-import { subDays, isWithinInterval, parseISO } from 'date-fns';
-import type { Invoice } from '@/types';
-
-type ProductSale = {
-    productId: string;
-    productName: string;
-    quantitySold: number;
-    totalRevenue: number;
-}
-
-type UserSale = {
-    userId: string;
-    userName: string;
-    invoicesCreated: number;
-    totalRevenue: number;
-}
+import { subDays, isWithinInterval, parseISO, format } from 'date-fns';
+import type { Invoice, Product } from '@/types';
+import { getSalesForecast } from '@/ai/flows/sales-forecast';
+import type { SalesForecastOutput } from '@/ai/flows/sales-forecast';
 
 
-const ReportView = React.forwardRef<HTMLDivElement, { 
-    filteredInvoices: Invoice[], 
-    productSales: ProductSale[], 
-    userSales: UserSale[], 
-    dateRange?: DateRange 
-}>(({ filteredInvoices, productSales, userSales, dateRange }, ref) => {
-    const { currencySymbol, currentStore } = useAppContext();
-
-    const totalRevenue = filteredInvoices.reduce((acc, inv) => acc + inv.amount, 0);
-    const totalInvoices = filteredInvoices.length;
-    const uniqueCustomers = new Set(filteredInvoices.map(inv => inv.customerId).filter(Boolean)).size;
-    const totalItemsSold = filteredInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
-
-    return (
-        <div ref={ref} className="printable-invoice-area bg-white text-black p-4 sm:p-8">
-            <div className="mb-8 text-center">
-                <h1 className="text-3xl font-bold mb-1">Sales Report for {currentStore?.id === 'all' ? 'All Stores' : currentStore?.name}</h1>
-                {dateRange?.from && (
-                    <p className="text-gray-600">
-                        Period: {dateRange.from.toLocaleDateString()}
-                        {dateRange.to ? ` - ${dateRange.to.toLocaleDateString()}` : ''}
-                    </p>
-                )}
-                <p className="text-gray-500 text-sm">Generated on: {new Date().toLocaleDateString()}</p>
-            </div>
-            
-             {/* KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-                <Card className="bg-slate-50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{currencySymbol} {totalRevenue.toFixed(2)}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-slate-50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Invoices</CardTitle>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{totalInvoices}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-slate-50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Items Sold</CardTitle>
-                        <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{totalItemsSold}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-slate-50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Customers</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{uniqueCustomers}</div>
-                    </CardContent>
-                </Card>
-            </div>
-
-
-            <Tabs defaultValue="product-sales">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="product-sales">Sales by Product</TabsTrigger>
-                    <TabsTrigger value="user-sales">Sales by User</TabsTrigger>
-                </TabsList>
-                <TabsContent value="product-sales">
-                     <h2 className="text-xl font-bold mb-4">Sales by Product</h2>
-                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Product</TableHead>
-                                <TableHead className="text-right">Quantity Sold</TableHead>
-                                <TableHead className="text-right">Total Revenue</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {productSales.map(sale => (
-                                <TableRow key={sale.productId}>
-                                    <TableCell>{sale.productName}</TableCell>
-                                    <TableCell className="text-right">{sale.quantitySold}</TableCell>
-                                    <TableCell className="text-right">{currencySymbol} {sale.totalRevenue.toFixed(2)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                     </Table>
-                </TabsContent>
-                 <TabsContent value="user-sales">
-                     <h2 className="text-xl font-bold mb-4">Sales by User</h2>
-                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>User</TableHead>
-                                <TableHead className="text-right">Invoices Created</TableHead>
-                                <TableHead className="text-right">Total Revenue</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {userSales.map(sale => (
-                                <TableRow key={sale.userId}>
-                                    <TableCell>{sale.userName || 'Unknown User'}</TableCell>
-                                    <TableCell className="text-right">{sale.invoicesCreated}</TableCell>
-                                    <TableCell className="text-right">{currencySymbol} {sale.totalRevenue.toFixed(2)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                     </Table>
-                </TabsContent>
-            </Tabs>
-        </div>
-    );
-});
-ReportView.displayName = "ReportView";
-
+const ReportKPI = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
+    <Card className="bg-slate-50">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            <Icon className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold">{value}</div>
+        </CardContent>
+    </Card>
+);
 
 export default function ReportsPage() {
-    const { invoices, currentStore, currencySymbol } = useAppContext();
-    const reportRef = useRef<HTMLDivElement>(null);
+    const { invoices, products, currentStore, currencySymbol, user } = useAppContext();
+    const [isGeneratingForecast, setIsGeneratingForecast] = useState(false);
+    const [forecast, setForecast] = useState<SalesForecastOutput | null>(null);
+
     const [date, setDate] = useState<DateRange | undefined>({
-        from: subDays(new Date(), 29),
+        from: subDays(new Date(), 89),
         to: new Date(),
     });
 
-    const handlePrint = () => {
-        window.print();
-    };
+    const handlePrint = () => window.print();
 
+    // Base filtered data
     const filteredInvoices = useMemo(() => {
         const baseInvoices = (currentStore?.id === 'all' ? invoices : invoices.filter(inv => inv.storeId === currentStore?.id))
             .filter(inv => inv.status === 'paid');
 
         if (date?.from) {
+            const endDate = date.to || new Date();
             return baseInvoices.filter(inv => 
-                isWithinInterval(parseISO(inv.date), { start: date.from!, end: date.to || new Date() })
+                isWithinInterval(parseISO(inv.date), { start: date.from!, end: endDate })
             );
         }
         return baseInvoices;
     }, [invoices, currentStore, date]);
-    
-    const productSales = useMemo((): ProductSale[] => {
-        const sales: { [key: string]: ProductSale } = {};
+
+    // Sales Report Data
+    const salesReportData = useMemo(() => {
+        const productSales: { [key: string]: { name: string; quantity: number; revenue: number } } = {};
+        const userSales: { [key: string]: { name: string; invoices: number; revenue: number } } = {};
+
         filteredInvoices.forEach(inv => {
-            inv.items.forEach(item => {
-                if (!sales[item.productId]) {
-                    sales[item.productId] = {
-                        productId: item.productId,
-                        productName: item.productName,
-                        quantitySold: 0,
-                        totalRevenue: 0
-                    };
+            if (inv.userId) {
+                if (!userSales[inv.userId]) {
+                    userSales[inv.userId] = { name: inv.userName || 'Unknown', invoices: 0, revenue: 0 };
                 }
-                sales[item.productId].quantitySold += item.quantity;
-                sales[item.productId].totalRevenue += item.quantity * item.price;
+                userSales[inv.userId].invoices += 1;
+                userSales[inv.userId].revenue += inv.amount;
+            }
+            inv.items.forEach(item => {
+                if (!productSales[item.productId]) {
+                    productSales[item.productId] = { name: item.productName, quantity: 0, revenue: 0 };
+                }
+                productSales[item.productId].quantity += item.quantity;
+                productSales[item.productId].revenue += item.price * item.quantity;
             });
         });
-        return Object.values(sales).sort((a,b) => b.totalRevenue - a.totalRevenue);
+
+        return {
+            totalRevenue: filteredInvoices.reduce((sum, inv) => sum + inv.amount, 0),
+            totalInvoices: filteredInvoices.length,
+            totalItemsSold: filteredInvoices.reduce((sum, inv) => sum + inv.items.reduce((iSum, i) => iSum + i.quantity, 0), 0),
+            uniqueCustomers: new Set(filteredInvoices.map(inv => inv.customerId).filter(Boolean)).size,
+            productSales: Object.values(productSales).sort((a, b) => b.revenue - a.revenue),
+            userSales: Object.values(userSales).sort((a, b) => b.revenue - a.revenue),
+        };
     }, [filteredInvoices]);
 
-    const userSales = useMemo((): UserSale[] => {
-        const sales: { [key: string]: UserSale } = {};
-         filteredInvoices.forEach(inv => {
-            if (inv.userId) {
-                if (!sales[inv.userId]) {
-                    sales[inv.userId] = {
-                        userId: inv.userId,
-                        userName: inv.userName || `User ID: ${inv.userId}`,
-                        invoicesCreated: 0,
-                        totalRevenue: 0,
-                    };
-                }
-                sales[inv.userId].invoicesCreated += 1;
-                sales[inv.userId].totalRevenue += inv.amount;
+    // Inventory Report Data
+    const inventoryReportData = useMemo(() => {
+        const lowStockItems = products.filter(p => p.reorderThreshold && p.stock <= p.reorderThreshold);
+        return {
+            totalItems: products.length,
+            totalStockValue: products.reduce((sum, p) => sum + p.cost * p.stock, 0),
+            lowStockItems,
+            allItems: products,
+        }
+    }, [products]);
+
+    // Financial Report Data
+    const financialReportData = useMemo(() => {
+        const totalRevenue = salesReportData.totalRevenue;
+        const costOfGoodsSold = filteredInvoices.reduce((sum, inv) => 
+            sum + inv.items.reduce((iSum, i) => iSum + (i.cost * i.quantity), 0), 0);
+        const grossProfit = totalRevenue - costOfGoodsSold;
+        const profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+        
+        return {
+            totalRevenue,
+            costOfGoodsSold,
+            grossProfit,
+            profitMargin,
+        };
+    }, [salesReportData, filteredInvoices]);
+
+    const handleGenerateForecast = async () => {
+        setIsGeneratingForecast(true);
+        setForecast(null);
+        try {
+            const monthlySales = filteredInvoices.reduce((acc, inv) => {
+                const month = format(parseISO(inv.date), 'yyyy-MM');
+                acc[month] = (acc[month] || 0) + inv.amount;
+                return acc;
+            }, {} as Record<string, number>);
+
+            const salesDataForAI = Object.entries(monthlySales)
+                .map(([month, revenue]) => ({ month, revenue }))
+                .sort((a, b) => a.month.localeCompare(b.month));
+            
+            if (salesDataForAI.length < 2) {
+                setForecast({ forecast: "Not enough historical data to generate a forecast.", trendAnalysis: "At least two months of sales data are needed for trend analysis."});
+                return;
             }
-        });
-        return Object.values(sales).sort((a,b) => b.totalRevenue - a.totalRevenue);
-    }, [filteredInvoices]);
+
+            const result = await getSalesForecast({ salesData: salesDataForAI });
+            setForecast(result);
+
+        } catch (error) {
+            console.error("Error generating forecast:", error);
+            setForecast({ forecast: "An error occurred while generating the forecast.", trendAnalysis: "Please try again later." });
+        } finally {
+            setIsGeneratingForecast(false);
+        }
+    }
 
     return (
         <div className="flex flex-col h-full">
-            <Header title="Sales Reports" />
+            <Header title="Reports & Analytics" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="non-printable">
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div>
-                                <CardTitle>Detailed Sales Report</CardTitle>
-                                <CardDescription>Filter and view your sales data.</CardDescription>
+                                <CardTitle>Business Reports</CardTitle>
+                                <CardDescription>Generate and view detailed reports for your business.</CardDescription>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2">
                                 <DateRangePicker date={date} setDate={setDate} />
@@ -232,14 +164,103 @@ export default function ReportsPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                       <div className="border rounded-lg bg-white shadow-sm">
-                         <ReportView 
-                            ref={reportRef} 
-                            filteredInvoices={filteredInvoices} 
-                            productSales={productSales}
-                            userSales={userSales}
-                            dateRange={date}
-                        />
+                       <div className="printable-report-area">
+                         <div className="text-center mb-6 hidden print:block">
+                            <h1 className="text-2xl font-bold">Report for {currentStore?.name}</h1>
+                            {date?.from && <p className="text-sm text-muted-foreground">{format(date.from, 'PPP')} - {date.to ? format(date.to, 'PPP') : 'Today'}</p>}
+                         </div>
+                         <Tabs defaultValue="sales">
+                            <TabsList className="grid w-full grid-cols-3 non-printable">
+                                <TabsTrigger value="sales">Sales</TabsTrigger>
+                                <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                                <TabsTrigger value="financial">Financial</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="sales" className="mt-4">
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <ReportKPI title="Total Revenue" value={`${currencySymbol}${salesReportData.totalRevenue.toFixed(2)}`} icon={DollarSign} />
+                                        <ReportKPI title="Invoices" value={`${salesReportData.totalInvoices}`} icon={FileText} />
+                                        <ReportKPI title="Items Sold" value={`${salesReportData.totalItemsSold}`} icon={ShoppingBag} />
+                                        <ReportKPI title="Customers" value={`${salesReportData.uniqueCustomers}`} icon={Users} />
+                                    </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <Card><CardHeader><CardTitle>Sales by Product</CardTitle></CardHeader><CardContent>
+                                            <Table><TableHeader><TableRow><TableHead>Product</TableHead><TableHead className="text-right">Qty</TableHead><TableHead className="text-right">Revenue</TableHead></TableRow></TableHeader>
+                                            <TableBody>{salesReportData.productSales.map(p => (<TableRow key={p.name}><TableCell>{p.name}</TableCell><TableCell className="text-right">{p.quantity}</TableCell><TableCell className="text-right">{currencySymbol}{p.revenue.toFixed(2)}</TableCell></TableRow>))}</TableBody></Table>
+                                        </CardContent></Card>
+                                        <Card><CardHeader><CardTitle>Sales by User</CardTitle></CardHeader><CardContent>
+                                            <Table><TableHeader><TableRow><TableHead>User</TableHead><TableHead className="text-right">Invoices</TableHead><TableHead className="text-right">Revenue</TableHead></TableRow></TableHeader>
+                                            <TableBody>{salesReportData.userSales.map(u => (<TableRow key={u.name}><TableCell>{u.name}</TableCell><TableCell className="text-right">{u.invoices}</TableCell><TableCell className="text-right">{currencySymbol}{u.revenue.toFixed(2)}</TableCell></TableRow>))}</TableBody></Table>
+                                        </CardContent></Card>
+                                    </div>
+                                    <Card>
+                                        <CardHeader><CardTitle>AI Forecasting & Trends</CardTitle><CardDescription>Generate a sales forecast based on the selected date range.</CardDescription></CardHeader>
+                                        <CardContent>
+                                            <Button onClick={handleGenerateForecast} disabled={isGeneratingForecast} className="non-printable">
+                                                {isGeneratingForecast ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Generating...</> : <><Sparkles className="mr-2 h-4 w-4"/> Generate Forecast</>}
+                                            </Button>
+                                            {isGeneratingForecast ? ( <div className="mt-4 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground"/></div>) :
+                                            forecast && (
+                                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div><h4 className="font-semibold mb-2">Forecast</h4><p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">{forecast.forecast}</p></div>
+                                                    <div><h4 className="font-semibold mb-2">Trend Analysis</h4><p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">{forecast.trendAnalysis}</p></div>
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </TabsContent>
+                             <TabsContent value="inventory" className="mt-4">
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <ReportKPI title="Total SKUs" value={`${inventoryReportData.totalItems}`} icon={Package} />
+                                        <ReportKPI title="Total Stock Value (Cost)" value={`${currencySymbol}${inventoryReportData.totalStockValue.toFixed(2)}`} icon={DollarSign} />
+                                        <ReportKPI title="Low Stock Items" value={`${inventoryReportData.lowStockItems.length}`} icon={TrendingUp} />
+                                    </div>
+                                    <Card>
+                                        <CardHeader><CardTitle>Inventory Details</CardTitle></CardHeader>
+                                        <CardContent>
+                                            <Table><TableHeader><TableRow><TableHead>Product</TableHead><TableHead>SKU</TableHead><TableHead className="text-right">Stock</TableHead><TableHead className="text-right">Cost</TableHead><TableHead className="text-right">Total Value</TableHead></TableRow></TableHeader>
+                                            <TableBody>{inventoryReportData.allItems.map(p => (
+                                                <TableRow key={p.id}>
+                                                    <TableCell>{p.name}</TableCell>
+                                                    <TableCell>{p.sku || 'N/A'}</TableCell>
+                                                    <TableCell className="text-right">{p.stock}</TableCell>
+                                                    <TableCell className="text-right">{currencySymbol}{p.cost.toFixed(2)}</TableCell>
+                                                    <TableCell className="text-right">{currencySymbol}{(p.stock * p.cost).toFixed(2)}</TableCell>
+                                                </TableRow>
+                                            ))}</TableBody></Table>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                             </TabsContent>
+                              <TabsContent value="financial" className="mt-4">
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader><CardTitle>Profit & Loss Summary</CardTitle><CardDescription>A high-level overview of profitability for the selected period.</CardDescription></CardHeader>
+                                        <CardContent>
+                                            <div className="max-w-md mx-auto space-y-4">
+                                                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                                    <span className="font-medium">Total Revenue</span>
+                                                    <span className="font-bold text-lg">{currencySymbol}{financialReportData.totalRevenue.toFixed(2)}</span>
+                                                </div>
+                                                 <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                                    <span className="font-medium text-destructive">Cost of Goods Sold (COGS)</span>
+                                                    <span className="font-bold text-lg text-destructive">-{currencySymbol}{financialReportData.costOfGoodsSold.toFixed(2)}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center p-4 bg-primary/10 rounded-lg border border-primary/20">
+                                                    <span className="font-semibold text-primary">Gross Profit</span>
+                                                    <span className="font-bold text-xl text-primary">{currencySymbol}{financialReportData.grossProfit.toFixed(2)}</span>
+                                                </div>
+                                                <div className="text-center pt-2">
+                                                    <p className="text-sm text-muted-foreground">Profit Margin: <span className="font-bold">{financialReportData.profitMargin.toFixed(2)}%</span></p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                              </TabsContent>
+                         </Tabs>
                        </div>
                     </CardContent>
                 </Card>
