@@ -23,14 +23,14 @@ export const initialStores: Store[] = [
 ];
 
 export const customers: Customer[] = [
-  { id: 'cust-1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', loyaltyPoints: 525, tier: 'Silver' },
-  { id: 'cust-2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', loyaltyPoints: 80, tier: 'Bronze' },
-  { id: 'cust-3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', loyaltyPoints: 130, tier: 'Bronze' },
-  { id: 'cust-4', name: 'Alice Johnson', email: 'alice@example.com', phone: '456-789-0123', avatar: 'https://placehold.co/40x40', loyaltyPoints: 2150, tier: 'Gold' },
-  { id: 'cust-5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40', loyaltyPoints: 0, tier: 'Bronze' },
-  { id: 'cust-6', name: 'Emily White', email: 'emily@example.com', phone: '678-901-2345', avatar: 'https://placehold.co/40x40', loyaltyPoints: 1200, tier: 'Silver' },
-  { id: 'cust-7', name: 'Michael Green', email: 'michael@example.com', phone: '789-012-3456', avatar: 'https://placehold.co/40x40', loyaltyPoints: 340, tier: 'Bronze' },
-  { id: 'cust-8', name: 'Sarah Black', email: 'sarah@example.com', phone: '890-123-4567', avatar: 'https://placehold.co/40x40', loyaltyPoints: 450, tier: 'Bronze' },
+  { id: 'cust-1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', billingAddress: '123 Billing Rd, Anytown, USA', shippingAddress: '123 Shipping Rd, Anytown, USA', loyaltyPoints: 525, tier: 'Silver' },
+  { id: 'cust-2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', billingAddress: '456 Billing Ave, Anytown, USA', shippingAddress: '456 Shipping Ave, Anytown, USA', loyaltyPoints: 80, tier: 'Bronze' },
+  { id: 'cust-3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', billingAddress: '789 Billing Ln, Anytown, USA', shippingAddress: '789 Shipping Ln, Anytown, USA', loyaltyPoints: 130, tier: 'Bronze' },
+  { id: 'cust-4', name: 'Alice Johnson', email: 'alice@example.com', phone: '456-789-0123', avatar: 'https://placehold.co/40x40', billingAddress: '101 Billing Blvd, Anytown, USA', shippingAddress: '101 Shipping Blvd, Anytown, USA', loyaltyPoints: 2150, tier: 'Gold' },
+  { id: 'cust-5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40', billingAddress: '212 Billing Ct, Anytown, USA', shippingAddress: '212 Shipping Ct, Anytown, USA', loyaltyPoints: 0, tier: 'Bronze' },
+  { id: 'cust-6', name: 'Emily White', email: 'emily@example.com', phone: '678-901-2345', avatar: 'https://placehold.co/40x40', billingAddress: '333 Billing Dr, Anytown, USA', shippingAddress: '333 Shipping Dr, Anytown, USA', loyaltyPoints: 1200, tier: 'Silver' },
+  { id: 'cust-7', name: 'Michael Green', email: 'michael@example.com', phone: '789-012-3456', avatar: 'https://placehold.co/40x40', billingAddress: '444 Billing Pl, Anytown, USA', shippingAddress: '444 Shipping Pl, Anytown, USA', loyaltyPoints: 340, tier: 'Bronze' },
+  { id: 'cust-8', name: 'Sarah Black', email: 'sarah@example.com', phone: '890-123-4567', avatar: 'https://placehold.co/40x40', billingAddress: '555 Billing Way, Anytown, USA', shippingAddress: '555 Shipping Way, Anytown, USA', loyaltyPoints: 450, tier: 'Bronze' },
 ];
 
 export const initialProducts: Product[] = [

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -20,11 +20,14 @@ import { useAppContext } from '@/context/AppContext';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { Textarea } from '@/components/ui/textarea';
 
 const customerSchema = z.object({
     name: z.string().min(1, "Name is required."),
     email: z.string().email("Invalid email address."),
     phone: z.string().min(1, "Phone number is required."),
+    billingAddress: z.string().optional(),
+    shippingAddress: z.string().optional(),
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;
@@ -64,7 +67,7 @@ export default function CustomersPage() {
         if (customer) {
             form.reset(customer);
         } else {
-            form.reset({ name: '', email: '', phone: '' });
+            form.reset({ name: '', email: '', phone: '', billingAddress: '', shippingAddress: '' });
         }
         setIsFormOpen(true);
     };
@@ -209,7 +212,7 @@ export default function CustomersPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-2">
                             <FormField control={form.control} name="name" render={({ field }) => (
                                 <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
@@ -219,7 +222,13 @@ export default function CustomersPage() {
                             <FormField control={form.control} name="phone" render={({ field }) => (
                                 <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                            <DialogFooter>
+                            <FormField control={form.control} name="billingAddress" render={({ field }) => (
+                                <FormItem><FormLabel>Billing Address</FormLabel><FormControl><Textarea placeholder="Enter billing address" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                             <FormField control={form.control} name="shippingAddress" render={({ field }) => (
+                                <FormItem><FormLabel>Shipping Address</FormLabel><FormControl><Textarea placeholder="Enter shipping address" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <DialogFooter className="pt-4">
                                 <Button type="submit">{customerToEdit ? 'Save Changes' : 'Add Customer'}</Button>
                             </DialogFooter>
                         </form>

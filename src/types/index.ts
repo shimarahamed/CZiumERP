@@ -36,6 +36,8 @@ export type Customer = {
   email: string;
   phone: string;
   avatar: string;
+  billingAddress?: string;
+  shippingAddress?: string;
   loyaltyPoints?: number;
   tier?: CustomerTier;
 };
