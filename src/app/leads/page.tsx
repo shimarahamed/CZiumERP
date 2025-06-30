@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useMemo } from 'react';
@@ -54,7 +55,15 @@ export default function LeadsPage() {
 
     const form = useForm<LeadFormData>({
         resolver: zodResolver(leadSchema),
-        defaultValues: { name: '', email: '', assignedToId: user?.id }
+        defaultValues: { 
+            name: '', 
+            company: '',
+            email: '', 
+            phone: '',
+            value: 0,
+            source: '',
+            assignedToId: user?.id || ''
+        }
     });
     
     const salesTeam = useMemo(() => users.filter(u => u.role === 'admin' || u.role === 'manager'), [users]);
@@ -96,7 +105,15 @@ export default function LeadsPage() {
         addActivityLog('Lead Added', `Added new lead: ${data.name}`);
         toast({ title: 'Lead Added' });
         setIsFormOpen(false);
-        form.reset({ name: '', email: '', assignedToId: user?.id });
+        form.reset({ 
+            name: '', 
+            company: '',
+            email: '', 
+            phone: '',
+            value: 0,
+            source: '',
+            assignedToId: user?.id || ''
+        });
     };
 
     const handleStatusChange = (leadId: string, newStatus: LeadStatus) => {
@@ -169,7 +186,7 @@ export default function LeadsPage() {
                                             </div>
                                         </CardHeader>
                                         <CardContent className="p-4 pt-0 space-y-2 text-sm">
-                                            {lead.value && <p className="flex items-center gap-2 text-muted-foreground"><DollarSign className="h-4 w-4" /> {currencySymbol}{lead.value.toFixed(2)}</p>}
+                                            {lead.value != null && lead.value > 0 && <p className="flex items-center gap-2 text-muted-foreground"><DollarSign className="h-4 w-4" /> {currencySymbol}{lead.value.toFixed(2)}</p>}
                                             <p className="flex items-center gap-2 text-muted-foreground"><Mail className="h-4 w-4" /> {lead.email}</p>
                                         </CardContent>
                                     </Card>
@@ -202,6 +219,9 @@ export default function LeadsPage() {
                                     <FormItem><FormLabel>Potential Value ({currencySymbol})</FormLabel><FormControl><Input type="number" step="100" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                             </div>
+                             <FormField control={form.control} name="source" render={({ field }) => (
+                                <FormItem><FormLabel>Source</FormLabel><FormControl><Input placeholder="e.g. Website, Referral" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
                             <FormField control={form.control} name="assignedToId" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Assigned To</FormLabel>
