@@ -6,7 +6,7 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
-  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone
+  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -26,8 +26,8 @@ type NavCategory = {
 
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control', 'Projects'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control', 'Projects'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Bill of Materials', 'Production Orders', 'Quality Control'],
 };
@@ -71,6 +71,12 @@ const categories: NavCategory[] = [
     ]
   },
   {
+    label: 'Project Management',
+    links: [
+      { href: '/projects', label: 'Projects', icon: Briefcase },
+    ]
+  },
+  {
     label: 'Finance',
     links: [
       { href: '/accounting/general-ledger', label: 'General Ledger', icon: BookCopy },
@@ -108,7 +114,10 @@ export default function Nav() {
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    // For nested routes, we want the parent to be active.
+    // e.g., if on /projects/proj-1, the /projects link should be active.
+    const isParentRoute = pathname.startsWith(href) && href !== '/';
+    return pathname === href || isParentRoute;
   }
 
   if (!user) return null;

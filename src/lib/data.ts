@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -909,4 +909,54 @@ export const initialCampaigns: Campaign[] = [
     startDate: '2023-06-01',
     endDate: '2023-07-31',
   },
+];
+
+export const initialProjects: Project[] = [
+  {
+    id: 'proj-1',
+    name: 'Q4 Website Redesign',
+    description: 'Complete overhaul of the main company website with a new branding and e-commerce platform.',
+    status: 'in-progress',
+    managerId: 'user-2',
+    teamIds: ['user-1', 'user-2'],
+    startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString(),
+    endDate: new Date(new Date().setDate(new Date().getDate() + 60)).toISOString(),
+    budget: 25000,
+  },
+  {
+    id: 'proj-2',
+    name: 'New Store Opening - Northpoint',
+    description: 'Full project plan for launching the new Northpoint Plaza location, from construction to grand opening.',
+    status: 'not-started',
+    managerId: 'user-1',
+    teamIds: ['user-1', 'user-2', 'user-4'],
+    startDate: new Date(new Date().setDate(new Date().getDate() + 14)).toISOString(),
+    endDate: new Date(new Date().setDate(new Date().getDate() + 120)).toISOString(),
+    budget: 150000,
+  },
+  {
+    id: 'proj-3',
+    name: 'Inventory System Audit',
+    description: 'Perform a full audit of the physical inventory against the system records for all store locations.',
+    status: 'completed',
+    managerId: 'user-4',
+    teamIds: ['user-4'],
+    startDate: new Date(new Date().setDate(new Date().getDate() - 60)).toISOString(),
+    endDate: new Date(new Date().setDate(new Date().getDate() - 15)).toISOString(),
+    budget: 5000,
+  }
+];
+
+export const initialTasks: Task[] = [
+  // Tasks for Project 1
+  { id: 'task-1', projectId: 'proj-1', title: 'Finalize new logo and branding guidelines', status: 'done', assigneeId: 'user-1', dueDate: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString() },
+  { id: 'task-2', projectId: 'proj-1', title: 'Develop front-end for the new homepage', status: 'in-progress', assigneeId: 'user-2', dueDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString() },
+  { id: 'task-3', projectId: 'proj-1', title: 'Set up new e-commerce backend', status: 'todo', assigneeId: 'user-1', dueDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString() },
+  // Tasks for Project 2
+  { id: 'task-4', projectId: 'proj-2', title: 'Secure construction permits', status: 'todo', assigneeId: 'user-1', dueDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString() },
+  { id: 'task-5', projectId: 'proj-2', title: 'Hire new staff for Northpoint location', status: 'todo', assigneeId: 'user-2', dueDate: new Date(new Date().setDate(new Date().getDate() + 60)).toISOString() },
+  // Tasks for Project 3
+  { id: 'task-6', projectId: 'proj-3', title: 'Conduct physical stock count at Downtown Central', status: 'done', assigneeId: 'user-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 50)).toISOString() },
+  { id: 'task-7', projectId: 'proj-3', title: 'Conduct physical stock count at Westside Mall', status: 'done', assigneeId: 'user-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 40)).toISOString() },
+  { id: 'task-8', projectId: 'proj-3', title: 'Reconcile discrepancies and submit final report', status: 'done', assigneeId: 'user-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 15)).toISOString() },
 ];

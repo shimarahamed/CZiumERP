@@ -318,3 +318,28 @@ export type Campaign = {
   startDate: string; // YYYY-MM-DD
   endDate: string; // YYYY-MM-DD
 };
+
+export type ProjectStatus = 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'cancelled';
+export type TaskStatus = 'todo' | 'in-progress' | 'done';
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  status: ProjectStatus;
+  managerId: string;
+  teamIds: string[];
+  startDate: string;
+  endDate: string;
+  budget: number;
+};
+
+export type Task = {
+  id: string;
+  projectId: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  assigneeId: string;
+  dueDate: string;
+};
