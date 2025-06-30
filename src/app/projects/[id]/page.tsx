@@ -29,6 +29,9 @@ import { cn } from '@/lib/utils';
 import GanttChart from '@/components/GanttChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task as GanttTask } from 'gantt-task-react';
+import { Combobox } from '@/components/ui/combobox';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required."),
@@ -64,6 +67,14 @@ const priorityVariant: { [key in TaskPriority]: 'default' | 'secondary' | 'destr
     'Low': 'secondary',
 };
 
+const defaultTaskValues = {
+    title: '',
+    description: '',
+    assigneeId: '',
+    dateRange: { from: new Date(), to: new Date() },
+    priority: 'Medium' as TaskPriority,
+};
+
 export default function ProjectDetailPage() {
     const { id } = useParams();
     const { projects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
@@ -79,14 +90,12 @@ export default function ProjectDetailPage() {
 
     const form = useForm<TaskFormData>({
         resolver: zodResolver(taskSchema),
-        defaultValues: {
-            title: '',
-            description: '',
-            assigneeId: '',
-            dateRange: { from: new Date(), to: new Date() },
-            priority: 'Medium',
-        },
+        defaultValues: defaultTaskValues,
     });
+    
+    const employeeOptions = useMemo(() => 
+        teamMembers.map(e => ({ label: e.name, value: e.id })), 
+    [teamMembers]);
 
     const ganttTasks: GanttTask[] = useMemo(() => {
         return projectTasks
@@ -144,19 +153,13 @@ export default function ProjectDetailPage() {
                 description: task.description || '',
                 assigneeId: task.assigneeId,
                 dateRange: {
-                    from: parseISO(task.startDate),
-                    to: parseISO(task.endDate),
+                    from: task.startDate ? parseISO(task.startDate) : new Date(),
+                    to: task.endDate ? parseISO(task.endDate) : new Date(),
                 },
                 priority: task.priority,
             });
         } else {
-            form.reset({
-                title: '',
-                description: '',
-                assigneeId: '',
-                dateRange: { from: new Date(), to: new Date() },
-                priority: 'Medium',
-            });
+            form.reset(defaultTaskValues);
         }
         setIsTaskFormOpen(true);
     };
@@ -321,7 +324,8 @@ export default function ProjectDetailPage() {
                             )}/>
                              <FormField control={form.control} name="assigneeId" render={({ field }) => (
                                 <FormItem><FormLabel>Assign To</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a user"/></SelectTrigger></FormControl>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Select a team member"/></SelectTrigger></FormControl>
                                         <SelectContent>{teamMembers.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
                                     </Select><FormMessage />
                                 </FormItem>
