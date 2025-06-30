@@ -44,6 +44,8 @@ export default function BillOfMaterialsPage() {
         resolver: zodResolver(bomSchema),
     });
     
+    const selectedProductId = form.watch('productId');
+
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: "items"
@@ -51,8 +53,18 @@ export default function BillOfMaterialsPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
 
-    const manufacturedProducts = useMemo(() => products.filter(p => p.productType === 'manufactured'), [products]);
-    const componentProducts = useMemo(() => products.filter(p => p.productType === 'component'), [products]);
+    // Products that can HAVE a BOM. They can be 'manufactured' or 'standard' (for kits), but not 'component'.
+    const manufacturableProducts = useMemo(() => 
+        products.filter(p => p.productType !== 'component'), 
+    [products]);
+
+    // Products that can BE a component. They can be 'component' or 'standard', but not 'manufactured' (to avoid nested BOMs)
+    // and cannot be the product being defined itself.
+    const componentProducts = useMemo(() => 
+        products.filter(p => 
+            p.productType !== 'manufactured' && p.id !== selectedProductId
+        ), 
+    [products, selectedProductId]);
 
     const filteredBOMs = useMemo(() => {
         if (!searchTerm) return billsOfMaterials;
@@ -200,7 +212,7 @@ export default function BillOfMaterialsPage() {
                                                 <SelectTrigger><SelectValue placeholder="Select a manufacturable product" /></SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {manufacturedProducts.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                                {manufacturableProducts.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
