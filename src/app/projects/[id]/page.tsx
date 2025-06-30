@@ -78,30 +78,40 @@ export default function ProjectDetailPage() {
     });
 
     const ganttTasks: GanttTask[] = useMemo(() => {
-        return projectTasks.map(task => {
-            let progress = 0;
-            if (task.status === 'in-progress') progress = 50;
-            else if (task.status === 'done') progress = 100;
-            
-            return {
-                id: task.id,
-                name: task.title,
-                start: parseISO(task.startDate),
-                end: parseISO(task.endDate),
-                type: 'task',
-                progress: progress,
-                isDisabled: false,
-                project: project?.name,
-                dependencies: [],
-            };
-        });
+        return projectTasks
+            .filter(task => task.startDate && task.endDate)
+            .map(task => {
+                let progress = 0;
+                if (task.status === 'in-progress') progress = 50;
+                else if (task.status === 'done') progress = 100;
+                
+                return {
+                    id: task.id,
+                    name: task.title,
+                    start: parseISO(task.startDate),
+                    end: parseISO(task.endDate),
+                    type: 'task',
+                    progress: progress,
+                    isDisabled: false,
+                    project: project?.name,
+                    dependencies: [],
+                };
+            });
     }, [projectTasks, project?.name]);
 
     if (!project) {
         return (
             <div className="flex flex-col h-full">
                 <Header title="Project Not Found" showBackButton />
-                <main className="flex-1 p-6"><Card><CardHeader><CardTitle>Error</CardTitle><CardContent><p>The requested project could not be found.</p></CardContent></CardHeader></Card>
+                <main className="flex-1 p-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Error</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p>The requested project could not be found.</p>
+                        </CardContent>
+                    </Card>
                 </main>
             </div>
         );
@@ -176,7 +186,7 @@ export default function ProjectDetailPage() {
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell>{assignee?.name || 'Unassigned'}</TableCell>
-                                                            <TableCell>{format(parseISO(task.startDate), 'MMM d')} - {format(parseISO(task.endDate), 'MMM d, yyyy')}</TableCell>
+                                                            <TableCell>{task.startDate && task.endDate ? `${format(parseISO(task.startDate), 'MMM d')} - ${format(parseISO(task.endDate), 'MMM d, yyyy')}` : 'N/A'}</TableCell>
                                                             <TableCell>
                                                                 <Select value={task.status} onValueChange={(value: TaskStatus) => handleTaskStatusChange(task.id, value)}>
                                                                     <SelectTrigger className="h-8 w-[120px]">
