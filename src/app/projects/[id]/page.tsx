@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useMemo } from 'react';
@@ -8,18 +9,20 @@ import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Task, TaskStatus, TaskPriority } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, User, Users, Calendar, Flag, DollarSign, Briefcase as BriefcaseIcon } from '@/components/icons';
+import { PlusCircle, User, Users, Calendar, Flag, DollarSign, MoreHorizontal, Briefcase as BriefcaseIcon } from '@/components/icons';
 import { format, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -66,6 +69,8 @@ export default function ProjectDetailPage() {
     const { projects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+    const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+    const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
     const project = useMemo(() => projects.find(p => p.id === id), [id, projects]);
     const projectTasks = useMemo(() => tasks.filter(t => t.projectId === id), [id, tasks]);
@@ -78,10 +83,7 @@ export default function ProjectDetailPage() {
             title: '',
             description: '',
             assigneeId: '',
-            dateRange: {
-                from: new Date(),
-                to: new Date(),
-            },
+            dateRange: { from: new Date(), to: new Date() },
             priority: 'Medium',
         },
     });
@@ -134,32 +136,67 @@ export default function ProjectDetailPage() {
         addActivityLog('Task Status Updated', `Task "${task?.title}" in project "${project.name}" set to ${newStatus}.`);
     };
 
+    const handleOpenTaskForm = (task: Task | null) => {
+        setTaskToEdit(task);
+        if (task) {
+            form.reset({
+                title: task.title,
+                description: task.description || '',
+                assigneeId: task.assigneeId,
+                dateRange: {
+                    from: parseISO(task.startDate),
+                    to: parseISO(task.endDate),
+                },
+                priority: task.priority,
+            });
+        } else {
+            form.reset({
+                title: '',
+                description: '',
+                assigneeId: '',
+                dateRange: { from: new Date(), to: new Date() },
+                priority: 'Medium',
+            });
+        }
+        setIsTaskFormOpen(true);
+    };
+
     const onSubmitTask = (data: TaskFormData) => {
-        const newTask: Task = {
-            id: `task-${Date.now()}`,
-            projectId: project.id,
-            status: 'todo',
-            title: data.title,
-            description: data.description,
-            assigneeId: data.assigneeId,
-            priority: data.priority,
-            startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
-            endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
-        };
-        setTasks(prev => [newTask, ...prev]);
-        toast({ title: "Task Added" });
-        addActivityLog('Task Added', `Added task "${data.title}" to project "${project.name}".`);
+        if (taskToEdit) {
+            const updatedTasks = tasks.map(t => 
+                t.id === taskToEdit.id ? {
+                    ...t,
+                    ...data,
+                    startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
+                    endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
+                } : t
+            );
+            setTasks(updatedTasks);
+            toast({ title: "Task Updated" });
+        } else {
+            const newTask: Task = {
+                id: `task-${Date.now()}`,
+                projectId: project.id,
+                status: 'todo',
+                title: data.title,
+                description: data.description,
+                assigneeId: data.assigneeId,
+                priority: data.priority,
+                startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
+                endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
+            };
+            setTasks(prev => [newTask, ...prev]);
+            toast({ title: "Task Added" });
+        }
         setIsTaskFormOpen(false);
-        form.reset({
-            title: '',
-            description: '',
-            assigneeId: '',
-            dateRange: {
-                from: new Date(),
-                to: new Date(),
-            },
-            priority: 'Medium',
-        });
+        setTaskToEdit(null);
+    };
+
+    const handleDeleteTask = () => {
+        if (!taskToDelete) return;
+        setTasks(tasks.filter(t => t.id !== taskToDelete.id));
+        toast({ title: "Task Deleted" });
+        setTaskToDelete(null);
     };
 
     return (
@@ -174,7 +211,7 @@ export default function ProjectDetailPage() {
                                 <CardTitle>Tasks</CardTitle>
                                 <CardDescription>All tasks associated with this project.</CardDescription>
                                 </div>
-                                <Button size="sm" onClick={() => setIsTaskFormOpen(true)}><PlusCircle className="mr-2 h-4 w-4"/> Add Task</Button>
+                                <Button size="sm" onClick={() => handleOpenTaskForm(null)}><PlusCircle className="mr-2 h-4 w-4"/> Add Task</Button>
                             </CardHeader>
                             <CardContent>
                                 <Tabs defaultValue="list">
@@ -190,6 +227,7 @@ export default function ProjectDetailPage() {
                                                     <TableHead>Assignee</TableHead>
                                                     <TableHead>Timeline</TableHead>
                                                     <TableHead>Status</TableHead>
+                                                    <TableHead><span className="sr-only">Actions</span></TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -216,6 +254,17 @@ export default function ProjectDetailPage() {
                                                                         ))}
                                                                     </SelectContent>
                                                                 </Select>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="end">
+                                                                        <DropdownMenuItem onClick={() => handleOpenTaskForm(task)}>Edit</DropdownMenuItem>
+                                                                        <DropdownMenuItem className="text-destructive" onClick={() => setTaskToDelete(task)}>Delete</DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
                                                             </TableCell>
                                                         </TableRow>
                                                     )
@@ -260,7 +309,7 @@ export default function ProjectDetailPage() {
             <Dialog open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add New Task</DialogTitle>
+                        <DialogTitle>{taskToEdit ? 'Edit Task' : 'Add New Task'}</DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmitTask)} className="space-y-4 py-4">
@@ -295,12 +344,25 @@ export default function ProjectDetailPage() {
                                 )}/>
                             </div>
                             <DialogFooter>
-                                <Button type="submit">Add Task</Button>
+                                <Button type="submit">{taskToEdit ? 'Save Changes' : 'Add Task'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>This action cannot be undone. This will permanently delete the task "{taskToDelete?.title}".</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive hover:bg-destructive/90">Delete Task</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
