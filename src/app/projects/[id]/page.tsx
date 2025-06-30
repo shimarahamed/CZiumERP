@@ -18,17 +18,19 @@ import { DatePicker } from '@/components/ui/date-picker';
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Task, TaskStatus } from '@/types';
+import type { Task, TaskStatus, TaskPriority } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, User, Users, Calendar, Flag, DollarSign } from '@/components/icons';
+import { PlusCircle, User, Users, Calendar, Flag, DollarSign, Briefcase as BriefcaseIcon } from '@/components/icons';
 import { format, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required."),
   description: z.string().optional(),
   assigneeId: z.string().min(1, "Please assign this task to someone."),
   dueDate: z.date({ required_error: "Due date is required." }),
+  priority: z.enum(['Low', 'Medium', 'High']),
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -45,6 +47,12 @@ const statusDisplay: { [key in TaskStatus]: string } = {
   'todo': 'To Do',
 };
 
+const priorityVariant: { [key in TaskPriority]: 'default' | 'secondary' | 'destructive' } = {
+    'High': 'destructive',
+    'Medium': 'default',
+    'Low': 'secondary',
+};
+
 export default function ProjectDetailPage() {
     const { id } = useParams();
     const { projects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
@@ -58,6 +66,7 @@ export default function ProjectDetailPage() {
 
     const form = useForm<TaskFormData>({
         resolver: zodResolver(taskSchema),
+        defaultValues: { priority: 'Medium' }
     });
 
     if (!project) {
@@ -90,7 +99,7 @@ export default function ProjectDetailPage() {
         toast({ title: "Task Added" });
         addActivityLog('Task Added', `Added task "${data.title}" to project "${project.name}".`);
         setIsTaskFormOpen(false);
-        form.reset();
+        form.reset({ priority: 'Medium' });
     };
 
     return (
@@ -112,6 +121,7 @@ export default function ProjectDetailPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Task</TableHead>
+                                            <TableHead>Priority</TableHead>
                                             <TableHead>Assignee</TableHead>
                                             <TableHead>Due Date</TableHead>
                                             <TableHead>Status</TableHead>
@@ -123,6 +133,11 @@ export default function ProjectDetailPage() {
                                             return (
                                                 <TableRow key={task.id}>
                                                     <TableCell className="font-medium">{task.title}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={priorityVariant[task.priority]} className="capitalize">
+                                                            {task.priority}
+                                                        </Badge>
+                                                    </TableCell>
                                                     <TableCell>{assignee?.name || 'Unassigned'}</TableCell>
                                                     <TableCell>{format(parseISO(task.dueDate), 'PPP')}</TableCell>
                                                     <TableCell>
@@ -132,7 +147,7 @@ export default function ProjectDetailPage() {
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {Object.entries(statusDisplay).map(([key, value]) => (
-                                                                    <SelectItem key={key} value={key}>{value}</SelectItem>
+                                                                    <SelectItem key={key} value={key as TaskStatus}>{value}</SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
@@ -151,6 +166,7 @@ export default function ProjectDetailPage() {
                                 <CardTitle>Project Details</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4 text-sm">
+                                {project.client && <div className="flex items-center gap-2"><BriefcaseIcon className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Client:</span><span>{project.client}</span></div>}
                                 <div className="flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Budget:</span><span>{currencySymbol}{project.budget.toLocaleString()}</span></div>
                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Timeline:</span><span>{format(parseISO(project.startDate), 'MMM d, yyyy')} - {format(parseISO(project.endDate), 'MMM d, yyyy')}</span></div>
                                 <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Manager:</span><span>{manager?.name}</span></div>
@@ -184,7 +200,7 @@ export default function ProjectDetailPage() {
                             <FormField control={form.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                  <FormField control={form.control} name="assigneeId" render={({ field }) => (
                                     <FormItem><FormLabel>Assign To</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a user"/></SelectTrigger></FormControl>
@@ -193,9 +209,21 @@ export default function ProjectDetailPage() {
                                     </FormItem>
                                 )}/>
                                  <FormField control={form.control} name="dueDate" render={({ field }) => (
-                                    <FormItem><FormLabel>Due Date</FormLabel><FormControl><DatePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="flex flex-col pt-2"><FormLabel>Due Date</FormLabel><FormControl><DatePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                             </div>
+                            <FormField control={form.control} name="priority" render={({ field }) => (
+                                <FormItem><FormLabel>Priority</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Low">Low</SelectItem>
+                                            <SelectItem value="Medium">Medium</SelectItem>
+                                            <SelectItem value="High">High</SelectItem>
+                                        </SelectContent>
+                                    </Select><FormMessage />
+                                </FormItem>
+                            )}/>
                             <DialogFooter>
                                 <Button type="submit">Add Task</Button>
                             </DialogFooter>

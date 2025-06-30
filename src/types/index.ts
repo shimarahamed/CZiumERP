@@ -321,11 +321,13 @@ export type Campaign = {
 
 export type ProjectStatus = 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'cancelled';
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
+export type TaskPriority = 'Low' | 'Medium' | 'High';
 
 export type Project = {
   id: string;
   name: string;
   description: string;
+  client?: string;
   status: ProjectStatus;
   managerId: string;
   teamIds: string[];
@@ -340,6 +342,7 @@ export type Task = {
   title: string;
   description?: string;
   status: TaskStatus;
+  priority: TaskPriority;
   assigneeId: string;
   dueDate: string;
 };

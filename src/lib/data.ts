@@ -922,6 +922,7 @@ export const initialProjects: Project[] = [
     startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString(),
     endDate: new Date(new Date().setDate(new Date().getDate() + 60)).toISOString(),
     budget: 25000,
+    client: 'Marketing Department',
   },
   {
     id: 'proj-2',
@@ -933,6 +934,7 @@ export const initialProjects: Project[] = [
     startDate: new Date(new Date().setDate(new Date().getDate() + 14)).toISOString(),
     endDate: new Date(new Date().setDate(new Date().getDate() + 120)).toISOString(),
     budget: 150000,
+    client: 'Executive Board',
   },
   {
     id: 'proj-3',
@@ -944,19 +946,20 @@ export const initialProjects: Project[] = [
     startDate: new Date(new Date().setDate(new Date().getDate() - 60)).toISOString(),
     endDate: new Date(new Date().setDate(new Date().getDate() - 15)).toISOString(),
     budget: 5000,
+    client: 'Finance Department',
   }
 ];
 
 export const initialTasks: Task[] = [
   // Tasks for Project 1
-  { id: 'task-1', projectId: 'proj-1', title: 'Finalize new logo and branding guidelines', status: 'done', assigneeId: 'emp-1', dueDate: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString() },
-  { id: 'task-2', projectId: 'proj-1', title: 'Develop front-end for the new homepage', status: 'in-progress', assigneeId: 'emp-2', dueDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString() },
-  { id: 'task-3', projectId: 'proj-1', title: 'Set up new e-commerce backend', status: 'todo', assigneeId: 'emp-1', dueDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString() },
+  { id: 'task-1', projectId: 'proj-1', title: 'Finalize new logo and branding guidelines', status: 'done', assigneeId: 'emp-1', dueDate: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString(), priority: 'High' },
+  { id: 'task-2', projectId: 'proj-1', title: 'Develop front-end for the new homepage', status: 'in-progress', assigneeId: 'emp-2', dueDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), priority: 'High' },
+  { id: 'task-3', projectId: 'proj-1', title: 'Set up new e-commerce backend', status: 'todo', assigneeId: 'emp-1', dueDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), priority: 'Medium' },
   // Tasks for Project 2
-  { id: 'task-4', projectId: 'proj-2', title: 'Secure construction permits', status: 'todo', assigneeId: 'emp-1', dueDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString() },
-  { id: 'task-5', projectId: 'proj-2', title: 'Hire new staff for Northpoint location', status: 'todo', assigneeId: 'emp-2', dueDate: new Date(new Date().setDate(new Date().getDate() + 60)).toISOString() },
+  { id: 'task-4', projectId: 'proj-2', title: 'Secure construction permits', status: 'todo', assigneeId: 'emp-1', dueDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(), priority: 'High' },
+  { id: 'task-5', projectId: 'proj-2', title: 'Hire new staff for Northpoint location', status: 'todo', assigneeId: 'emp-2', dueDate: new Date(new Date().setDate(new Date().getDate() + 60)).toISOString(), priority: 'Medium' },
   // Tasks for Project 3
-  { id: 'task-6', projectId: 'proj-3', title: 'Conduct physical stock count at Downtown Central', status: 'done', assigneeId: 'emp-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 50)).toISOString() },
-  { id: 'task-7', projectId: 'proj-3', title: 'Conduct physical stock count at Westside Mall', status: 'done', assigneeId: 'emp-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 40)).toISOString() },
-  { id: 'task-8', projectId: 'proj-3', title: 'Reconcile discrepancies and submit final report', status: 'done', assigneeId: 'emp-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 15)).toISOString() },
+  { id: 'task-6', projectId: 'proj-3', title: 'Conduct physical stock count at Downtown Central', status: 'done', assigneeId: 'emp-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 50)).toISOString(), priority: 'Low' },
+  { id: 'task-7', projectId: 'proj-3', title: 'Conduct physical stock count at Westside Mall', status: 'done', assigneeId: 'emp-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 40)).toISOString(), priority: 'Low' },
+  { id: 'task-8', projectId: 'proj-3', title: 'Reconcile discrepancies and submit final report', status: 'done', assigneeId: 'emp-4', dueDate: new Date(new Date().setDate(new Date().getDate() - 15)).toISOString(), priority: 'Medium' },
 ];

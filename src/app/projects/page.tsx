@@ -30,6 +30,7 @@ import { Combobox } from '@/components/ui/combobox';
 const projectSchema = z.object({
   name: z.string().min(1, "Project name is required."),
   description: z.string().optional(),
+  client: z.string().optional(),
   status: z.enum(['not-started', 'in-progress', 'completed', 'on-hold', 'cancelled']),
   managerId: z.string().min(1, "A project manager is required."),
   teamIds: z.array(z.string()).optional(),
@@ -88,6 +89,7 @@ export default function ProjectsPage() {
             form.reset({
                 name: project.name,
                 description: project.description,
+                client: project.client || '',
                 status: project.status,
                 managerId: project.managerId,
                 teamIds: project.teamIds,
@@ -98,6 +100,7 @@ export default function ProjectsPage() {
             form.reset({
                 name: '',
                 description: '',
+                client: '',
                 status: 'not-started',
                 managerId: '',
                 teamIds: [],
@@ -234,9 +237,12 @@ export default function ProjectsPage() {
                             <FormField control={form.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
+                             <FormField control={form.control} name="client" render={({ field }) => (
+                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input {...field} placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
+                            )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="managerId" render={({ field }) => (
-                                    <FormItem className="flex flex-col">
+                                    <FormItem className="flex flex-col pt-2">
                                         <FormLabel>Project Manager</FormLabel>
                                         <Combobox
                                             options={employeeOptions}
@@ -252,13 +258,13 @@ export default function ProjectsPage() {
                                 <FormField control={form.control} name="status" render={({ field }) => (
                                     <FormItem><FormLabel>Status</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                            <SelectContent>{Object.entries(statusDisplay).map(([key, value]) => <SelectItem key={key} value={key}>{value}</SelectItem>)}</SelectContent>
+                                            <SelectContent>{Object.entries(statusDisplay).map(([key, value]) => <SelectItem key={key} value={key as ProjectStatus}>{value}</SelectItem>)}</SelectContent>
                                         </Select><FormMessage />
                                     </FormItem>
                                 )}/>
                             </div>
                             <FormField control={form.control} name="dateRange" render={({ field }) => (
-                                <FormItem><FormLabel>Project Timeline</FormLabel><FormControl><DateRangePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                <FormItem className="flex flex-col pt-2"><FormLabel>Project Timeline</FormLabel><FormControl><DateRangePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
                             )}/>
                              <FormField control={form.control} name="budget" render={({ field }) => (
                                 <FormItem><FormLabel>Budget ({currencySymbol})</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
