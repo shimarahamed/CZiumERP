@@ -175,6 +175,16 @@ export default function ProjectDetailPage() {
         addActivityLog('Task Status Updated', `Task "${task?.title}" in project "${project.name}" set to ${newStatus}.`);
     };
 
+    const handleProjectStatusChange = (newStatus: ProjectStatus) => {
+        if (!project) return;
+        const updatedProjects = projects.map(p => 
+            p.id === project.id ? { ...p, status: newStatus } : p
+        );
+        setProjects(updatedProjects);
+        addActivityLog('Project Status Updated', `Project "${project.name}" status changed to ${statusDisplay[newStatus]}.`);
+        toast({ title: "Project Status Updated" });
+    };
+
     const handleOpenTaskForm = (task: Task | null) => {
         setTaskToEdit(task);
         if (task) {
@@ -352,6 +362,21 @@ export default function ProjectDetailPage() {
                                 <Button variant="outline" size="sm" onClick={handleOpenProjectForm}>Edit Project</Button>
                             </CardHeader>
                             <CardContent className="space-y-4 text-sm">
+                                <div className="flex items-center gap-2"><Flag className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Status:</span>
+                                    <Select value={project.status} onValueChange={(value: ProjectStatus) => handleProjectStatusChange(value)}>
+                                        <SelectTrigger className="h-8 w-fit gap-1 capitalize">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Object.entries(statusDisplay)
+                                                .filter(([key]) => !['todo', 'done'].includes(key))
+                                                .map(([key, value]) => (
+                                                    <SelectItem key={key} value={key as ProjectStatus} className="capitalize">{value}</SelectItem>
+                                                ))
+                                            }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                                 {project.client && <div className="flex items-center gap-2"><BriefcaseIcon className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Client:</span><span>{project.client}</span></div>}
                                 <div className="flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Budget:</span><span>{currencySymbol}{project.budget.toLocaleString()}</span></div>
                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Timeline:</span><span>{format(parseISO(project.startDate), 'MMM d, yyyy')} - {format(parseISO(project.endDate), 'MMM d, yyyy')}</span></div>
