@@ -1,17 +1,20 @@
 
 'use client';
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
-  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase
+  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
+  UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase, ChevronDown
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
 import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type NavLink = {
   href: string;
@@ -21,6 +24,7 @@ type NavLink = {
 
 type NavCategory = {
   label: string;
+  icon: LucideIcon;
   links: NavLink[];
 };
 
@@ -36,6 +40,7 @@ const navLinksConfig: Record<Role, string[]> = {
 const categories: NavCategory[] = [
   {
     label: 'General',
+    icon: LayoutDashboard,
     links: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/reports', label: 'Reports', icon: BarChart3 },
@@ -43,6 +48,7 @@ const categories: NavCategory[] = [
   },
   {
     label: 'Sales & Customers',
+    icon: ShoppingCart,
     links: [
       { href: '/campaigns', label: 'Marketing Campaigns', icon: Megaphone },
       { href: '/leads', label: 'Leads', icon: Target },
@@ -55,6 +61,7 @@ const categories: NavCategory[] = [
   },
   {
     label: 'Supply Chain',
+    icon: Package,
     links: [
       { href: '/vendors', label: 'Vendors', icon: Building2 },
       { href: '/rfq', label: 'Request for Quotation', icon: ClipboardList },
@@ -64,6 +71,7 @@ const categories: NavCategory[] = [
   },
   {
     label: 'Manufacturing',
+    icon: Factory,
     links: [
       { href: '/manufacturing/bom', label: 'Bill of Materials', icon: Wrench },
       { href: '/manufacturing/production', label: 'Production Orders', icon: Factory },
@@ -72,12 +80,14 @@ const categories: NavCategory[] = [
   },
   {
     label: 'Project Management',
+    icon: Briefcase,
     links: [
       { href: '/projects', label: 'Projects', icon: Briefcase },
     ]
   },
   {
     label: 'Finance',
+    icon: LandmarkIcon,
     links: [
       { href: '/accounting/general-ledger', label: 'General Ledger', icon: BookCopy },
       { href: '/accounting/budgeting', label: 'Budgeting', icon: Target },
@@ -87,6 +97,7 @@ const categories: NavCategory[] = [
   },
   {
     label: 'Human Resources',
+    icon: UserCog,
     links: [
       { href: '/human-resources/recruitment', label: 'Recruitment', icon: UserPlus },
       { href: '/human-resources/employees', label: 'Employees', icon: UserCog },
@@ -98,6 +109,7 @@ const categories: NavCategory[] = [
   },
   {
     label: 'System',
+    icon: Settings,
     links: [
       { href: '/stores', label: 'Stores', icon: Store },
       { href: '/users', label: 'User Accounts', icon: UserRoundCog },
@@ -112,43 +124,75 @@ export default function Nav() {
   const pathname = usePathname();
   const { user } = useAppContext();
 
-  const isActive = (href: string) => {
-    if (href === '/') return pathname === '/';
-    // For nested routes, we want the parent to be active.
-    // e.g., if on /projects/proj-1, the /projects link should be active.
-    const isParentRoute = pathname.startsWith(href) && href !== '/';
-    return pathname === href || isParentRoute;
+  // Determine initially open categories based on the active link
+  const initialOpenState = categories.reduce((acc, category) => {
+      if (category.links.some(link => isActive(link.href, pathname))) {
+          acc[category.label] = true;
+      }
+      return acc;
+  }, {} as Record<string, boolean>);
+
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(initialOpenState);
+
+  function isActive(href: string, currentPath: string) {
+    if (href === '/') return currentPath === '/';
+    return currentPath.startsWith(href);
   }
+
+  const toggleCategory = (label: string) => {
+    setOpenCategories(prev => ({ ...prev, [label]: !prev[label] }));
+  };
 
   if (!user) return null;
 
   const allowedLinks = navLinksConfig[user.role] || [];
 
   return (
-    <SidebarMenu className="p-2 space-y-4">
+    <SidebarMenu className="p-2 space-y-1">
       {categories.map((category) => {
         const visibleLinks = category.links.filter(link => allowedLinks.includes(link.label));
         if (visibleLinks.length === 0) {
           return null;
         }
 
+        const isCategoryOpen = openCategories[category.label];
+
         return (
-          <div key={category.label} className="space-y-1">
-             <h4 className="px-2 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider group-data-[collapsible=icon]:hidden">{category.label}</h4>
-            {visibleLinks.map((link) => (
-              <SidebarMenuItem key={link.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive(link.href)}
-                  className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/10 data-[active=true]:bg-primary/90 data-[active=true]:text-primary-foreground"
-                >
-                  <Link href={link.href}>
-                    <link.icon className="w-5 h-5" />
-                    <span>{link.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+          <div key={category.label}>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => toggleCategory(category.label)}
+                className="font-semibold text-sidebar-foreground/90"
+                tooltip={category.label}
+              >
+                <category.icon className="w-5 h-5" />
+                <span>{category.label}</span>
+                <ChevronDown className={cn(
+                  "ml-auto h-4 w-4 shrink-0 transition-transform duration-200",
+                  isCategoryOpen && "rotate-180",
+                  "group-data-[collapsible=icon]:hidden"
+                )} />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {isCategoryOpen && (
+              <SidebarMenuSub>
+                {visibleLinks.map((link) => (
+                  <SidebarMenuSubItem key={link.href}>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={isActive(link.href, pathname)}
+                      className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                    >
+                      <Link href={link.href}>
+                        <link.icon className="w-4 h-4" />
+                        <span>{link.label}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
+            )}
           </div>
         );
       })}
