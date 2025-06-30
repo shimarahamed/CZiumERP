@@ -283,3 +283,20 @@ export type QualityCheck = {
   status: 'pass' | 'fail' | 'pending';
   notes: string;
 };
+
+export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'proposal-won' | 'proposal-lost';
+
+export type Lead = {
+    id: string;
+    name: string;
+    company?: string;
+    email: string;
+    phone?: string;
+    avatar: string;
+    status: LeadStatus;
+    value?: number;
+    source?: string;
+    assignedToId: string;
+    assignedToName: string;
+    createdAt: string; // ISO String
+};

@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -87,6 +87,8 @@ interface AppContextType {
   setProductionOrders: React.Dispatch<React.SetStateAction<ProductionOrder[]>>;
   qualityChecks: QualityCheck[];
   setQualityChecks: React.Dispatch<React.SetStateAction<QualityCheck[]>>;
+  leads: Lead[];
+  setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -117,6 +119,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [billsOfMaterials, setBillsOfMaterials] = useState<BillOfMaterials[]>(initialBillsOfMaterials);
   const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>(initialProductionOrders);
   const [qualityChecks, setQualityChecks] = useState<QualityCheck[]>(initialQualityChecks);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -151,6 +154,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setBillsOfMaterials(getStoredState('billsOfMaterials', initialBillsOfMaterials));
     setProductionOrders(getStoredState('productionOrders', initialProductionOrders));
     setQualityChecks(getStoredState('qualityChecks', initialQualityChecks));
+    setLeads(getStoredState('leads', initialLeads));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -192,6 +196,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('billsOfMaterials', JSON.stringify(billsOfMaterials)); }, [billsOfMaterials, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('productionOrders', JSON.stringify(productionOrders)); }, [productionOrders, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('qualityChecks', JSON.stringify(qualityChecks)); }, [qualityChecks, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('leads', JSON.stringify(leads)); }, [leads, isHydrated]);
 
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -298,6 +303,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('billsOfMaterials');
     localStorage.removeItem('productionOrders');
     localStorage.removeItem('qualityChecks');
+    localStorage.removeItem('leads');
   };
 
 
@@ -331,7 +337,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       performanceReviews, setPerformanceReviews,
       billsOfMaterials, setBillsOfMaterials,
       productionOrders, setProductionOrders,
-      qualityChecks, setQualityChecks
+      qualityChecks, setQualityChecks,
+      leads, setLeads,
     }}>
       {children}
     </AppContext.Provider>

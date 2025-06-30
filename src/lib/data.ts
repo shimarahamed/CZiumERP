@@ -1,5 +1,5 @@
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -865,3 +865,11 @@ export const initialProductionOrders: ProductionOrder[] = [
 ];
 
 export const initialQualityChecks: QualityCheck[] = [];
+
+export const initialLeads: Lead[] = [
+    { id: 'lead-1', name: 'Laura Williams', company: 'Innovate Corp', email: 'laura@innovate.com', phone: '123-111-2222', avatar: 'https://placehold.co/40x40', status: 'new', value: 5000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: new Date().toISOString() },
+    { id: 'lead-2', name: 'Tom Harris', company: 'Data Solutions', email: 'tom@data.com', phone: '123-222-3333', avatar: 'https://placehold.co/40x40', status: 'contacted', value: 12000, source: 'Referral', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: new Date().toISOString() },
+    { id: 'lead-3', name: 'Grace Lee', company: 'Quantum Tech', email: 'grace@quantum.com', phone: '123-333-4444', avatar: 'https://placehold.co/40x40', status: 'qualified', value: 8500, source: 'Cold Call', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: new Date().toISOString() },
+    { id: 'lead-4', name: 'Peter Jones', company: 'Global Exports', email: 'peter@global.com', phone: '123-444-5555', avatar: 'https://placehold.co/40x40', status: 'proposal-won', value: 25000, source: 'Trade Show', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: new Date().toISOString() },
+    { id: 'lead-5', name: 'Olivia Martinez', company: 'Healthful Goods', email: 'olivia@health.com', phone: '123-555-6666', avatar: 'https://placehold.co/40x40', status: 'proposal-lost', value: 3000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: new Date().toISOString() },
+];
