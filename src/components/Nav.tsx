@@ -44,22 +44,22 @@ const categories: NavCategory[] = [
   {
     label: 'Sales & Customers',
     links: [
+      { href: '/campaigns', label: 'Marketing Campaigns', icon: Megaphone },
+      { href: '/leads', label: 'Leads', icon: Target },
+      { href: '/customers', label: 'Customers', icon: Users },
       { href: '/invoices', label: 'Invoices', icon: FileText },
       { href: '/payments', label: 'Payments', icon: CreditCard },
       { href: '/returns', label: 'Returns', icon: Undo2 },
-      { href: '/customers', label: 'Customers', icon: Users },
-      { href: '/leads', label: 'Leads', icon: Target },
-      { href: '/campaigns', label: 'Marketing Campaigns', icon: Megaphone },
       { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
     ],
   },
   {
     label: 'Supply Chain',
     links: [
-      { href: '/inventory', label: 'Inventory', icon: Package },
-      { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
-      { href: '/rfq', label: 'Request for Quotation', icon: ClipboardList },
       { href: '/vendors', label: 'Vendors', icon: Building2 },
+      { href: '/rfq', label: 'Request for Quotation', icon: ClipboardList },
+      { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
+      { href: '/inventory', label: 'Inventory', icon: Package },
     ],
   },
   {
@@ -80,19 +80,19 @@ const categories: NavCategory[] = [
     label: 'Finance',
     links: [
       { href: '/accounting/general-ledger', label: 'General Ledger', icon: BookCopy },
-      { href: '/accounting/assets', label: 'Assets', icon: Archive },
-      { href: '/accounting/tax', label: 'Tax Management', icon: LandmarkIcon },
       { href: '/accounting/budgeting', label: 'Budgeting', icon: Target },
+      { href: '/accounting/tax', label: 'Tax Management', icon: LandmarkIcon },
+      { href: '/accounting/assets', label: 'Assets', icon: Archive },
     ],
   },
   {
     label: 'Human Resources',
     links: [
-      { href: '/human-resources/employees', label: 'Employees', icon: UserCog },
       { href: '/human-resources/recruitment', label: 'Recruitment', icon: UserPlus },
-      { href: '/human-resources/performance', label: 'Performance', icon: Star },
+      { href: '/human-resources/employees', label: 'Employees', icon: UserCog },
       { href: '/human-resources/attendance', label: 'Attendance', icon: Clock },
       { href: '/human-resources/leave-requests', label: 'Leave Requests', icon: CalendarPlus },
+      { href: '/human-resources/performance', label: 'Performance', icon: Star },
       { href: '/human-resources/payroll', label: 'Payroll', icon: Banknote },
     ],
   },
@@ -101,8 +101,8 @@ const categories: NavCategory[] = [
     links: [
       { href: '/stores', label: 'Stores', icon: Store },
       { href: '/users', label: 'User Accounts', icon: UserRoundCog },
-      { href: '/settings', label: 'Settings', icon: Settings },
       { href: '/activity', label: 'Activity Logs', icon: History },
+      { href: '/settings', label: 'Settings', icon: Settings },
     ],
   }
 ];
