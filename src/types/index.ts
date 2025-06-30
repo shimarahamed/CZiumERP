@@ -346,4 +346,5 @@ export type Task = {
   assigneeId: string;
   startDate: string;
   endDate: string;
+  cost?: number;
 };

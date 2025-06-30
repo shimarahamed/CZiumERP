@@ -32,6 +32,8 @@ import type { Task as GanttTask } from 'gantt-task-react';
 import { Combobox } from '@/components/ui/combobox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 const projectSchema = z.object({
   name: z.string().min(1, "Project name is required."),
@@ -58,6 +60,7 @@ const taskSchema = z.object({
     to: z.date({ required_error: "End date is required." }),
   }),
   priority: z.enum(['Low', 'Medium', 'High']),
+  cost: z.coerce.number().min(0).optional(),
 }).refine(data => data.dateRange.to >= data.dateRange.from, {
     message: "End date cannot be before start date.",
     path: ["dateRange"],
@@ -87,6 +90,7 @@ const defaultTaskValues = {
     assigneeId: '',
     dateRange: { from: new Date(), to: new Date() },
     priority: 'Medium' as TaskPriority,
+    cost: 0,
 };
 
 export default function ProjectDetailPage() {
@@ -108,6 +112,12 @@ export default function ProjectDetailPage() {
     const manager = useMemo(() => employees.find(e => e.id === project?.managerId), [project, employees]);
     const teamMembers = useMemo(() => project ? employees.filter(e => project.teamIds.includes(e.id)) : [], [project, employees]);
     
+    const actualCost = useMemo(() => {
+        return projectTasks
+            .filter(task => task.status === 'done')
+            .reduce((sum, task) => sum + (task.cost || 0), 0);
+    }, [projectTasks]);
+
     const projectForm = useForm<ProjectFormData>({
         resolver: zodResolver(projectSchema),
     });
@@ -167,6 +177,8 @@ export default function ProjectDetailPage() {
         );
     }
     
+    const budgetProgress = project.budget > 0 ? (actualCost / project.budget) * 100 : 0;
+
     const handleTaskStatusChange = (taskId: string, newStatus: TaskStatus) => {
         setTasks(currentTasks => currentTasks.map(task => 
             task.id === taskId ? { ...task, status: newStatus } : task
@@ -197,6 +209,7 @@ export default function ProjectDetailPage() {
                     to: task.endDate ? parseISO(task.endDate) : new Date(),
                 },
                 priority: task.priority,
+                cost: task.cost || 0,
             });
         } else {
             taskForm.reset(defaultTaskValues);
@@ -227,6 +240,7 @@ export default function ProjectDetailPage() {
                 priority: data.priority,
                 startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
                 endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
+                cost: data.cost || 0,
             };
             setTasks(prev => [newTask, ...prev]);
             toast({ title: "Task Added" });
@@ -378,10 +392,29 @@ export default function ProjectDetailPage() {
                                     </Select>
                                 </div>
                                 {project.client && <div className="flex items-center gap-2"><BriefcaseIcon className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Client:</span><span>{project.client}</span></div>}
-                                <div className="flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Budget:</span><span>{currencySymbol}{project.budget.toLocaleString()}</span></div>
+                                
                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Timeline:</span><span>{format(parseISO(project.startDate), 'MMM d, yyyy')} - {format(parseISO(project.endDate), 'MMM d, yyyy')}</span></div>
                                 <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Manager:</span><span>{manager?.name}</span></div>
-                                <div className="mt-4">
+
+                                <Separator className="my-4"/>
+
+                                <div>
+                                    <h4 className="font-medium mb-2 flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground"/>Budget Utilization</h4>
+                                    <Progress value={budgetProgress} className={cn(budgetProgress > 100 && "[&>div]:bg-destructive")} />
+                                    <div className="flex justify-between text-xs mt-2 text-muted-foreground">
+                                        <span>{currencySymbol}{actualCost.toLocaleString()} Spent</span>
+                                        <span>{currencySymbol}{(project.budget - actualCost).toLocaleString()} Remaining</span>
+                                    </div>
+                                    {budgetProgress > 100 && 
+                                        <p className="text-xs text-destructive mt-1">
+                                            Project is {currencySymbol}{(actualCost - project.budget).toLocaleString()} over budget.
+                                        </p>
+                                    }
+                                </div>
+
+                                <Separator className="my-4"/>
+
+                                <div>
                                     <h4 className="font-medium mb-2 flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/>Team</h4>
                                     <div className="space-y-2">
                                         {teamMembers.map(member => (
@@ -443,6 +476,13 @@ export default function ProjectDetailPage() {
                                     </FormItem>
                                 )}/>
                             </div>
+                            <FormField control={taskForm.control} name="cost" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Task Cost ({currencySymbol})</FormLabel>
+                                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}/>
                             <DialogFooter>
                                 <Button type="submit">{taskToEdit ? 'Save Changes' : 'Add Task'}</Button>
                             </DialogFooter>
