@@ -1,10 +1,11 @@
 
 
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -89,6 +90,8 @@ interface AppContextType {
   setQualityChecks: React.Dispatch<React.SetStateAction<QualityCheck[]>>;
   leads: Lead[];
   setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
+  campaigns: Campaign[];
+  setCampaigns: React.Dispatch<React.SetStateAction<Campaign[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -120,6 +123,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>(initialProductionOrders);
   const [qualityChecks, setQualityChecks] = useState<QualityCheck[]>(initialQualityChecks);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -155,6 +159,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setProductionOrders(getStoredState('productionOrders', initialProductionOrders));
     setQualityChecks(getStoredState('qualityChecks', initialQualityChecks));
     setLeads(getStoredState('leads', initialLeads));
+    setCampaigns(getStoredState('campaigns', initialCampaigns));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -197,6 +202,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('productionOrders', JSON.stringify(productionOrders)); }, [productionOrders, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('qualityChecks', JSON.stringify(qualityChecks)); }, [qualityChecks, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('leads', JSON.stringify(leads)); }, [leads, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('campaigns', JSON.stringify(campaigns)); }, [campaigns, isHydrated]);
 
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -304,6 +310,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('productionOrders');
     localStorage.removeItem('qualityChecks');
     localStorage.removeItem('leads');
+    localStorage.removeItem('campaigns');
   };
 
 
@@ -339,6 +346,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       productionOrders, setProductionOrders,
       qualityChecks, setQualityChecks,
       leads, setLeads,
+      campaigns, setCampaigns,
     }}>
       {children}
     </AppContext.Provider>

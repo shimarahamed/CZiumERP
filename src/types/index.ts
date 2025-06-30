@@ -1,4 +1,5 @@
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -301,4 +302,19 @@ export type Lead = {
     assignedToId: string;
     assignedToName: string;
     createdAt: string; // ISO String
+};
+
+export type CampaignStatus = 'planning' | 'active' | 'completed' | 'cancelled';
+export type CampaignChannel = 'email' | 'social-media' | 'sms' | 'paid-ads' | 'other';
+
+export type Campaign = {
+  id: string;
+  name: string;
+  description?: string;
+  status: CampaignStatus;
+  channel: CampaignChannel;
+  targetAudience?: string;
+  budget: number;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
 };

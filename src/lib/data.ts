@@ -1,5 +1,6 @@
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead } from '@/types';
+
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -872,4 +873,40 @@ export const initialLeads: Lead[] = [
     { id: 'lead-3', name: 'Grace Lee', company: 'Quantum Tech', email: 'grace@quantum.com', phone: '123-333-4444', avatar: 'https://placehold.co/40x40', status: 'qualified', value: 8500, source: 'Cold Call', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: new Date().toISOString() },
     { id: 'lead-4', name: 'Peter Jones', company: 'Global Exports', email: 'peter@global.com', phone: '123-444-5555', avatar: 'https://placehold.co/40x40', status: 'proposal-won', value: 25000, source: 'Trade Show', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: new Date().toISOString() },
     { id: 'lead-5', name: 'Olivia Martinez', company: 'Healthful Goods', email: 'olivia@health.com', phone: '123-555-6666', avatar: 'https://placehold.co/40x40', status: 'proposal-lost', value: 3000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: new Date().toISOString() },
+];
+
+export const initialCampaigns: Campaign[] = [
+  {
+    id: 'camp-1',
+    name: 'Fall Coffee Promotion',
+    description: 'Promote our new fall-themed coffee blends.',
+    status: 'active',
+    channel: 'email',
+    targetAudience: 'Existing customers',
+    budget: 500,
+    startDate: '2023-09-01',
+    endDate: '2023-10-31',
+  },
+  {
+    id: 'camp-2',
+    name: 'Holiday Season Special',
+    description: 'Special offers and discounts for the holiday season.',
+    status: 'planning',
+    channel: 'social-media',
+    targetAudience: 'New and existing customers',
+    budget: 1500,
+    startDate: '2023-11-15',
+    endDate: '2023-12-31',
+  },
+  {
+    id: 'camp-3',
+    name: 'Summer Iced Drinks Launch',
+    description: 'Launch event for our new line of iced drinks.',
+    status: 'completed',
+    channel: 'paid-ads',
+    targetAudience: 'Local residents, age 18-35',
+    budget: 2000,
+    startDate: '2023-06-01',
+    endDate: '2023-07-31',
+  },
 ];
