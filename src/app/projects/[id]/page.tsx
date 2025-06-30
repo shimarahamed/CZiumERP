@@ -63,7 +63,7 @@ export default function ProjectDetailPage() {
     if (!project) {
         return (
             <div className="flex flex-col h-full">
-                <Header title="Project Not Found" />
+                <Header title="Project Not Found" showBackButton />
                 <main className="flex-1 p-6"><Card><CardHeader><CardTitle>Error</CardTitle><CardContent><p>The requested project could not be found.</p></CardContent></CardHeader></Card>
                 </main>
             </div>
@@ -95,7 +95,7 @@ export default function ProjectDetailPage() {
 
     return (
         <div className="flex flex-col h-full">
-            <Header title={project.name} />
+            <Header title={project.name} showBackButton />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">

@@ -1,7 +1,7 @@
 'use client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Search, Bell, ChevronsUpDown } from '@/components/icons';
+import { Search, Bell, ChevronsUpDown, ArrowLeft } from '@/components/icons';
 import { Input } from './ui/input';
 import type React from 'react';
 import { useAppContext } from '@/context/AppContext';
@@ -18,9 +18,10 @@ import { useRouter } from 'next/navigation';
 type HeaderProps = {
   title: string;
   children?: React.ReactNode;
+  showBackButton?: boolean;
 };
 
-export default function Header({ title, children }: HeaderProps) {
+export default function Header({ title, children, showBackButton = false }: HeaderProps) {
   const { currentStore, stores, selectStore, user } = useAppContext();
   const router = useRouter();
 
@@ -38,8 +39,14 @@ export default function Header({ title, children }: HeaderProps) {
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-card px-4 md:px-6 sticky top-0 z-10">
-      <div className="flex items-center gap-4 min-w-0">
+      <div className="flex items-center gap-2 md:gap-4 min-w-0">
         <SidebarTrigger />
+        {showBackButton && (
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+            </Button>
+        )}
         <h1 className="text-lg md:text-xl font-semibold truncate">{title}</h1>
       </div>
       <div className="flex items-center gap-2 md:gap-4">

@@ -2,6 +2,7 @@ import { AlertCircle } from 'lucide-react';
 import { AlertTriangle } from 'lucide-react';
 import { AreaChart } from 'lucide-react';
 import { Archive } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
 import { Barcode } from 'lucide-react';
@@ -78,6 +79,7 @@ export {
   AlertTriangle,
   AreaChart,
   Archive,
+  ArrowLeft,
   Banknote,
   BarChart3,
   Barcode,
