@@ -1,17 +1,21 @@
+
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Gantt, Task as GanttTask, ViewMode } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
-import { useAppContext } from '@/context/AppContext';
 
 interface GanttChartProps {
     tasks: GanttTask[];
 }
 
 export default function GanttChart({ tasks }: GanttChartProps) {
-    const { currencySymbol } = useAppContext();
     const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const handleTaskChange = (task: GanttTask) => {
       console.log("On date change Id:" + task.id);
@@ -53,7 +57,7 @@ export default function GanttChart({ tasks }: GanttChartProps) {
                 <button className="text-sm px-2 py-1 border rounded" onClick={() => setView(ViewMode.Week)}>Week</button>
                 <button className="text-sm px-2 py-1 border rounded" onClick={() => setView(ViewMode.Month)}>Month</button>
             </div>
-            {tasks.length > 0 ? (
+            {isClient && tasks.length > 0 ? (
                 <Gantt
                     tasks={tasks}
                     viewMode={view}
@@ -73,7 +77,7 @@ export default function GanttChart({ tasks }: GanttChartProps) {
                     barFill={60}
                 />
             ) : (
-                <p className="text-muted-foreground">No tasks to display in the Gantt chart.</p>
+                <p className="text-muted-foreground">No tasks with valid dates to display in the Gantt chart.</p>
             )}
         </div>
     );
