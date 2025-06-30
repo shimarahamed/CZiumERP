@@ -29,7 +29,7 @@ import type { Invoice, InvoiceItem, CustomerTier } from "@/types";
 import { Combobox } from "@/components/ui/combobox";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info } from "@/components/icons";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info } from "lucide-react";
 
 const invoiceItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),
