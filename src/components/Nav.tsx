@@ -32,17 +32,17 @@ const navLinksConfig: Record<Role, string[]> = {
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Bill of Materials', 'Production Orders', 'Quality Control'],
 };
 
+// Reorganized structure for better logical flow
 const categories: NavCategory[] = [
   {
     label: 'General',
     links: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/reports', label: 'Reports', icon: BarChart3 },
-      { href: '/activity', label: 'Activity Logs', icon: History },
     ],
   },
   {
-    label: 'Sales',
+    label: 'Sales & Customers',
     links: [
       { href: '/invoices', label: 'Invoices', icon: FileText },
       { href: '/payments', label: 'Payments', icon: CreditCard },
@@ -52,7 +52,7 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Procurement',
+    label: 'Supply Chain',
     links: [
       { href: '/inventory', label: 'Inventory', icon: Package },
       { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
@@ -69,7 +69,7 @@ const categories: NavCategory[] = [
     ]
   },
   {
-    label: 'Finance & Accounting',
+    label: 'Finance',
     links: [
       { href: '/accounting/general-ledger', label: 'General Ledger', icon: BookCopy },
       { href: '/accounting/assets', label: 'Assets', icon: Archive },
@@ -89,11 +89,12 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Administration',
+    label: 'System',
     links: [
       { href: '/stores', label: 'Stores', icon: Store },
       { href: '/users', label: 'User Accounts', icon: UserRoundCog },
       { href: '/settings', label: 'Settings', icon: Settings },
+      { href: '/activity', label: 'Activity Logs', icon: History },
     ],
   }
 ];
