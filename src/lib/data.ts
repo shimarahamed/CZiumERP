@@ -1,6 +1,5 @@
 
-
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -35,20 +34,22 @@ export const customers: Customer[] = [
 ];
 
 export const initialProducts: Product[] = [
-  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 5, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.', reorderThreshold: 5, vendorId: 'vend-3', warrantyDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString() },
-  { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, cost: 80.00, stock: 30, sku: 'CG-129', category: 'Appliances', description: 'A conical burr grinder for a consistent grind.', reorderThreshold: 10, vendorId: 'vend-3' },
-  { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, cost: 12.00, stock: 25, sku: 'CB-1KG', category: 'Consumables', description: 'Single-origin beans from Ethiopia.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), vendorId: 'vend-1' },
-  { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.', reorderThreshold: 15, vendorId: 'vend-2' },
-  { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.', reorderThreshold: 20, vendorId: 'vend-2' },
-  { id: 'prod-6', name: 'Almond Milk (1L)', price: 4.50, cost: 2.50, stock: 50, sku: 'AM-1L', category: 'Consumables', description: 'Unsweetened almond milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() + 90)).toISOString(), vendorId: 'vend-1' },
-  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(), vendorId: 'vend-1' }, // Expired
-  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 8, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString() },
-  { id: 'prod-9', name: 'Cleaning Tablets', price: 15.00, cost: 8.00, stock: 80, sku: 'CL-TAB', category: 'Maintenance', description: 'Tablets for cleaning espresso machines.', reorderThreshold: 15 },
-  { id: 'prod-10', name: 'Digital Scale', price: 35.00, cost: 20.00, stock: 0, sku: 'SCL-DGTL', category: 'Accessories', description: 'Precision digital scale for coffee weighing.', reorderThreshold: 10, vendorId: 'vend-2' }, // Out of Stock
-  { id: 'prod-11', name: 'Gooseneck Kettle', price: 89.99, cost: 60.00, stock: 9, sku: 'KT-GNK', category: 'Appliances', description: 'Electric gooseneck kettle for pour-over coffee.', reorderThreshold: 10, vendorId: 'vend-3' }, // Low Stock
-  { id: 'prod-12', name: 'Travel Mug', price: 25.00, cost: 15.00, stock: 100, sku: 'TM-16OZ', category: 'Accessories', description: '16oz insulated travel mug.', reorderThreshold: 30, vendorId: 'vend-2' },
-  { id: 'prod-13', name: 'Barista Apron', price: 30.00, cost: 18.00, stock: 40, sku: 'APRN-BRST', category: 'Apparel', description: 'Canvas barista apron with leather straps.', reorderThreshold: 10, vendorId: 'vend-2' },
-  { id: 'prod-14', name: 'Syrup Variety Pack', price: 18.00, cost: 10.00, stock: 60, sku: 'SYRP-PCK', category: 'Consumables', description: 'Pack of 3 flavored syrups.', reorderThreshold: 25, vendorId: 'vend-1', expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString() },
+  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 5, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.', reorderThreshold: 5, warrantyDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString(), productType: 'manufactured' },
+  { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, cost: 80.00, stock: 30, sku: 'CG-129', category: 'Appliances', description: 'A conical burr grinder for a consistent grind.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'standard' },
+  { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, cost: 12.00, stock: 25, sku: 'CB-1KG', category: 'Consumables', description: 'Single-origin beans from Ethiopia.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), vendorId: 'vend-1', productType: 'standard' },
+  { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.', reorderThreshold: 15, vendorId: 'vend-2', productType: 'standard' },
+  { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.', reorderThreshold: 20, vendorId: 'vend-2', productType: 'standard' },
+  { id: 'prod-6', name: 'Almond Milk (1L)', price: 4.50, cost: 2.50, stock: 50, sku: 'AM-1L', category: 'Consumables', description: 'Unsweetened almond milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() + 90)).toISOString(), vendorId: 'vend-1', productType: 'standard' },
+  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(), vendorId: 'vend-1', productType: 'standard' }, // Expired
+  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 8, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), productType: 'standard' },
+  { id: 'prod-9', name: 'Cleaning Tablets', price: 15.00, cost: 8.00, stock: 80, sku: 'CL-TAB', category: 'Maintenance', description: 'Tablets for cleaning espresso machines.', reorderThreshold: 15, productType: 'standard' },
+  { id: 'prod-10', name: 'Digital Scale', price: 35.00, cost: 20.00, stock: 0, sku: 'SCL-DGTL', category: 'Accessories', description: 'Precision digital scale for coffee weighing.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard' }, // Out of Stock
+  { id: 'prod-11', name: 'Gooseneck Kettle', price: 89.99, cost: 60.00, stock: 9, sku: 'KT-GNK', category: 'Appliances', description: 'Electric gooseneck kettle for pour-over coffee.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'standard' }, // Low Stock
+  { id: 'prod-12', name: 'Travel Mug', price: 25.00, cost: 15.00, stock: 100, sku: 'TM-16OZ', category: 'Accessories', description: '16oz insulated travel mug.', reorderThreshold: 30, vendorId: 'vend-2', productType: 'standard' },
+  { id: 'prod-13', name: 'Barista Apron', price: 30.00, cost: 18.00, stock: 40, sku: 'APRN-BRST', category: 'Apparel', description: 'Canvas barista apron with leather straps.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard' },
+  { id: 'prod-14', name: 'Syrup Variety Pack', price: 18.00, cost: 10.00, stock: 60, sku: 'SYRP-PCK', category: 'Consumables', description: 'Pack of 3 flavored syrups.', reorderThreshold: 25, vendorId: 'vend-1', expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(), productType: 'standard' },
+  { id: 'prod-15', name: 'Casing Unit', price: 0, cost: 150.00, stock: 20, sku: 'CS-UNIT', category: 'Components', description: 'Outer casing for Espresso Machine.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'component' },
+  { id: 'prod-16', name: 'Internal Pump Assembly', price: 0, cost: 200.00, stock: 15, sku: 'PMP-ASSY', category: 'Components', description: 'Pump and boiler assembly for Espresso Machine.', reorderThreshold: 5, vendorId: 'vend-3', productType: 'component' },
 ];
 
 export const initialVendors: Vendor[] = [
@@ -825,3 +826,42 @@ export const initialPerformanceReviews: PerformanceReview[] = [
   { id: 'pr-2', employeeId: 'emp-4', employeeName: 'Inventory Ian', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2023-10-15', rating: 5, comments: 'Ian is extremely organized and has significantly improved inventory accuracy. A model employee.' },
   { id: 'pr-3', employeeId: 'emp-5', employeeName: 'Warehouse William', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2023-10-25', rating: 3, comments: 'William is a hard worker but needs to be more careful with handling fragile items. Some breakages reported this quarter.' },
 ];
+
+export const initialBillsOfMaterials: BillOfMaterials[] = [
+  {
+    id: 'bom-1',
+    productId: 'prod-1',
+    productName: 'Espresso Machine',
+    items: [
+      { componentId: 'prod-15', componentName: 'Casing Unit', quantity: 1 },
+      { componentId: 'prod-16', componentName: 'Internal Pump Assembly', quantity: 1 },
+    ],
+    createdAt: '2023-01-01',
+  }
+];
+
+export const initialProductionOrders: ProductionOrder[] = [
+  {
+    id: 'prod-ord-1',
+    productId: 'prod-1',
+    productName: 'Espresso Machine',
+    quantity: 10,
+    bomId: 'bom-1',
+    status: 'planned',
+    scheduledStartDate: new Date().toISOString(),
+    scheduledEndDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(),
+  },
+  {
+    id: 'prod-ord-2',
+    productId: 'prod-1',
+    productName: 'Espresso Machine',
+    quantity: 5,
+    bomId: 'bom-1',
+    status: 'in-progress',
+    scheduledStartDate: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
+    scheduledEndDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(),
+    actualStartDate: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
+  }
+];
+
+export const initialQualityChecks: QualityCheck[] = [];

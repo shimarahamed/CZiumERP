@@ -6,7 +6,7 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
-  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, UserPlus, Star
+  Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, UserPlus, Star, Factory, Wrench, ClipboardCheck
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -26,10 +26,10 @@ type NavCategory = {
 
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'AI Upselling', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'AI Upselling', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting', 'Recruitment', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
-    'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports'],
+    'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Bill of Materials', 'Production Orders', 'Quality Control'],
 };
 
 const categories: NavCategory[] = [
@@ -59,6 +59,14 @@ const categories: NavCategory[] = [
       { href: '/rfq', label: 'Request for Quotation', icon: ClipboardList },
       { href: '/vendors', label: 'Vendors', icon: Building2 },
     ],
+  },
+  {
+    label: 'Manufacturing',
+    links: [
+      { href: '/manufacturing/bom', label: 'Bill of Materials', icon: Wrench },
+      { href: '/manufacturing/production', label: 'Production Orders', icon: Factory },
+      { href: '/manufacturing/quality', label: 'Quality Control', icon: ClipboardCheck },
+    ]
   },
   {
     label: 'Finance & Accounting',

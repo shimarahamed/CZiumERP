@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -81,6 +81,12 @@ interface AppContextType {
   setCandidates: React.Dispatch<React.SetStateAction<Candidate[]>>;
   performanceReviews: PerformanceReview[];
   setPerformanceReviews: React.Dispatch<React.SetStateAction<PerformanceReview[]>>;
+  billsOfMaterials: BillOfMaterials[];
+  setBillsOfMaterials: React.Dispatch<React.SetStateAction<BillOfMaterials[]>>;
+  productionOrders: ProductionOrder[];
+  setProductionOrders: React.Dispatch<React.SetStateAction<ProductionOrder[]>>;
+  qualityChecks: QualityCheck[];
+  setQualityChecks: React.Dispatch<React.SetStateAction<QualityCheck[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -108,6 +114,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [performanceReviews, setPerformanceReviews] = useState<PerformanceReview[]>(initialPerformanceReviews);
+  const [billsOfMaterials, setBillsOfMaterials] = useState<BillOfMaterials[]>(initialBillsOfMaterials);
+  const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>(initialProductionOrders);
+  const [qualityChecks, setQualityChecks] = useState<QualityCheck[]>(initialQualityChecks);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -139,6 +148,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setBudgets(getStoredState('budgets', initialBudgets));
     setCandidates(getStoredState('candidates', initialCandidates));
     setPerformanceReviews(getStoredState('performanceReviews', initialPerformanceReviews));
+    setBillsOfMaterials(getStoredState('billsOfMaterials', initialBillsOfMaterials));
+    setProductionOrders(getStoredState('productionOrders', initialProductionOrders));
+    setQualityChecks(getStoredState('qualityChecks', initialQualityChecks));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -177,6 +189,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('budgets', JSON.stringify(budgets)); }, [budgets, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('candidates', JSON.stringify(candidates)); }, [candidates, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('performanceReviews', JSON.stringify(performanceReviews)); }, [performanceReviews, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('billsOfMaterials', JSON.stringify(billsOfMaterials)); }, [billsOfMaterials, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('productionOrders', JSON.stringify(productionOrders)); }, [productionOrders, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('qualityChecks', JSON.stringify(qualityChecks)); }, [qualityChecks, isHydrated]);
+
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore, isHydrated]);
@@ -279,6 +295,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('budgets');
     localStorage.removeItem('candidates');
     localStorage.removeItem('performanceReviews');
+    localStorage.removeItem('billsOfMaterials');
+    localStorage.removeItem('productionOrders');
+    localStorage.removeItem('qualityChecks');
   };
 
 
@@ -309,7 +328,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       taxRates, setTaxRates,
       budgets, setBudgets,
       candidates, setCandidates,
-      performanceReviews, setPerformanceReviews
+      performanceReviews, setPerformanceReviews,
+      billsOfMaterials, setBillsOfMaterials,
+      productionOrders, setProductionOrders,
+      qualityChecks, setQualityChecks
     }}>
       {children}
     </AppContext.Provider>

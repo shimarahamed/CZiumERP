@@ -1,11 +1,4 @@
 
-
-
-
-
-
-
-
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -48,7 +41,7 @@ export type Customer = {
 };
 
 export type Vendor = {
-  id: string;
+  id:string;
   name: string;
   contactPerson: string;
   email: string;
@@ -69,6 +62,7 @@ export type Product = {
   reorderThreshold?: number;
   expiryDate?: string;
   warrantyDate?: string;
+  productType?: 'manufactured' | 'component' | 'standard';
 };
 
 export type InvoiceItem = {
@@ -247,4 +241,45 @@ export type PerformanceReview = {
   date: string; // ISO string
   rating: number; // 1-5
   comments: string;
+};
+
+export type BOMItem = {
+  componentId: string; // productId of the component
+  componentName: string;
+  quantity: number;
+};
+
+export type BillOfMaterials = {
+  id: string;
+  productId: string; // The finished product this BOM is for
+  productName: string;
+  items: BOMItem[];
+  createdAt: string;
+};
+
+export type ProductionOrderStatus = 'planned' | 'in-progress' | 'completed' | 'on-hold' | 'cancelled';
+
+export type ProductionOrder = {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  bomId: string;
+  status: ProductionOrderStatus;
+  scheduledStartDate: string;
+  scheduledEndDate: string;
+  actualStartDate?: string;
+  actualCompletionDate?: string;
+  notes?: string;
+};
+
+export type QualityCheck = {
+  id: string;
+  productionOrderId: string;
+  productName: string;
+  checkDate: string;
+  inspectorId: string;
+  inspectorName: string;
+  status: 'pass' | 'fail' | 'pending';
+  notes: string;
 };
