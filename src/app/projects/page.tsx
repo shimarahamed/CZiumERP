@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Combobox } from '@/components/ui/combobox';
 
 const projectSchema = z.object({
   name: z.string().min(1, "Project name is required."),
@@ -62,6 +63,7 @@ export default function ProjectsPage() {
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
+    const [teamSearchTerm, setTeamSearchTerm] = useState('');
 
     const form = useForm<ProjectFormData>({
         resolver: zodResolver(projectSchema),
@@ -69,8 +71,19 @@ export default function ProjectsPage() {
 
     const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
 
+    const employeeOptions = useMemo(() => 
+        employees.map(e => ({ label: e.name, value: e.id })), 
+    [employees]);
+
+    const filteredTeamMembers = useMemo(() => 
+        employees.filter(e => 
+            e.name.toLowerCase().includes(teamSearchTerm.toLowerCase())
+        ), 
+    [employees, teamSearchTerm]);
+
     const handleOpenForm = (project: Project | null = null) => {
         setProjectToEdit(project);
+        setTeamSearchTerm('');
         if (project) {
             form.reset({
                 name: project.name,
@@ -223,10 +236,17 @@ export default function ProjectsPage() {
                             )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="managerId" render={({ field }) => (
-                                    <FormItem><FormLabel>Project Manager</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a manager"/></SelectTrigger></FormControl>
-                                            <SelectContent>{employees.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
-                                        </Select><FormMessage />
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Project Manager</FormLabel>
+                                        <Combobox
+                                            options={employeeOptions}
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                            placeholder="Select a manager..."
+                                            searchPlaceholder="Search managers..."
+                                            emptyText="No manager found."
+                                        />
+                                        <FormMessage />
                                     </FormItem>
                                 )}/>
                                 <FormField control={form.control} name="status" render={({ field }) => (
@@ -246,25 +266,33 @@ export default function ProjectsPage() {
                             <FormField control={form.control} name="teamIds" render={() => (
                                 <FormItem>
                                     <FormLabel>Team Members</FormLabel>
-                                    <ScrollArea className="h-40 rounded-md border p-4">
-                                    {employees.map((item) => (
-                                        <FormField key={item.id} control={form.control} name="teamIds"
-                                            render={({ field }) => (
-                                                <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0 my-2">
-                                                    <FormControl><Checkbox
-                                                        checked={field.value?.includes(item.id)}
-                                                        onCheckedChange={(checked) => {
-                                                        return checked
-                                                            ? field.onChange([...(field.value || []), item.id])
-                                                            : field.onChange(field.value?.filter((value) => value !== item.id))
-                                                        }}
-                                                    /></FormControl>
-                                                    <FormLabel className="font-normal">{item.name}</FormLabel>
-                                                </FormItem>
-                                            )}
+                                    <div className="rounded-md border p-4">
+                                        <Input 
+                                            placeholder="Search team members..."
+                                            value={teamSearchTerm}
+                                            onChange={(e) => setTeamSearchTerm(e.target.value)}
+                                            className="mb-4"
                                         />
-                                    ))}
-                                    </ScrollArea>
+                                        <ScrollArea className="h-40">
+                                        {filteredTeamMembers.map((item) => (
+                                            <FormField key={item.id} control={form.control} name="teamIds"
+                                                render={({ field }) => (
+                                                    <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0 my-2">
+                                                        <FormControl><Checkbox
+                                                            checked={field.value?.includes(item.id)}
+                                                            onCheckedChange={(checked) => {
+                                                            return checked
+                                                                ? field.onChange([...(field.value || []), item.id])
+                                                                : field.onChange(field.value?.filter((value) => value !== item.id))
+                                                            }}
+                                                        /></FormControl>
+                                                        <FormLabel className="font-normal">{item.name}</FormLabel>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        ))}
+                                        </ScrollArea>
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}/>
