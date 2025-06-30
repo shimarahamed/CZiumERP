@@ -344,5 +344,6 @@ export type Task = {
   status: TaskStatus;
   priority: TaskPriority;
   assigneeId: string;
-  dueDate: string;
+  startDate: string;
+  endDate: string;
 };

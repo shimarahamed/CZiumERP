@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState, useMemo } from 'react';
@@ -14,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DatePicker } from '@/components/ui/date-picker';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
@@ -24,13 +23,22 @@ import { PlusCircle, User, Users, Calendar, Flag, DollarSign, Briefcase as Brief
 import { format, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import GanttChart from '@/components/GanttChart';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Task as GanttTask } from 'gantt-task-react';
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required."),
   description: z.string().optional(),
   assigneeId: z.string().min(1, "Please assign this task to someone."),
-  dueDate: z.date({ required_error: "Due date is required." }),
+  dateRange: z.object({
+    from: z.date({ required_error: "Start date is required." }),
+    to: z.date({ required_error: "End date is required." }),
+  }),
   priority: z.enum(['Low', 'Medium', 'High']),
+}).refine(data => data.dateRange.to >= data.dateRange.from, {
+    message: "End date cannot be before start date.",
+    path: ["dateRange"],
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -69,6 +77,26 @@ export default function ProjectDetailPage() {
         defaultValues: { priority: 'Medium' }
     });
 
+    const ganttTasks: GanttTask[] = useMemo(() => {
+        return projectTasks.map(task => {
+            let progress = 0;
+            if (task.status === 'in-progress') progress = 50;
+            else if (task.status === 'done') progress = 100;
+            
+            return {
+                id: task.id,
+                name: task.title,
+                start: parseISO(task.startDate),
+                end: parseISO(task.endDate),
+                type: 'task',
+                progress: progress,
+                isDisabled: false,
+                project: project?.name,
+                dependencies: [],
+            };
+        });
+    }, [projectTasks, project?.name]);
+
     if (!project) {
         return (
             <div className="flex flex-col h-full">
@@ -92,8 +120,12 @@ export default function ProjectDetailPage() {
             id: `task-${Date.now()}`,
             projectId: project.id,
             status: 'todo',
-            ...data,
-            dueDate: format(data.dueDate, 'yyyy-MM-dd'),
+            title: data.title,
+            description: data.description,
+            assigneeId: data.assigneeId,
+            priority: data.priority,
+            startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
+            endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
         };
         setTasks(prev => [newTask, ...prev]);
         toast({ title: "Task Added" });
@@ -109,7 +141,7 @@ export default function ProjectDetailPage() {
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
-                            <CardHeader className="flex flex-row justify-between items-start">
+                             <CardHeader className="flex flex-row justify-between items-start">
                                 <div>
                                 <CardTitle>Tasks</CardTitle>
                                 <CardDescription>All tasks associated with this project.</CardDescription>
@@ -117,46 +149,56 @@ export default function ProjectDetailPage() {
                                 <Button size="sm" onClick={() => setIsTaskFormOpen(true)}><PlusCircle className="mr-2 h-4 w-4"/> Add Task</Button>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Task</TableHead>
-                                            <TableHead>Priority</TableHead>
-                                            <TableHead>Assignee</TableHead>
-                                            <TableHead>Due Date</TableHead>
-                                            <TableHead>Status</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {projectTasks.map(task => {
-                                            const assignee = employees.find(e => e.id === task.assigneeId);
-                                            return (
-                                                <TableRow key={task.id}>
-                                                    <TableCell className="font-medium">{task.title}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={priorityVariant[task.priority]} className="capitalize">
-                                                            {task.priority}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell>{assignee?.name || 'Unassigned'}</TableCell>
-                                                    <TableCell>{format(parseISO(task.dueDate), 'PPP')}</TableCell>
-                                                    <TableCell>
-                                                        <Select value={task.status} onValueChange={(value: TaskStatus) => handleTaskStatusChange(task.id, value)}>
-                                                            <SelectTrigger className="h-8 w-[120px]">
-                                                                <SelectValue />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {Object.entries(statusDisplay).map(([key, value]) => (
-                                                                    <SelectItem key={key} value={key as TaskStatus}>{value}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </TableCell>
+                                <Tabs defaultValue="list">
+                                    <TabsList className="mb-4">
+                                        <TabsTrigger value="list">Task List</TabsTrigger>
+                                        <TabsTrigger value="gantt">Gantt Chart</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="list">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Task</TableHead>
+                                                    <TableHead>Assignee</TableHead>
+                                                    <TableHead>Timeline</TableHead>
+                                                    <TableHead>Status</TableHead>
                                                 </TableRow>
-                                            )
-                                        })}
-                                    </TableBody>
-                                </Table>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {projectTasks.map(task => {
+                                                    const assignee = employees.find(e => e.id === task.assigneeId);
+                                                    return (
+                                                        <TableRow key={task.id}>
+                                                            <TableCell className="font-medium">
+                                                                <div className="flex flex-col">
+                                                                    <span>{task.title}</span>
+                                                                    <Badge variant={priorityVariant[task.priority]} className="capitalize w-fit mt-1">{task.priority}</Badge>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>{assignee?.name || 'Unassigned'}</TableCell>
+                                                            <TableCell>{format(parseISO(task.startDate), 'MMM d')} - {format(parseISO(task.endDate), 'MMM d, yyyy')}</TableCell>
+                                                            <TableCell>
+                                                                <Select value={task.status} onValueChange={(value: TaskStatus) => handleTaskStatusChange(task.id, value)}>
+                                                                    <SelectTrigger className="h-8 w-[120px]">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {Object.entries(statusDisplay).map(([key, value]) => (
+                                                                            <SelectItem key={key} value={key as TaskStatus}>{value}</SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )
+                                                })}
+                                            </TableBody>
+                                        </Table>
+                                    </TabsContent>
+                                    <TabsContent value="gantt">
+                                        <GanttChart tasks={ganttTasks} />
+                                    </TabsContent>
+                                </Tabs>
                             </CardContent>
                         </Card>
                     </div>
@@ -200,30 +242,30 @@ export default function ProjectDetailPage() {
                             <FormField control={form.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <FormField control={form.control} name="assigneeId" render={({ field }) => (
-                                    <FormItem><FormLabel>Assign To</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a user"/></SelectTrigger></FormControl>
-                                            <SelectContent>{teamMembers.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
-                                        </Select><FormMessage />
-                                    </FormItem>
-                                )}/>
-                                 <FormField control={form.control} name="dueDate" render={({ field }) => (
-                                    <FormItem className="flex flex-col pt-2"><FormLabel>Due Date</FormLabel><FormControl><DatePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                            </div>
-                            <FormField control={form.control} name="priority" render={({ field }) => (
-                                <FormItem><FormLabel>Priority</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="Low">Low</SelectItem>
-                                            <SelectItem value="Medium">Medium</SelectItem>
-                                            <SelectItem value="High">High</SelectItem>
-                                        </SelectContent>
+                             <FormField control={form.control} name="assigneeId" render={({ field }) => (
+                                <FormItem><FormLabel>Assign To</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a user"/></SelectTrigger></FormControl>
+                                        <SelectContent>{teamMembers.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
                                     </Select><FormMessage />
                                 </FormItem>
                             )}/>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <FormField control={form.control} name="dateRange" render={({ field }) => (
+                                    <FormItem className="flex flex-col pt-2"><FormLabel>Task Timeline</FormLabel><FormControl><DateRangePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="priority" render={({ field }) => (
+                                    <FormItem><FormLabel>Priority</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Low">Low</SelectItem>
+                                                <SelectItem value="Medium">Medium</SelectItem>
+                                                <SelectItem value="High">High</SelectItem>
+                                            </SelectContent>
+                                        </Select><FormMessage />
+                                    </FormItem>
+                                )}/>
+                            </div>
                             <DialogFooter>
                                 <Button type="submit">Add Task</Button>
                             </DialogFooter>
