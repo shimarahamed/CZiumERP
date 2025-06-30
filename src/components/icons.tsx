@@ -27,6 +27,7 @@ import { DollarSign } from 'lucide-react';
 import { Download } from 'lucide-react';
 import { Factory } from 'lucide-react';
 import { FileText } from 'lucide-react';
+import { Flag } from 'lucide-react';
 import { History } from 'lucide-react';
 import { Hourglass } from 'lucide-react';
 import { Info } from 'lucide-react';
@@ -60,6 +61,7 @@ import { Trash2 } from 'lucide-react';
 import { TrendingUp } from 'lucide-react';
 import { Trophy } from 'lucide-react';
 import { Undo2 } from 'lucide-react';
+import { User } from 'lucide-react';
 import { UserCheck } from 'lucide-react';
 import { UserCog } from 'lucide-react';
 import { UserPlus } from 'lucide-react';
@@ -101,6 +103,7 @@ export {
   Download,
   Factory,
   FileText,
+  Flag,
   History,
   Hourglass,
   Info,
@@ -134,6 +137,7 @@ export {
   TrendingUp,
   Trophy,
   Undo2,
+  User,
   UserCheck,
   UserCog,
   UserPlus,
