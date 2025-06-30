@@ -58,7 +58,7 @@ const statusDisplay: { [key in ProjectStatus]: string } = {
 };
 
 export default function ProjectsPage() {
-    const { projects, setProjects, tasks, users, addActivityLog, user: currentUser, currencySymbol } = useAppContext();
+    const { projects, setProjects, tasks, employees, addActivityLog, user: currentUser, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
@@ -144,8 +144,8 @@ export default function ProjectsPage() {
                         const projectTasks = tasks.filter(t => t.projectId === project.id);
                         const completedTasks = projectTasks.filter(t => t.status === 'done').length;
                         const progress = projectTasks.length > 0 ? (completedTasks / projectTasks.length) * 100 : 0;
-                        const manager = users.find(u => u.id === project.managerId);
-                        const teamMembers = users.filter(u => project.teamIds.includes(u.id));
+                        const manager = employees.find(e => e.id === project.managerId);
+                        const teamMembers = employees.filter(e => project.teamIds.includes(e.id));
 
                         return (
                             <Card key={project.id} className="flex flex-col">
@@ -225,7 +225,7 @@ export default function ProjectsPage() {
                                 <FormField control={form.control} name="managerId" render={({ field }) => (
                                     <FormItem><FormLabel>Project Manager</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a manager"/></SelectTrigger></FormControl>
-                                            <SelectContent>{users.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}</SelectContent>
+                                            <SelectContent>{employees.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
                                         </Select><FormMessage />
                                     </FormItem>
                                 )}/>
@@ -247,7 +247,7 @@ export default function ProjectsPage() {
                                 <FormItem>
                                     <FormLabel>Team Members</FormLabel>
                                     <ScrollArea className="h-40 rounded-md border p-4">
-                                    {users.map((item) => (
+                                    {employees.map((item) => (
                                         <FormField key={item.id} control={form.control} name="teamIds"
                                             render={({ field }) => (
                                                 <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0 my-2">

@@ -47,14 +47,14 @@ const statusDisplay: { [key in TaskStatus]: string } = {
 
 export default function ProjectDetailPage() {
     const { id } = useParams();
-    const { projects, tasks, setTasks, users, addActivityLog, currencySymbol } = useAppContext();
+    const { projects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
 
     const project = useMemo(() => projects.find(p => p.id === id), [id, projects]);
     const projectTasks = useMemo(() => tasks.filter(t => t.projectId === id), [id, tasks]);
-    const manager = useMemo(() => users.find(u => u.id === project?.managerId), [project, users]);
-    const teamMembers = useMemo(() => users.filter(u => project?.teamIds.includes(u.id)), [project, users]);
+    const manager = useMemo(() => employees.find(e => e.id === project?.managerId), [project, employees]);
+    const teamMembers = useMemo(() => employees.filter(e => project?.teamIds.includes(e.id)), [project, employees]);
 
     const form = useForm<TaskFormData>({
         resolver: zodResolver(taskSchema),
@@ -119,7 +119,7 @@ export default function ProjectDetailPage() {
                                     </TableHeader>
                                     <TableBody>
                                         {projectTasks.map(task => {
-                                            const assignee = users.find(u => u.id === task.assigneeId);
+                                            const assignee = employees.find(e => e.id === task.assigneeId);
                                             return (
                                                 <TableRow key={task.id}>
                                                     <TableCell className="font-medium">{task.title}</TableCell>
@@ -188,7 +188,7 @@ export default function ProjectDetailPage() {
                                  <FormField control={form.control} name="assigneeId" render={({ field }) => (
                                     <FormItem><FormLabel>Assign To</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a user"/></SelectTrigger></FormControl>
-                                            <SelectContent>{teamMembers.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}</SelectContent>
+                                            <SelectContent>{teamMembers.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
                                         </Select><FormMessage />
                                     </FormItem>
                                 )}/>
