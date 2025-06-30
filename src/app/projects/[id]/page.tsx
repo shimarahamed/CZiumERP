@@ -74,7 +74,16 @@ export default function ProjectDetailPage() {
 
     const form = useForm<TaskFormData>({
         resolver: zodResolver(taskSchema),
-        defaultValues: { priority: 'Medium' }
+        defaultValues: {
+            title: '',
+            description: '',
+            assigneeId: '',
+            dateRange: {
+                from: new Date(),
+                to: new Date(),
+            },
+            priority: 'Medium',
+        },
     });
 
     const ganttTasks: GanttTask[] = useMemo(() => {
@@ -141,7 +150,16 @@ export default function ProjectDetailPage() {
         toast({ title: "Task Added" });
         addActivityLog('Task Added', `Added task "${data.title}" to project "${project.name}".`);
         setIsTaskFormOpen(false);
-        form.reset({ priority: 'Medium' });
+        form.reset({
+            title: '',
+            description: '',
+            assigneeId: '',
+            dateRange: {
+                from: new Date(),
+                to: new Date(),
+            },
+            priority: 'Medium',
+        });
     };
 
     return (
