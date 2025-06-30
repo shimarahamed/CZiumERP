@@ -30,8 +30,6 @@ import GanttChart from '@/components/GanttChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task as GanttTask } from 'gantt-task-react';
 import { Combobox } from '@/components/ui/combobox';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required."),
@@ -323,11 +321,17 @@ export default function ProjectDetailPage() {
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                              <FormField control={form.control} name="assigneeId" render={({ field }) => (
-                                <FormItem><FormLabel>Assign To</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select a team member"/></SelectTrigger></FormControl>
-                                        <SelectContent>{teamMembers.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
-                                    </Select><FormMessage />
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Assign To</FormLabel>
+                                    <Combobox
+                                        options={employeeOptions}
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder="Select a team member..."
+                                        searchPlaceholder="Search team..."
+                                        emptyText="No team member found."
+                                    />
+                                    <FormMessage />
                                 </FormItem>
                             )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
