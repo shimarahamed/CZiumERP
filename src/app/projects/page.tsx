@@ -14,10 +14,10 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Project, ProjectStatus } from '@/types';
-import { PlusCircle, Briefcase, UserCog, Calendar, Flag, User, Users } from '@/components/icons';
+import { PlusCircle, Calendar, Flag, User, Users } from '@/components/icons';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { format, differenceInDays, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -63,7 +63,6 @@ export default function ProjectsPage() {
     const { projects, setProjects, tasks, employees, addActivityLog, user: currentUser, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
     const [teamSearchTerm, setTeamSearchTerm] = useState('');
 
     const form = useForm<ProjectFormData>({
@@ -82,32 +81,18 @@ export default function ProjectsPage() {
         ), 
     [employees, teamSearchTerm]);
 
-    const handleOpenForm = (project: Project | null = null) => {
-        setProjectToEdit(project);
+    const handleOpenForm = () => {
         setTeamSearchTerm('');
-        if (project) {
-            form.reset({
-                name: project.name,
-                description: project.description,
-                client: project.client || '',
-                status: project.status,
-                managerId: project.managerId,
-                teamIds: project.teamIds,
-                dateRange: { from: parseISO(project.startDate), to: parseISO(project.endDate) },
-                budget: project.budget,
-            });
-        } else {
-            form.reset({
-                name: '',
-                description: '',
-                client: '',
-                status: 'not-started',
-                managerId: '',
-                teamIds: [],
-                dateRange: { from: new Date(), to: new Date() },
-                budget: 0,
-            });
-        }
+        form.reset({
+            name: '',
+            description: '',
+            client: '',
+            status: 'not-started',
+            managerId: '',
+            teamIds: [],
+            dateRange: { from: new Date(), to: new Date() },
+            budget: 0,
+        });
         setIsFormOpen(true);
     };
 
@@ -121,22 +106,15 @@ export default function ProjectsPage() {
         // @ts-ignore
         delete projectData.dateRange;
 
-        if (projectToEdit) {
-            const updatedProjects = projects.map(p => p.id === projectToEdit.id ? { ...p, ...projectData } : p);
-            setProjects(updatedProjects);
-            toast({ title: "Project Updated" });
-            addActivityLog('Project Updated', `Updated project: ${data.name}`);
-        } else {
-            const newProject: Project = {
-                id: `proj-${Date.now()}`,
-                ...projectData
-            };
-            setProjects([newProject, ...projects]);
-            toast({ title: "Project Created" });
-            addActivityLog('Project Created', `Created new project: ${data.name}`);
-        }
+        const newProject: Project = {
+            id: `proj-${Date.now()}`,
+            ...projectData
+        };
+        setProjects(prev => [newProject, ...prev]);
+        toast({ title: "Project Created" });
+        addActivityLog('Project Created', `Created new project: ${data.name}`);
+        
         setIsFormOpen(false);
-        setProjectToEdit(null);
     };
 
     return (
@@ -149,7 +127,7 @@ export default function ProjectsPage() {
                         <p className="text-muted-foreground">Overview of all company projects.</p>
                     </div>
                     {canManage && (
-                        <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                        <Button size="sm" className="gap-1" onClick={handleOpenForm}>
                             <PlusCircle className="h-4 w-4" /> New Project
                         </Button>
                     )}
@@ -203,7 +181,7 @@ export default function ProjectsPage() {
                                                 <div className="flex -space-x-2 overflow-hidden">
                                                 {teamMembers.slice(0,3).map(member => (
                                                     <Avatar key={member.id} className="h-6 w-6 border-2 border-card">
-                                                        <AvatarImage src={member.avatar} />
+                                                        <AvatarImage src={member.avatar} data-ai-hint="person user" />
                                                         <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                                     </Avatar>
                                                 ))}
@@ -227,7 +205,7 @@ export default function ProjectsPage() {
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                 <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>{projectToEdit ? 'Edit Project' : 'Create New Project'}</DialogTitle>
+                        <DialogTitle>Create New Project</DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[80vh] overflow-y-auto px-2">
@@ -304,7 +282,7 @@ export default function ProjectsPage() {
                             )}/>
 
                             <DialogFooter>
-                                <Button type="submit">{projectToEdit ? 'Save Changes' : 'Create Project'}</Button>
+                                <Button type="submit">Create Project</Button>
                             </DialogFooter>
                         </form>
                     </Form>

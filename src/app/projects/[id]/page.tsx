@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Task, TaskStatus, TaskPriority } from '@/types';
+import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { PlusCircle, User, Users, Calendar, Flag, DollarSign, MoreHorizontal, Briefcase as BriefcaseIcon } from '@/components/icons';
 import { format, parseISO } from 'date-fns';
@@ -30,6 +30,24 @@ import GanttChart from '@/components/GanttChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task as GanttTask } from 'gantt-task-react';
 import { Combobox } from '@/components/ui/combobox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+
+const projectSchema = z.object({
+  name: z.string().min(1, "Project name is required."),
+  description: z.string().optional(),
+  client: z.string().optional(),
+  status: z.enum(['not-started', 'in-progress', 'completed', 'on-hold', 'cancelled']),
+  managerId: z.string().min(1, "A project manager is required."),
+  teamIds: z.array(z.string()).optional(),
+  dateRange: z.object({
+    from: z.date({ required_error: "Start date is required." }),
+    to: z.date({ required_error: "End date is required." }),
+  }),
+  budget: z.coerce.number().min(0, "Budget must be non-negative."),
+});
+
+type ProjectFormData = z.infer<typeof projectSchema>;
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required."),
@@ -47,16 +65,14 @@ const taskSchema = z.object({
 
 type TaskFormData = z.infer<typeof taskSchema>;
 
-const statusVariant: { [key in TaskStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
-  'in-progress': 'default',
-  'done': 'outline',
-  'todo': 'secondary',
-};
-
-const statusDisplay: { [key in TaskStatus]: string } = {
+const statusDisplay: { [key in TaskStatus | ProjectStatus]: string } = {
   'in-progress': 'In Progress',
   'done': 'Done',
   'todo': 'To Do',
+  'completed': 'Completed',
+  'not-started': 'Not Started',
+  'on-hold': 'On Hold',
+  'cancelled': 'Cancelled',
 };
 
 const priorityVariant: { [key in TaskPriority]: 'default' | 'secondary' | 'destructive' } = {
@@ -75,18 +91,28 @@ const defaultTaskValues = {
 
 export default function ProjectDetailPage() {
     const { id } = useParams();
-    const { projects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
+    const { projects, setProjects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
     const { toast } = useToast();
+    
+    // Task form state
     const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
+    // Project form state
+    const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
+    const [teamSearchTerm, setTeamSearchTerm] = useState('');
+
     const project = useMemo(() => projects.find(p => p.id === id), [id, projects]);
     const projectTasks = useMemo(() => tasks.filter(t => t.projectId === id), [id, tasks]);
     const manager = useMemo(() => employees.find(e => e.id === project?.managerId), [project, employees]);
-    const teamMembers = useMemo(() => employees.filter(e => project?.teamIds.includes(e.id)), [project, employees]);
+    const teamMembers = useMemo(() => project ? employees.filter(e => project.teamIds.includes(e.id)) : [], [project, employees]);
+    
+    const projectForm = useForm<ProjectFormData>({
+        resolver: zodResolver(projectSchema),
+    });
 
-    const form = useForm<TaskFormData>({
+    const taskForm = useForm<TaskFormData>({
         resolver: zodResolver(taskSchema),
         defaultValues: defaultTaskValues,
     });
@@ -94,6 +120,16 @@ export default function ProjectDetailPage() {
     const employeeOptions = useMemo(() => 
         teamMembers.map(e => ({ label: e.name, value: e.id })), 
     [teamMembers]);
+
+    const allEmployeeOptions = useMemo(() => 
+        employees.map(e => ({ label: e.name, value: e.id })), 
+    [employees]);
+    
+    const filteredTeamMembers = useMemo(() => 
+        employees.filter(e => 
+            e.name.toLowerCase().includes(teamSearchTerm.toLowerCase())
+        ), 
+    [employees, teamSearchTerm]);
 
     const ganttTasks: GanttTask[] = useMemo(() => {
         return projectTasks
@@ -123,12 +159,8 @@ export default function ProjectDetailPage() {
                 <Header title="Project Not Found" showBackButton />
                 <main className="flex-1 p-6">
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Error</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p>The requested project could not be found.</p>
-                        </CardContent>
+                        <CardHeader><CardTitle>Error</CardTitle></CardHeader>
+                        <CardContent><p>The requested project could not be found.</p></CardContent>
                     </Card>
                 </main>
             </div>
@@ -146,7 +178,7 @@ export default function ProjectDetailPage() {
     const handleOpenTaskForm = (task: Task | null) => {
         setTaskToEdit(task);
         if (task) {
-            form.reset({
+            taskForm.reset({
                 title: task.title,
                 description: task.description || '',
                 assigneeId: task.assigneeId,
@@ -157,7 +189,7 @@ export default function ProjectDetailPage() {
                 priority: task.priority,
             });
         } else {
-            form.reset(defaultTaskValues);
+            taskForm.reset(defaultTaskValues);
         }
         setIsTaskFormOpen(true);
     };
@@ -180,7 +212,7 @@ export default function ProjectDetailPage() {
                 projectId: project.id,
                 status: 'todo',
                 title: data.title,
-                description: data.description,
+                description: data.description || '',
                 assigneeId: data.assigneeId,
                 priority: data.priority,
                 startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
@@ -198,6 +230,39 @@ export default function ProjectDetailPage() {
         setTasks(tasks.filter(t => t.id !== taskToDelete.id));
         toast({ title: "Task Deleted" });
         setTaskToDelete(null);
+    };
+
+    const handleOpenProjectForm = () => {
+        setTeamSearchTerm('');
+        projectForm.reset({
+            name: project.name,
+            description: project.description,
+            client: project.client || '',
+            status: project.status,
+            managerId: project.managerId,
+            teamIds: project.teamIds,
+            dateRange: { from: parseISO(project.startDate), to: parseISO(project.endDate) },
+            budget: project.budget,
+        });
+        setIsProjectFormOpen(true);
+    };
+
+    const onProjectSubmit = (data: ProjectFormData) => {
+        const projectData = {
+          ...data,
+          teamIds: data.teamIds || [],
+          startDate: format(data.dateRange.from, 'yyyy-MM-dd'),
+          endDate: format(data.dateRange.to, 'yyyy-MM-dd'),
+        };
+        // @ts-ignore
+        delete projectData.dateRange;
+
+        const updatedProjects = projects.map(p => p.id === project.id ? { ...p, ...projectData } : p);
+        setProjects(updatedProjects);
+        toast({ title: "Project Updated" });
+        addActivityLog('Project Updated', `Updated project: ${data.name}`);
+        
+        setIsProjectFormOpen(false);
     };
 
     return (
@@ -250,8 +315,8 @@ export default function ProjectDetailPage() {
                                                                         <SelectValue />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        {Object.entries(statusDisplay).map(([key, value]) => (
-                                                                            <SelectItem key={key} value={key as TaskStatus}>{value}</SelectItem>
+                                                                        {['todo', 'in-progress', 'done'].map((key) => (
+                                                                            <SelectItem key={key} value={key as TaskStatus}>{statusDisplay[key as TaskStatus]}</SelectItem>
                                                                         ))}
                                                                     </SelectContent>
                                                                 </Select>
@@ -282,8 +347,9 @@ export default function ProjectDetailPage() {
                     </div>
                     <div className="lg:col-span-1 space-y-6">
                         <Card>
-                            <CardHeader>
+                            <CardHeader className="flex flex-row items-start justify-between">
                                 <CardTitle>Project Details</CardTitle>
+                                <Button variant="outline" size="sm" onClick={handleOpenProjectForm}>Edit Project</Button>
                             </CardHeader>
                             <CardContent className="space-y-4 text-sm">
                                 {project.client && <div className="flex items-center gap-2"><BriefcaseIcon className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Client:</span><span>{project.client}</span></div>}
@@ -295,7 +361,7 @@ export default function ProjectDetailPage() {
                                     <div className="space-y-2">
                                         {teamMembers.map(member => (
                                             <div key={member.id} className="flex items-center gap-2">
-                                                <Avatar className="h-6 w-6"><AvatarImage src={member.avatar} /><AvatarFallback>{member.name.charAt(0)}</AvatarFallback></Avatar>
+                                                <Avatar className="h-6 w-6"><AvatarImage src={member.avatar} data-ai-hint="person user" /><AvatarFallback>{member.name.charAt(0)}</AvatarFallback></Avatar>
                                                 <span>{member.name}</span>
                                             </div>
                                         ))}
@@ -307,20 +373,21 @@ export default function ProjectDetailPage() {
                 </div>
             </main>
 
+            {/* Task Edit/Add Dialog */}
             <Dialog open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>{taskToEdit ? 'Edit Task' : 'Add New Task'}</DialogTitle>
                     </DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmitTask)} className="space-y-4 py-4">
-                            <FormField control={form.control} name="title" render={({ field }) => (
+                    <Form {...taskForm}>
+                        <form onSubmit={taskForm.handleSubmit(onSubmitTask)} className="space-y-4 py-4">
+                            <FormField control={taskForm.control} name="title" render={({ field }) => (
                                 <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                            <FormField control={form.control} name="description" render={({ field }) => (
+                            <FormField control={taskForm.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                             <FormField control={form.control} name="assigneeId" render={({ field }) => (
+                             <FormField control={taskForm.control} name="assigneeId" render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Assign To</FormLabel>
                                     <Combobox
@@ -335,10 +402,10 @@ export default function ProjectDetailPage() {
                                 </FormItem>
                             )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                               <FormField control={form.control} name="dateRange" render={({ field }) => (
+                               <FormField control={taskForm.control} name="dateRange" render={({ field }) => (
                                     <FormItem className="flex flex-col pt-2"><FormLabel>Task Timeline</FormLabel><FormControl><DateRangePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                                <FormField control={form.control} name="priority" render={({ field }) => (
+                                <FormField control={taskForm.control} name="priority" render={({ field }) => (
                                     <FormItem><FormLabel>Priority</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
@@ -371,6 +438,96 @@ export default function ProjectDetailPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+            
+            {/* Project Edit Dialog */}
+            <Dialog open={isProjectFormOpen} onOpenChange={setIsProjectFormOpen}>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Edit Project</DialogTitle>
+                        <DialogDescription>Update the details for "{project.name}"</DialogDescription>
+                    </DialogHeader>
+                    <Form {...projectForm}>
+                        <form onSubmit={projectForm.handleSubmit(onProjectSubmit)} className="space-y-4 py-4 max-h-[80vh] overflow-y-auto px-2">
+                            <FormField control={projectForm.control} name="name" render={({ field }) => (
+                                <FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={projectForm.control} name="description" render={({ field }) => (
+                                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                             <FormField control={projectForm.control} name="client" render={({ field }) => (
+                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input {...field} placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={projectForm.control} name="managerId" render={({ field }) => (
+                                    <FormItem className="flex flex-col pt-2">
+                                        <FormLabel>Project Manager</FormLabel>
+                                        <Combobox
+                                            options={allEmployeeOptions}
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                            placeholder="Select a manager..."
+                                            searchPlaceholder="Search managers..."
+                                            emptyText="No manager found."
+                                        />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={projectForm.control} name="status" render={({ field }) => (
+                                    <FormItem><FormLabel>Status</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                            <SelectContent>{Object.entries(statusDisplay).filter(([key]) => key !== 'todo' && key !== 'done').map(([key, value]) => <SelectItem key={key} value={key as ProjectStatus}>{value}</SelectItem>)}</SelectContent>
+                                        </Select><FormMessage />
+                                    </FormItem>
+                                )}/>
+                            </div>
+                            <FormField control={projectForm.control} name="dateRange" render={({ field }) => (
+                                <FormItem className="flex flex-col pt-2"><FormLabel>Project Timeline</FormLabel><FormControl><DateRangePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                             <FormField control={projectForm.control} name="budget" render={({ field }) => (
+                                <FormItem><FormLabel>Budget ({currencySymbol})</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={projectForm.control} name="teamIds" render={() => (
+                                <FormItem>
+                                    <FormLabel>Team Members</FormLabel>
+                                    <div className="rounded-md border p-4">
+                                        <Input 
+                                            placeholder="Search team members..."
+                                            value={teamSearchTerm}
+                                            onChange={(e) => setTeamSearchTerm(e.target.value)}
+                                            className="mb-4"
+                                        />
+                                        <ScrollArea className="h-40">
+                                        {filteredTeamMembers.map((item) => (
+                                            <FormField key={item.id} control={projectForm.control} name="teamIds"
+                                                render={({ field }) => (
+                                                    <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0 my-2">
+                                                        <FormControl><Checkbox
+                                                            checked={field.value?.includes(item.id)}
+                                                            onCheckedChange={(checked) => {
+                                                            return checked
+                                                                ? field.onChange([...(field.value || []), item.id])
+                                                                : field.onChange(field.value?.filter((value) => value !== item.id))
+                                                            }}
+                                                        /></FormControl>
+                                                        <FormLabel className="font-normal">{item.name}</FormLabel>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        ))}
+                                        </ScrollArea>
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}/>
+
+                            <DialogFooter>
+                                <Button type="submit">Save Changes</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }
