@@ -24,7 +24,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
     const DetailItem = ({ label, value }: { label: string, value: React.ReactNode }) => (
         <div className="flex flex-col">
             <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-            <dd className="text-sm">{value || 'N/A'}</dd>
+            <dd className="text-sm capitalize">{value || 'N/A'}</dd>
         </div>
     );
 
@@ -38,6 +38,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
                 <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-6">
                     <DetailItem label="SKU" value={product.sku} />
                     <DetailItem label="Category" value={product.category} />
+                    <DetailItem label="Product Type" value={product.productType?.replace('-', ' ')} />
                     <DetailItem label="Default Vendor" value={vendor?.name} />
                     <DetailItem label="Price" value={`${currencySymbol} ${product.price.toFixed(2)}`} />
                     <DetailItem label="Cost" value={`${currencySymbol} ${product.cost.toFixed(2)}`} />

@@ -24,6 +24,7 @@ import { isBefore, differenceInDays, parseISO } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ProductDetail from '@/components/ProductDetail';
 import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { cn } from '@/lib/utils';
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required."),
@@ -37,9 +38,17 @@ const productSchema = z.object({
   reorderThreshold: z.coerce.number().int().min(0, "Reorder threshold must be non-negative.").optional(),
   expiryDate: z.date().optional().nullable(),
   warrantyDate: z.date().optional().nullable(),
+  productType: z.enum(['standard', 'manufactured', 'component']).default('standard'),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
+
+const productTypeVariant: { [key in Product['productType'] & string]: 'default' | 'secondary' | 'outline' } = {
+    standard: 'secondary',
+    manufactured: 'default',
+    component: 'outline'
+};
+
 
 export default function InventoryPage() {
     const { products, setProducts, addActivityLog, currencySymbol, user } = useAppContext();
@@ -64,6 +73,7 @@ export default function InventoryPage() {
             reorderThreshold: 0,
             expiryDate: null,
             warrantyDate: null,
+            productType: 'standard',
         }
     });
     
@@ -75,7 +85,8 @@ export default function InventoryPage() {
         return products.filter(product =>
             product.name.toLowerCase().includes(lowercasedFilter) ||
             (product.sku && product.sku.toLowerCase().includes(lowercasedFilter)) ||
-            (product.category && product.category.toLowerCase().includes(lowercasedFilter))
+            (product.category && product.category.toLowerCase().includes(lowercasedFilter)) ||
+            (product.productType && product.productType.toLowerCase().includes(lowercasedFilter))
         );
     }, [products, searchTerm]);
 
@@ -88,9 +99,10 @@ export default function InventoryPage() {
               reorderThreshold: product.reorderThreshold ?? 0,
               expiryDate: product.expiryDate ? new Date(product.expiryDate) : null,
               warrantyDate: product.warrantyDate ? new Date(product.warrantyDate) : null,
+              productType: product.productType ?? 'standard',
             });
         } else {
-            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: 'none', reorderThreshold: 0, expiryDate: null, warrantyDate: null });
+            form.reset({ name: '', price: 0, cost: 0, stock: 0, sku: '', category: '', description: '', vendorId: 'none', reorderThreshold: 0, expiryDate: null, warrantyDate: null, productType: 'standard' });
         }
         setIsFormOpen(true);
     };
@@ -184,10 +196,10 @@ export default function InventoryPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Product Name</TableHead>
-                                    <TableHead className="hidden md:table-cell">Price</TableHead>
+                                    <TableHead className="hidden md:table-cell">Type</TableHead>
                                     <TableHead>Stock</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="hidden md:table-cell">Expiry</TableHead>
+                                    <TableHead className="hidden md:table-cell">Price</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -207,7 +219,11 @@ export default function InventoryPage() {
                                                     {currencySymbol} {product.price.toFixed(2)}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell">{currencySymbol} {product.price.toFixed(2)}</TableCell>
+                                            <TableCell className="hidden md:table-cell">
+                                                <Badge variant={productTypeVariant[product.productType || 'standard']} className="capitalize">
+                                                    {product.productType || 'Standard'}
+                                                </Badge>
+                                            </TableCell>
                                             <TableCell>{product.stock}</TableCell>
                                             <TableCell>
                                                 <div className="flex flex-wrap gap-1">
@@ -220,7 +236,7 @@ export default function InventoryPage() {
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell">{product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'N/A'}</TableCell>
+                                            <TableCell className="hidden md:table-cell">{currencySymbol} {product.price.toFixed(2)}</TableCell>
                                             <TableCell>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
@@ -256,9 +272,24 @@ export default function InventoryPage() {
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-2">
-                             <FormField control={form.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>Product Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="name" render={({ field }) => (
+                                    <FormItem><FormLabel>Product Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="productType" render={({ field }) => (
+                                    <FormItem><FormLabel>Product Type</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="standard">Standard</SelectItem>
+                                                <SelectItem value="manufactured">Manufactured</SelectItem>
+                                                <SelectItem value="component">Component (Raw Material)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
                             <FormField control={form.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the product..." {...field} /></FormControl><FormMessage /></FormItem>
                             )} />

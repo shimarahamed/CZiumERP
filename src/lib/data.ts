@@ -48,8 +48,8 @@ export const initialProducts: Product[] = [
   { id: 'prod-12', name: 'Travel Mug', price: 25.00, cost: 15.00, stock: 100, sku: 'TM-16OZ', category: 'Accessories', description: '16oz insulated travel mug.', reorderThreshold: 30, vendorId: 'vend-2', productType: 'standard' },
   { id: 'prod-13', name: 'Barista Apron', price: 30.00, cost: 18.00, stock: 40, sku: 'APRN-BRST', category: 'Apparel', description: 'Canvas barista apron with leather straps.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard' },
   { id: 'prod-14', name: 'Syrup Variety Pack', price: 18.00, cost: 10.00, stock: 60, sku: 'SYRP-PCK', category: 'Consumables', description: 'Pack of 3 flavored syrups.', reorderThreshold: 25, vendorId: 'vend-1', expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(), productType: 'standard' },
-  { id: 'prod-15', name: 'Casing Unit', price: 0, cost: 150.00, stock: 100, sku: 'CS-UNIT', category: 'Components', description: 'Outer casing for Espresso Machine.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'component' },
-  { id: 'prod-16', name: 'Internal Pump Assembly', price: 0, cost: 200.00, stock: 100, sku: 'PMP-ASSY', category: 'Components', description: 'Pump and boiler assembly for Espresso Machine.', reorderThreshold: 5, vendorId: 'vend-3', productType: 'component' },
+  { id: 'prod-15', name: 'Casing Unit', price: 0, cost: 150.00, stock: 200, sku: 'CS-UNIT', category: 'Components', description: 'Outer casing for Espresso Machine.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'component' },
+  { id: 'prod-16', name: 'Internal Pump Assembly', price: 0, cost: 200.00, stock: 200, sku: 'PMP-ASSY', category: 'Components', description: 'Pump and boiler assembly for Espresso Machine.', reorderThreshold: 5, vendorId: 'vend-3', productType: 'component' },
 ];
 
 export const initialVendors: Vendor[] = [
