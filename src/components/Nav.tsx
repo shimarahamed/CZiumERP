@@ -7,9 +7,8 @@ import {
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
-  UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase
-} from '@/components/icons';
-import { ChevronDown } from 'lucide-react';
+  UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase, ChevronDown
+} from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
