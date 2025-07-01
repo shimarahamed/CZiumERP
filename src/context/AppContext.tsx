@@ -66,6 +66,12 @@ interface AppContextType {
   setCurrency: React.Dispatch<React.SetStateAction<Currency>>;
   currencySymbol: string;
   currencySymbols: CurrencySymbols;
+  companyName: string;
+  setCompanyName: React.Dispatch<React.SetStateAction<string>>;
+  companyAddress: string;
+  setCompanyAddress: React.Dispatch<React.SetStateAction<string>>;
+  fiscalYearStartMonth: number;
+  setFiscalYearStartMonth: React.Dispatch<React.SetStateAction<number>>;
   isHydrated: boolean;
   attendance: AttendanceEntry[];
   setAttendance: React.Dispatch<React.SetStateAction<AttendanceEntry[]>>;
@@ -135,6 +141,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
   const [currency, setCurrency] = useState<Currency>('AED');
   const [currencySymbol, setCurrencySymbol] = useState<string>('AED');
+  const [companyName, setCompanyName] = useState<string>('BizFlow POS');
+  const [companyAddress, setCompanyAddress] = useState<string>('123 Innovation Drive, Tech City, 12345');
+  const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState<number>(1);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -182,6 +191,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     }
     setCurrency(getStoredState('currency', 'AED'));
+    setCompanyName(getStoredState('companyName', 'BizFlow POS'));
+    setCompanyAddress(getStoredState('companyAddress', '123 Innovation Drive, Tech City, 12345'));
+    setFiscalYearStartMonth(getStoredState('fiscalYearStartMonth', 1));
     
     setIsHydrated(true);
   }, []);
@@ -217,6 +229,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('currentStoreId', JSON.stringify(currentStore ? currentStore.id : null)); }, [currentStore, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('currency', JSON.stringify(currency)); }, [currency, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('companyName', JSON.stringify(companyName)); }, [companyName, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('companyAddress', JSON.stringify(companyAddress)); }, [companyAddress, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('fiscalYearStartMonth', JSON.stringify(fiscalYearStartMonth)); }, [fiscalYearStartMonth, isHydrated]);
+
 
   // Effect to update currency symbol when currency changes
   useEffect(() => {
@@ -322,6 +338,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('campaigns');
     localStorage.removeItem('projects');
     localStorage.removeItem('tasks');
+    localStorage.removeItem('companyName');
+    localStorage.removeItem('companyAddress');
+    localStorage.removeItem('fiscalYearStartMonth');
   };
 
 
@@ -345,6 +364,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
       currencySymbol,
       currencySymbols,
+      companyName, setCompanyName,
+      companyAddress, setCompanyAddress,
+      fiscalYearStartMonth, setFiscalYearStartMonth,
       isHydrated,
       attendance, setAttendance,
       leaveRequests, setLeaveRequests,
