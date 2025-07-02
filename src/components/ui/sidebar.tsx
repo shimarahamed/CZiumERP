@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -692,8 +691,11 @@ const SidebarMenuSub = React.forwardRef<
     ref={ref}
     data-sidebar="menu-sub"
     className={cn(
+      "overflow-hidden transition-all duration-300 ease-in-out",
       "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
       "group-data-[collapsible=icon]:hidden",
+      "data-[state=closed]:max-h-0 data-[state=closed]:py-0 data-[state=closed]:border-l-transparent",
+      "data-[state=open]:max-h-[500px]",
       className
     )}
     {...props}

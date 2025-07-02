@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +8,7 @@ import {
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
   UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase, ChevronDown
-} from '@/components/icons';
+} from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -175,24 +174,22 @@ export default function Nav() {
               </SidebarMenuButton>
             </SidebarMenuItem>
 
-            {isCategoryOpen && (
-              <SidebarMenuSub>
-                {visibleLinks.map((link) => (
-                  <SidebarMenuSubItem key={link.href}>
-                    <SidebarMenuSubButton
-                      asChild
-                      isActive={isActive(link.href, pathname)}
-                      className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
-                    >
-                      <Link href={link.href}>
-                        <link.icon className="w-4 h-4" />
-                        <span>{link.label}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            )}
+            <SidebarMenuSub data-state={isCategoryOpen ? 'open' : 'closed'}>
+              {visibleLinks.map((link) => (
+                <SidebarMenuSubItem key={link.href}>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActive(link.href, pathname)}
+                    className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                  >
+                    <Link href={link.href}>
+                      <link.icon className="w-4 h-4" />
+                      <span>{link.label}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
           </div>
         );
       })}
