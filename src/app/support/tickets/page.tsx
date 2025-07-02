@@ -89,7 +89,7 @@ export default function SupportTicketsPage() {
                 }
                 const lowercasedFilter = searchTerm.toLowerCase();
                 return (
-                    `TICKET-${ticket.id}`.toLowerCase().includes(lowercasedFilter) ||
+                    (`#${ticket.id}`).toLowerCase().includes(lowercasedFilter) ||
                     ticket.title.toLowerCase().includes(lowercasedFilter) ||
                     ticket.description.toLowerCase().includes(lowercasedFilter) ||
                     (ticket.assigneeName && ticket.assigneeName.toLowerCase().includes(lowercasedFilter))
@@ -128,7 +128,7 @@ export default function SupportTicketsPage() {
         setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
         const ticket = tickets.find(t => t.id === ticketId);
         if (ticket) {
-            addActivityLog('Ticket Status Updated', `Ticket "TICKET-${ticket.id}" status changed to ${newStatus}`);
+            addActivityLog('Ticket Status Updated', `Ticket #${ticket.id} status changed to ${newStatus}`);
             toast({ title: 'Ticket Status Updated' });
         }
     };
@@ -160,7 +160,7 @@ export default function SupportTicketsPage() {
 
         setNewComment('');
         toast({ title: "Comment Added" });
-        addActivityLog('Comment Added', `Added comment to ticket #TICKET-${viewingTicket.id}`);
+        addActivityLog('Comment Added', `Added comment to ticket #${viewingTicket.id}`);
     };
 
     const nextStatusMap: Partial<Record<TicketStatus, TicketStatus[]>> = {
@@ -234,7 +234,7 @@ export default function SupportTicketsPage() {
                             <TableBody>
                                 {filteredTickets.map(ticket => (
                                     <TableRow key={ticket.id} onClick={() => setViewingTicket(ticket)} className="cursor-pointer">
-                                        <TableCell className="font-mono text-xs">TICKET-{ticket.id}</TableCell>
+                                        <TableCell className="font-mono text-sm">#{ticket.id}</TableCell>
                                         <TableCell className="font-medium max-w-[200px] lg:max-w-[350px] truncate">{ticket.title}</TableCell>
                                         <TableCell className="hidden md:table-cell">{ticket.reporterName}</TableCell>
                                         <TableCell className="hidden md:table-cell">{ticket.assigneeName || 'Unassigned'}</TableCell>
@@ -331,7 +331,7 @@ export default function SupportTicketsPage() {
                     <DialogHeader>
                         <DialogTitle>{viewingTicket?.title}</DialogTitle>
                         <DialogDescription>
-                            Ticket ID: TICKET-{viewingTicket?.id}
+                            Ticket ID: #{viewingTicket?.id}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
