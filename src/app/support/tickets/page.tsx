@@ -221,7 +221,7 @@ export default function SupportTicketsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[120px]">Ticket ID</TableHead>
+                                    <TableHead className="w-[120px]">ID</TableHead>
                                     <TableHead>Subject</TableHead>
                                     <TableHead className="hidden md:table-cell">Requester</TableHead>
                                     <TableHead className="hidden md:table-cell">Assigned To</TableHead>
@@ -331,7 +331,7 @@ export default function SupportTicketsPage() {
                     <DialogHeader>
                         <DialogTitle>{viewingTicket?.title}</DialogTitle>
                         <DialogDescription>
-                            Ticket ID: #{viewingTicket?.id}
+                            ID: #{viewingTicket?.id}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
