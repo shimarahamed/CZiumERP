@@ -148,7 +148,7 @@ export default function SupportTicketsPage() {
             if (t.id === viewingTicket.id) {
                 return {
                     ...t,
-                    comments: [...t.comments, commentToAdd],
+                    comments: [...(t.comments || []), commentToAdd],
                 };
             }
             return t;
@@ -156,7 +156,7 @@ export default function SupportTicketsPage() {
 
         setTickets(updatedTickets);
         
-        setViewingTicket(prev => prev ? { ...prev, comments: [...prev.comments, commentToAdd] } : null);
+        setViewingTicket(prev => prev ? { ...prev, comments: [...(prev.comments || []), commentToAdd] } : null);
 
         setNewComment('');
         toast({ title: "Comment Added" });
@@ -343,7 +343,7 @@ export default function SupportTicketsPage() {
                             
                             <h4 className="font-semibold">Activity & Comments</h4>
                             <div className="space-y-4">
-                                {viewingTicket?.comments.map(comment => (
+                                {(viewingTicket?.comments || []).map(comment => (
                                     <div key={comment.id} className="flex items-start gap-3">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={users.find(u => u.id === comment.authorId)?.avatar} data-ai-hint="person user" />
