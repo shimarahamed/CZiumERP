@@ -358,6 +358,8 @@ export type Ticket = {
   description: string;
   status: TicketStatus;
   priority: TicketPriority;
+  category?: string;
+  group?: string;
   assigneeId?: string;
   assigneeName?: string;
   reporterId: string;
