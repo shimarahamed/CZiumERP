@@ -19,9 +19,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Label } from '@/components/ui/label';
 
 const ticketSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -63,6 +65,7 @@ export default function SupportTicketsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<TicketStatus | 'all'>('all');
     const [priorityFilter, setPriorityFilter] = useState<TicketPriority | 'all'>('all');
+    const [newComment, setNewComment] = useState('');
 
 
     const form = useForm<TicketFormData>({
@@ -86,7 +89,7 @@ export default function SupportTicketsPage() {
                 }
                 const lowercasedFilter = searchTerm.toLowerCase();
                 return (
-                    ticket.id.toLowerCase().includes(lowercasedFilter) ||
+                    `TICKET-${ticket.id}`.toLowerCase().includes(lowercasedFilter) ||
                     ticket.title.toLowerCase().includes(lowercasedFilter) ||
                     ticket.description.toLowerCase().includes(lowercasedFilter) ||
                     (ticket.assigneeName && ticket.assigneeName.toLowerCase().includes(lowercasedFilter))
@@ -100,7 +103,7 @@ export default function SupportTicketsPage() {
         const assignee = finalAssigneeId ? users.find(u => u.id === finalAssigneeId) : undefined;
         
         const newTicket: Ticket = {
-            id: `ticket-${Date.now()}`,
+            id: tickets.length + 1,
             reporterId: user.id,
             reporterName: user.name,
             assigneeId: finalAssigneeId,
@@ -112,6 +115,7 @@ export default function SupportTicketsPage() {
             priority: data.priority,
             category: data.category || 'General',
             group: data.group || 'Default',
+            comments: [],
         };
         setTickets(prev => [newTicket, ...prev]);
         addActivityLog('Support Ticket Created', `Created ticket: "${data.title}"`);
@@ -120,13 +124,43 @@ export default function SupportTicketsPage() {
         form.reset({ title: '', description: '', priority: 'medium', assigneeId: 'unassigned', category: '', group: '' });
     };
 
-    const handleStatusChange = (ticketId: string, newStatus: TicketStatus) => {
+    const handleStatusChange = (ticketId: number, newStatus: TicketStatus) => {
         setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
         const ticket = tickets.find(t => t.id === ticketId);
         if (ticket) {
-            addActivityLog('Ticket Status Updated', `Ticket "${ticket.title}" status changed to ${newStatus}`);
+            addActivityLog('Ticket Status Updated', `Ticket "TICKET-${ticket.id}" status changed to ${newStatus}`);
             toast({ title: 'Ticket Status Updated' });
         }
+    };
+    
+    const handleAddComment = () => {
+        if (!newComment.trim() || !viewingTicket || !user) return;
+
+        const commentToAdd = {
+            id: `comment-${Date.now()}`,
+            authorId: user.id,
+            authorName: user.name,
+            content: newComment.trim(),
+            createdAt: new Date().toISOString(),
+        };
+
+        const updatedTickets = tickets.map(t => {
+            if (t.id === viewingTicket.id) {
+                return {
+                    ...t,
+                    comments: [...t.comments, commentToAdd],
+                };
+            }
+            return t;
+        });
+
+        setTickets(updatedTickets);
+        
+        setViewingTicket(prev => prev ? { ...prev, comments: [...prev.comments, commentToAdd] } : null);
+
+        setNewComment('');
+        toast({ title: "Comment Added" });
+        addActivityLog('Comment Added', `Added comment to ticket #TICKET-${viewingTicket.id}`);
     };
 
     const nextStatusMap: Partial<Record<TicketStatus, TicketStatus[]>> = {
@@ -200,7 +234,7 @@ export default function SupportTicketsPage() {
                             <TableBody>
                                 {filteredTickets.map(ticket => (
                                     <TableRow key={ticket.id} onClick={() => setViewingTicket(ticket)} className="cursor-pointer">
-                                        <TableCell className="font-mono text-xs">{ticket.id}</TableCell>
+                                        <TableCell className="font-mono text-xs">TICKET-{ticket.id}</TableCell>
                                         <TableCell className="font-medium max-w-[200px] lg:max-w-[350px] truncate">{ticket.title}</TableCell>
                                         <TableCell className="hidden md:table-cell">{ticket.reporterName}</TableCell>
                                         <TableCell className="hidden md:table-cell">{ticket.assigneeName || 'Unassigned'}</TableCell>
@@ -293,27 +327,67 @@ export default function SupportTicketsPage() {
             </Dialog>
 
             <Dialog open={!!viewingTicket} onOpenChange={(open) => !open && setViewingTicket(null)}>
-                <DialogContent className="sm:max-w-2xl">
+                <DialogContent className="sm:max-w-3xl">
                     <DialogHeader>
                         <DialogTitle>{viewingTicket?.title}</DialogTitle>
                         <DialogDescription>
-                            Ticket ID: {viewingTicket?.id}
+                            Ticket ID: TICKET-{viewingTicket?.id}
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="py-4 space-y-4 max-h-[70vh] overflow-y-auto">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div><p className="font-semibold">Requester</p><p>{viewingTicket?.reporterName}</p></div>
-                            <div><p className="font-semibold">Assigned To</p><p>{viewingTicket?.assigneeName || 'Unassigned'}</p></div>
-                            <div><p className="font-semibold">Created On</p><p>{viewingTicket && format(new Date(viewingTicket.createdAt), 'PPP')}</p></div>
-                            <div><p className="font-semibold">Priority</p><p className="capitalize">{viewingTicket?.priority}</p></div>
-                            <div><p className="font-semibold">Status</p><p className="capitalize">{viewingTicket?.status.replace('-', ' ')}</p></div>
-                            <div><p className="font-semibold">Group</p><p>{viewingTicket?.group || 'N/A'}</p></div>
-                            <div><p className="font-semibold">Category</p><p>{viewingTicket?.category || 'N/A'}</p></div>
-                        </div>
-                        <Separator />
-                        <div>
-                            <h4 className="font-semibold mb-2">Description</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
+                        <div className="md:col-span-2 space-y-4">
+                            <h4 className="font-semibold">Description</h4>
                             <p className="text-sm text-muted-foreground whitespace-pre-wrap bg-secondary p-4 rounded-md">{viewingTicket?.description}</p>
+                            
+                            <Separator />
+                            
+                            <h4 className="font-semibold">Activity & Comments</h4>
+                            <div className="space-y-4">
+                                {viewingTicket?.comments.map(comment => (
+                                    <div key={comment.id} className="flex items-start gap-3">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={users.find(u => u.id === comment.authorId)?.avatar} data-ai-hint="person user" />
+                                            <AvatarFallback>{comment.authorName.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="font-semibold">{comment.authorName}</span>
+                                                <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</span>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mt-1 bg-secondary p-3 rounded-md">{comment.content}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="space-y-2 pt-4">
+                                <Label htmlFor="new-comment">Add a comment</Label>
+                                <Textarea 
+                                    id="new-comment"
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder="Type your comment here..."
+                                />
+                                <Button onClick={handleAddComment} disabled={!newComment.trim()}>Add Comment</Button>
+                            </div>
+
+                        </div>
+                        <div className="space-y-4">
+                            <Card>
+                                <CardHeader className="p-4">
+                                    <CardTitle className="text-base">Ticket Details</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-4 text-sm space-y-3">
+                                    <div><p className="font-medium">Requester</p><p className="text-muted-foreground">{viewingTicket?.reporterName}</p></div>
+                                    <div><p className="font-medium">Assigned To</p><p className="text-muted-foreground">{viewingTicket?.assigneeName || 'Unassigned'}</p></div>
+                                    <div><p className="font-medium">Created On</p><p className="text-muted-foreground">{viewingTicket && format(new Date(viewingTicket.createdAt), 'PPP')}</p></div>
+                                    <Separator />
+                                    <div><p className="font-medium">Priority</p><Badge variant={viewingTicket ? priorityVariant[viewingTicket.priority] : 'default'} className="capitalize">{viewingTicket?.priority}</Badge></div>
+                                    <div><p className="font-medium">Status</p><Badge variant={viewingTicket ? statusVariant[viewingTicket.status] : 'default'} className="capitalize">{viewingTicket?.status.replace('-', ' ')}</Badge></div>
+                                    <div><p className="font-medium">Group</p><p className="text-muted-foreground">{viewingTicket?.group || 'N/A'}</p></div>
+                                    <div><p className="font-medium">Category</p><p className="text-muted-foreground">{viewingTicket?.category || 'N/A'}</p></div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 </DialogContent>

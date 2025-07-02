@@ -352,8 +352,16 @@ export type Task = {
 export type TicketStatus = 'open' | 'in-progress' | 'on-hold' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
 
-export type Ticket = {
+export type TicketComment = {
   id: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: string; // ISO String
+};
+
+export type Ticket = {
+  id: number;
   title: string;
   description: string;
   status: TicketStatus;
@@ -365,4 +373,5 @@ export type Ticket = {
   reporterId: string;
   reporterName: string;
   createdAt: string; // ISO String
+  comments: TicketComment[];
 };

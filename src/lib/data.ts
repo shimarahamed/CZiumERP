@@ -365,7 +365,7 @@ export const initialTasks: Task[] = [
 
 export const initialTickets: Ticket[] = [
   {
-    id: 'ticket-1',
+    id: 1,
     title: 'Cannot print invoices from Westside Mall',
     description: 'The receipt printer at the Westside Mall location is not responding. We have tried restarting it, but it still does not print any invoices or receipts. This is urgent as we cannot provide customers with physical copies.',
     status: 'open',
@@ -377,9 +377,18 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-3',
     reporterName: 'Cashier Chloe',
     createdAt: '2025-05-18T10:00:00.000Z',
+    comments: [
+      {
+        id: 'comment-1',
+        authorId: 'user-1',
+        authorName: 'Admin User',
+        content: 'I have dispatched a technician. They should be on-site within 2 hours.',
+        createdAt: '2025-05-18T10:15:00.000Z',
+      }
+    ],
   },
   {
-    id: 'ticket-2',
+    id: 2,
     title: 'Product price mismatch for Espresso Machine',
     description: 'The price for the Espresso Machine in the system is showing as $499.99, but the shelf tag says $479.99. Please clarify which is correct and update the system if necessary.',
     status: 'in-progress',
@@ -391,9 +400,10 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-3',
     reporterName: 'Cashier Chloe',
     createdAt: '2025-05-17T14:30:00.000Z',
+    comments: [],
   },
   {
-    id: 'ticket-3',
+    id: 3,
     title: 'Request for new report: Customer Lifetime Value',
     description: 'It would be helpful to have a report that calculates the total amount spent by each customer over their lifetime with us. This would help in identifying our most valuable customers.',
     status: 'open',
@@ -403,9 +413,10 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-2',
     reporterName: 'Manager Mike',
     createdAt: '2025-05-16T11:00:00.000Z',
+    comments: [],
   },
     {
-    id: 'ticket-4',
+    id: 4,
     title: 'System is slow during peak hours',
     description: 'Between 12 PM and 2 PM, the invoicing page becomes very slow to load. It takes several seconds to add items to a new invoice. It seems to happen every day.',
     status: 'on-hold',
@@ -417,9 +428,10 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-2',
     reporterName: 'Manager Mike',
     createdAt: '2025-05-15T13:00:00.000Z',
+    comments: [],
   },
   {
-    id: 'ticket-5',
+    id: 5,
     title: 'Forgot password functionality not working',
     description: 'A user reported that the "Forgot Password" link on the login page does not seem to do anything. Tested and confirmed.',
     status: 'closed',
@@ -431,5 +443,6 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-1',
     reporterName: 'Admin User',
     createdAt: '2025-05-10T09:00:00.000Z',
+    comments: [],
   },
 ];
