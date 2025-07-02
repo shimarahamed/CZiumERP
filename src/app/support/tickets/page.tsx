@@ -166,9 +166,9 @@ export default function SupportTicketsPage() {
                                             </div>
                                         </CardHeader>
                                         <CardContent className="p-4 pt-2 space-y-3 text-sm">
-                                            <p className="flex items-center gap-2 text-muted-foreground">
+                                            <div className="flex items-center gap-2 text-muted-foreground">
                                                 <Badge variant={priorityVariant[ticket.priority]} className="capitalize">{priorityDisplay[ticket.priority]}</Badge>
-                                            </p>
+                                            </div>
                                             <p className="text-muted-foreground line-clamp-3">{ticket.description}</p>
                                             <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
                                                 <div className="flex items-center gap-1.5">
