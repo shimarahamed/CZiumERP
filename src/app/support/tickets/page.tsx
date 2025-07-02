@@ -79,13 +79,14 @@ export default function SupportTicketsPage() {
 
     const onSubmit = (data: TicketFormData) => {
         if (!user) return;
-        const assignee = users.find(u => u.id === data.assigneeId);
+        const finalAssigneeId = (data.assigneeId && data.assigneeId !== 'unassigned') ? data.assigneeId : undefined;
+        const assignee = finalAssigneeId ? users.find(u => u.id === finalAssigneeId) : undefined;
         
         const newTicket: Ticket = {
             id: `ticket-${Date.now()}`,
             reporterId: user.id,
             reporterName: user.name,
-            assigneeId: data.assigneeId,
+            assigneeId: finalAssigneeId,
             assigneeName: assignee?.name,
             status: 'open',
             createdAt: new Date().toISOString(),
@@ -221,7 +222,7 @@ export default function SupportTicketsPage() {
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl><SelectTrigger><SelectValue placeholder="Select a team member" /></SelectTrigger></FormControl>
                                             <SelectContent>
-                                                <SelectItem value="">Unassigned</SelectItem>
+                                                <SelectItem value="unassigned">Unassigned</SelectItem>
                                                 {supportTeam.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
