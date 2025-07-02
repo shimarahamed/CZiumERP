@@ -14,14 +14,13 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Ticket, TicketStatus, TicketPriority } from '@/types';
-import { MoreHorizontal, PlusCircle, User, Flag, MessageSquare } from '@/components/icons';
+import { MoreHorizontal, PlusCircle } from '@/components/icons';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { format } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const ticketSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -32,12 +31,12 @@ const ticketSchema = z.object({
 
 type TicketFormData = z.infer<typeof ticketSchema>;
 
-const statusColumns: { status: TicketStatus; title: string; color: string }[] = [
-    { status: 'open', title: 'Open', color: 'bg-blue-500' },
-    { status: 'in-progress', title: 'In Progress', color: 'bg-yellow-500' },
-    { status: 'on-hold', title: 'On Hold', color: 'bg-purple-500' },
-    { status: 'closed', title: 'Closed', color: 'bg-green-500' },
-];
+const statusVariant: { [key in TicketStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
+    'open': 'default',
+    'in-progress': 'secondary',
+    'on-hold': 'secondary',
+    'closed': 'outline',
+};
 
 const priorityVariant: { [key in TicketPriority]: 'default' | 'secondary' | 'destructive' } = {
     low: 'secondary',
@@ -58,24 +57,38 @@ export default function SupportTicketsPage() {
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState<TicketStatus | 'all'>('all');
+    const [priorityFilter, setPriorityFilter] = useState<TicketPriority | 'all'>('all');
+
 
     const form = useForm<TicketFormData>({
         resolver: zodResolver(ticketSchema),
-        defaultValues: { title: '', description: '', priority: 'medium', assigneeId: '' }
+        defaultValues: { title: '', description: '', priority: 'medium', assigneeId: 'unassigned' }
     });
 
     const supportTeam = useMemo(() => users.filter(u => u.role === 'admin' || u.role === 'manager'), [users]);
-    const canManage = user?.role === 'admin' || user?.role === 'manager';
 
     const filteredTickets = useMemo(() => {
-        if (!searchTerm) return tickets;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return tickets.filter(ticket =>
-            ticket.title.toLowerCase().includes(lowercasedFilter) ||
-            ticket.description.toLowerCase().includes(lowercasedFilter) ||
-            (ticket.assigneeName && ticket.assigneeName.toLowerCase().includes(lowercasedFilter))
-        );
-    }, [tickets, searchTerm]);
+        return tickets
+            .filter(ticket => {
+                if (statusFilter !== 'all' && ticket.status !== statusFilter) {
+                    return false;
+                }
+                if (priorityFilter !== 'all' && ticket.priority !== priorityFilter) {
+                    return false;
+                }
+                if (!searchTerm) {
+                    return true;
+                }
+                const lowercasedFilter = searchTerm.toLowerCase();
+                return (
+                    ticket.id.toLowerCase().includes(lowercasedFilter) ||
+                    ticket.title.toLowerCase().includes(lowercasedFilter) ||
+                    ticket.description.toLowerCase().includes(lowercasedFilter) ||
+                    (ticket.assigneeName && ticket.assigneeName.toLowerCase().includes(lowercasedFilter))
+                );
+            });
+    }, [tickets, searchTerm, statusFilter, priorityFilter]);
 
     const onSubmit = (data: TicketFormData) => {
         if (!user) return;
@@ -98,7 +111,7 @@ export default function SupportTicketsPage() {
         addActivityLog('Support Ticket Created', `Created ticket: "${data.title}"`);
         toast({ title: 'Ticket Created' });
         setIsFormOpen(false);
-        form.reset({ title: '', description: '', priority: 'medium', assigneeId: '' });
+        form.reset({ title: '', description: '', priority: 'medium', assigneeId: 'unassigned' });
     };
 
     const handleStatusChange = (ticketId: string, newStatus: TicketStatus) => {
@@ -119,72 +132,104 @@ export default function SupportTicketsPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title="Support Tickets" />
-            <main className="flex-1 flex flex-col p-4 md:p-6">
-                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold">Ticket Dashboard</h1>
-                        <p className="text-muted-foreground">Manage all support and maintenance requests.</p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                        <Input
-                            placeholder="Search tickets..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                        />
-                        <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
-                            <PlusCircle className="h-4 w-4" /> Create Ticket
-                        </Button>
-                    </div>
-                </div>
-                
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto">
-                    {statusColumns.map(column => (
-                        <div key={column.status} className="flex flex-col gap-4">
-                            <div className="flex items-center gap-2 px-2">
-                                <span className={cn("h-2 w-2 rounded-full", column.color)} />
-                                <h2 className="font-semibold text-lg">{column.title}</h2>
-                                <span className="text-sm text-muted-foreground">({filteredTickets.filter(c => c.status === column.status).length})</span>
+            <main className="flex-1 overflow-auto p-4 md:p-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
+                            <div>
+                                <CardTitle>Ticket Queue</CardTitle>
+                                <CardDescription>Manage all support and maintenance requests.</CardDescription>
                             </div>
-                            <div className="flex-1 flex flex-col gap-4 bg-muted/50 p-4 rounded-lg min-h-[200px]">
-                                {filteredTickets.filter(c => c.status === column.status).map(ticket => (
-                                    <Card key={ticket.id}>
-                                        <CardHeader className="p-4 pb-2">
-                                            <div className="flex justify-between items-start">
-                                                <CardTitle className="text-base leading-tight pr-2">{ticket.title}</CardTitle>
-                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal /></Button></DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                                                        <DropdownMenuSeparator />
-                                                        {nextStatusMap[ticket.status]?.map(nextStatus => (
-                                                             <DropdownMenuItem key={nextStatus} onClick={() => handleStatusChange(ticket.id, nextStatus)}>
-                                                                Move to {nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1).replace('-', ' ')}
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-4 pt-2 space-y-3 text-sm">
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Badge variant={priorityVariant[ticket.priority]} className="capitalize">{priorityDisplay[ticket.priority]}</Badge>
-                                            </div>
-                                            <p className="text-muted-foreground line-clamp-3">{ticket.description}</p>
-                                            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
-                                                <div className="flex items-center gap-1.5">
-                                                    <User className="h-3 w-3" />
-                                                    <span className="truncate">{ticket.assigneeName || 'Unassigned'}</span>
-                                                </div>
-                                                <span>{format(new Date(ticket.createdAt), 'MMM d')}</span>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Input
+                                    placeholder="Search by ID, title, assignee..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                                />
+                                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as TicketStatus | 'all')}>
+                                    <SelectTrigger className="w-full sm:w-auto">
+                                        <SelectValue placeholder="Filter by status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Statuses</SelectItem>
+                                        <SelectItem value="open">Open</SelectItem>
+                                        <SelectItem value="in-progress">In Progress</SelectItem>
+                                        <SelectItem value="on-hold">On Hold</SelectItem>
+                                        <SelectItem value="closed">Closed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                 <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as TicketPriority | 'all')}>
+                                    <SelectTrigger className="w-full sm:w-auto">
+                                        <SelectValue placeholder="Filter by priority" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Priorities</SelectItem>
+                                        <SelectItem value="low">Low</SelectItem>
+                                        <SelectItem value="medium">Medium</SelectItem>
+                                        <SelectItem value="high">High</SelectItem>
+                                        <SelectItem value="urgent">Urgent</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Button size="sm" className="gap-1 flex-shrink-0" onClick={() => setIsFormOpen(true)}>
+                                    <PlusCircle className="h-4 w-4" /> Create Ticket
+                                </Button>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Ticket</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Priority</TableHead>
+                                    <TableHead>Assignee</TableHead>
+                                    <TableHead className="hidden md:table-cell">Created</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredTickets.map(ticket => (
+                                    <TableRow key={ticket.id}>
+                                        <TableCell className="font-medium">
+                                            <div className="flex flex-col">
+                                                <span className="font-semibold truncate max-w-[250px]">{ticket.title}</span>
+                                                <span className="text-xs text-muted-foreground">{ticket.id}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant={statusVariant[ticket.status]} className="capitalize">{ticket.status.replace('-', ' ')}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant={priorityVariant[ticket.priority]} className="capitalize">{priorityDisplay[ticket.priority]}</Badge>
+                                        </TableCell>
+                                        <TableCell>{ticket.assigneeName || 'Unassigned'}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{format(new Date(ticket.createdAt), 'PPP')}</TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    {nextStatusMap[ticket.status]?.map(nextStatus => (
+                                                        <DropdownMenuItem key={nextStatus} onClick={() => handleStatusChange(ticket.id, nextStatus)}>
+                                                            Move to {nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1).replace('-', ' ')}
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
             </main>
 
              <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
