@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -361,4 +361,65 @@ export const initialTasks: Task[] = [
   // Tasks for Project 5: Supplier Negotiations
   { id: 'task-17', projectId: 'proj-5', title: 'Review current supplier performance', status: 'in-progress', assigneeId: 'emp-4', startDate: '2025-11-01', endDate: '2025-11-20', priority: 'High', cost: 500 },
   { id: 'task-18', projectId: 'proj-5', title: 'Schedule meetings with vendors', status: 'todo', assigneeId: 'emp-1', startDate: '2025-11-21', endDate: '2025-12-05', priority: 'Medium', cost: 250 },
+];
+
+export const initialTickets: Ticket[] = [
+  {
+    id: 'ticket-1',
+    title: 'Cannot print invoices from Westside Mall',
+    description: 'The receipt printer at the Westside Mall location is not responding. We have tried restarting it, but it still does not print any invoices or receipts. This is urgent as we cannot provide customers with physical copies.',
+    status: 'open',
+    priority: 'urgent',
+    assigneeId: 'user-1',
+    assigneeName: 'Admin User',
+    reporterId: 'user-3',
+    reporterName: 'Cashier Chloe',
+    createdAt: '2025-05-18T10:00:00.000Z',
+  },
+  {
+    id: 'ticket-2',
+    title: 'Product price mismatch for Espresso Machine',
+    description: 'The price for the Espresso Machine in the system is showing as $499.99, but the shelf tag says $479.99. Please clarify which is correct and update the system if necessary.',
+    status: 'in-progress',
+    priority: 'medium',
+    assigneeId: 'user-2',
+    assigneeName: 'Manager Mike',
+    reporterId: 'user-3',
+    reporterName: 'Cashier Chloe',
+    createdAt: '2025-05-17T14:30:00.000Z',
+  },
+  {
+    id: 'ticket-3',
+    title: 'Request for new report: Customer Lifetime Value',
+    description: 'It would be helpful to have a report that calculates the total amount spent by each customer over their lifetime with us. This would help in identifying our most valuable customers.',
+    status: 'open',
+    priority: 'low',
+    reporterId: 'user-2',
+    reporterName: 'Manager Mike',
+    createdAt: '2025-05-16T11:00:00.000Z',
+  },
+    {
+    id: 'ticket-4',
+    title: 'System is slow during peak hours',
+    description: 'Between 12 PM and 2 PM, the invoicing page becomes very slow to load. It takes several seconds to add items to a new invoice. It seems to happen every day.',
+    status: 'on-hold',
+    priority: 'high',
+    assigneeId: 'user-1',
+    assigneeName: 'Admin User',
+    reporterId: 'user-2',
+    reporterName: 'Manager Mike',
+    createdAt: '2025-05-15T13:00:00.000Z',
+  },
+  {
+    id: 'ticket-5',
+    title: 'Forgot password functionality not working',
+    description: 'A user reported that the "Forgot Password" link on the login page does not seem to do anything. Tested and confirmed.',
+    status: 'closed',
+    priority: 'high',
+    assigneeId: 'user-1',
+    assigneeName: 'Admin User',
+    reporterId: 'user-1',
+    reporterName: 'Admin User',
+    createdAt: '2025-05-10T09:00:00.000Z',
+  },
 ];

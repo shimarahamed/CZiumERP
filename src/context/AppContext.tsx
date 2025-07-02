@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets } from '@/lib/data';
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -101,6 +101,8 @@ interface AppContextType {
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  tickets: Ticket[];
+  setTickets: React.Dispatch<React.SetStateAction<Ticket[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -135,6 +137,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -176,6 +179,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCampaigns(getStoredState('campaigns', initialCampaigns));
     setProjects(getStoredState('projects', initialProjects));
     setTasks(getStoredState('tasks', initialTasks));
+    setTickets(getStoredState('tickets', initialTickets));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -224,6 +228,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('campaigns', JSON.stringify(campaigns)); }, [campaigns, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('projects', JSON.stringify(projects)); }, [projects, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('tasks', JSON.stringify(tasks)); }, [tasks, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('tickets', JSON.stringify(tickets)); }, [tickets, isHydrated]);
 
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -338,6 +343,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('campaigns');
     localStorage.removeItem('projects');
     localStorage.removeItem('tasks');
+    localStorage.removeItem('tickets');
     localStorage.removeItem('companyName');
     localStorage.removeItem('companyAddress');
     localStorage.removeItem('fiscalYearStartMonth');
@@ -382,6 +388,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       campaigns, setCampaigns,
       projects, setProjects,
       tasks, setTasks,
+      tickets, setTickets,
     }}>
       {children}
     </AppContext.Provider>

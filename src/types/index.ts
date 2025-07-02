@@ -348,3 +348,19 @@ export type Task = {
   endDate: string;
   cost?: number;
 };
+
+export type TicketStatus = 'open' | 'in-progress' | 'on-hold' | 'closed';
+export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export type Ticket = {
+  id: string;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  assigneeId?: string;
+  assigneeName?: string;
+  reporterId: string;
+  reporterName: string;
+  createdAt: string; // ISO String
+};

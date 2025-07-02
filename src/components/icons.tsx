@@ -40,6 +40,7 @@ import { Loader2 } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import { Mail } from 'lucide-react';
 import { Megaphone } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { MoreHorizontal } from 'lucide-react';
 import { Package } from 'lucide-react';
 import { PanelLeft } from 'lucide-react';
@@ -117,6 +118,7 @@ export {
   LogOut,
   Mail,
   Megaphone,
+  MessageSquare,
   MoreHorizontal,
   Package,
   PanelLeft,
