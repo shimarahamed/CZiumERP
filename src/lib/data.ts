@@ -10,11 +10,11 @@ export const initialUsers: User[] = [
 ];
 
 export const initialEmployees: Employee[] = [
-  { id: 'emp-1', userId: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'System Administrator', department: 'IT', dateOfJoining: '2022-01-01', salary: 120000 },
-  { id: 'emp-2', userId: 'user-2', name: 'Manager Mike', email: 'manager@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Store Manager', department: 'Operations', dateOfJoining: '2023-03-15', salary: 85000 },
-  { id: 'emp-3', userId: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Cashier', department: 'Sales', dateOfJoining: '2024-06-01', salary: 45000 },
-  { id: 'emp-4', userId: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Inventory Specialist', department: 'Logistics', dateOfJoining: '2024-09-20', salary: 55000 },
-  { id: 'emp-5', name: 'Warehouse William', email: 'william@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Warehouse Associate', department: 'Logistics', dateOfJoining: '2025-01-10', salary: 42000 },
+  { id: 'emp-1', userId: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'System Administrator', department: 'IT', dateOfJoining: '2022-01-01', salary: 120000, annualLeaveAllowance: 25, leaveTaken: 5 },
+  { id: 'emp-2', userId: 'user-2', name: 'Manager Mike', email: 'manager@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Store Manager', department: 'Operations', dateOfJoining: '2023-03-15', salary: 85000, annualLeaveAllowance: 25, leaveTaken: 10 },
+  { id: 'emp-3', userId: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Cashier', department: 'Sales', dateOfJoining: '2024-06-01', salary: 45000, annualLeaveAllowance: 20, leaveTaken: 2 },
+  { id: 'emp-4', userId: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Inventory Specialist', department: 'Logistics', dateOfJoining: '2024-09-20', salary: 55000, annualLeaveAllowance: 20, leaveTaken: 0 },
+  { id: 'emp-5', name: 'Warehouse William', email: 'william@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Warehouse Associate', department: 'Logistics', dateOfJoining: '2025-01-10', salary: 42000, annualLeaveAllowance: 18, leaveTaken: 3 },
 ];
 
 export const initialStores: Store[] = [
@@ -124,7 +124,10 @@ export const initialAssets: Asset[] = [
 ];
 
 export const initialAttendance: AttendanceEntry[] = [];
-export const initialLeaveRequests: LeaveRequest[] = [];
+export const initialLeaveRequests: LeaveRequest[] = [
+  { id: 'lr-1', userId: 'user-3', userName: 'Cashier Chloe', startDate: '2025-07-01', endDate: '2025-07-03', reason: 'Family vacation', status: 'approved', requestedAt: '2025-06-15T00:00:00.000Z'},
+  { id: 'lr-2', userId: 'user-4', userName: 'Inventory Ian', startDate: '2025-07-10', endDate: '2025-07-11', reason: 'Doctor\'s appointment', status: 'pending', requestedAt: '2025-06-20T00:00:00.000Z'}
+];
 
 
 export const salesData: Sale[] = [

@@ -1,6 +1,5 @@
 
 
-
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -22,6 +21,8 @@ export type Employee = {
   department?: string;
   dateOfJoining: string;
   salary: number;
+  annualLeaveAllowance?: number;
+  leaveTaken?: number;
 };
 
 export type Store = {

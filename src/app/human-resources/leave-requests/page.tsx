@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
+import { format, differenceInDays, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -39,7 +39,7 @@ const statusVariant: { [key in LeaveRequest['status']]: 'default' | 'secondary' 
 };
 
 export default function LeaveRequestsPage() {
-    const { user, leaveRequests, setLeaveRequests, addActivityLog } = useAppContext();
+    const { user, employees, setEmployees, leaveRequests, setLeaveRequests, addActivityLog } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -49,6 +49,12 @@ export default function LeaveRequestsPage() {
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const currentEmployee = useMemo(() => employees.find(e => e.userId === user?.id), [employees, user?.id]);
+    const leaveBalance = useMemo(() => {
+        if (!currentEmployee) return 0;
+        return (currentEmployee.annualLeaveAllowance || 0) - (currentEmployee.leaveTaken || 0);
+    }, [currentEmployee]);
 
     const filteredMyRequests = useMemo(() => {
         const baseRequests = leaveRequests.filter(lr => lr.userId === user?.id).sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
@@ -86,18 +92,47 @@ export default function LeaveRequestsPage() {
     
     const handleUpdateRequest = (requestId: string, status: 'approved' | 'rejected') => {
         if(!user) return;
-        setLeaveRequests(prev => 
-            prev.map(req => req.id === requestId ? { ...req, status } : req)
-        );
+        
         const req = leaveRequests.find(r => r.id === requestId);
-        addActivityLog(`Leave Request ${status.charAt(0).toUpperCase() + status.slice(1)}`, `Request from ${req?.userName} was ${status} by ${user.email}`);
+        if (!req) return;
+
+        if (status === 'approved') {
+            const employeeToUpdate = employees.find(e => e.userId === req.userId);
+            if(employeeToUpdate) {
+                const leaveDuration = differenceInDays(parseISO(req.endDate), parseISO(req.startDate)) + 1;
+                const updatedEmployees = employees.map(emp => 
+                    emp.id === employeeToUpdate.id 
+                    ? { ...emp, leaveTaken: (emp.leaveTaken || 0) + leaveDuration } 
+                    : emp
+                );
+                setEmployees(updatedEmployees);
+            }
+        }
+        
+        setLeaveRequests(prev => 
+            prev.map(r => r.id === requestId ? { ...r, status } : r)
+        );
+
+        addActivityLog(`Leave Request ${status.charAt(0).toUpperCase() + status.slice(1)}`, `Request from ${req.userName} was ${status} by ${user.email}`);
         toast({ title: `Request ${status.charAt(0).toUpperCase() + status.slice(1)}` });
     };
+
 
     return (
         <div className="flex flex-col h-full">
             <Header title="Leave Requests" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                <Card className="mb-6">
+                    <CardHeader>
+                        <CardTitle>My Leave Balance</CardTitle>
+                        <CardDescription>Your available leave for the year.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-2xl font-bold">{leaveBalance} days</p>
+                        <p className="text-sm text-muted-foreground">Remaining out of {currentEmployee?.annualLeaveAllowance || 0} days.</p>
+                    </CardContent>
+                </Card>
+
                  <Tabs defaultValue="my-requests" className="w-full">
                     <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
                         <TabsList>
