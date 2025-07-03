@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Ticket, TicketStatus, TicketPriority } from '@/types';
-import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, Sparkles, Loader2 } from '@/components/icons';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,6 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
+import { analyzeTicket } from '@/ai/flows/ticket-analysis';
 
 const ticketSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -66,12 +67,16 @@ export default function SupportTicketsPage() {
     const [statusFilter, setStatusFilter] = useState<TicketStatus | 'all'>('all');
     const [priorityFilter, setPriorityFilter] = useState<TicketPriority | 'all'>('all');
     const [newComment, setNewComment] = useState('');
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
 
     const form = useForm<TicketFormData>({
         resolver: zodResolver(ticketSchema),
         defaultValues: { title: '', description: '', priority: 'medium', assigneeId: 'unassigned', category: '', group: '' }
     });
+
+    const watchedTitle = useWatch({ control: form.control, name: 'title' });
+    const watchedDescription = useWatch({ control: form.control, name: 'description' });
 
     const supportTeam = useMemo(() => users.filter(u => u.role === 'admin' || u.role === 'manager'), [users]);
 
@@ -96,6 +101,28 @@ export default function SupportTicketsPage() {
                 );
             });
     }, [tickets, searchTerm, statusFilter, priorityFilter]);
+
+    const handleAiAnalyze = async () => {
+        const title = form.getValues('title');
+        const description = form.getValues('description');
+        if (!title || !description) {
+            toast({ variant: 'destructive', title: 'Missing Information', description: 'Please provide a title and description before analyzing.'});
+            return;
+        }
+
+        setIsAnalyzing(true);
+        try {
+            const result = await analyzeTicket({ title, description });
+            form.setValue('priority', result.priority);
+            form.setValue('category', result.category);
+            toast({ title: 'AI Suggestions Applied', description: 'Priority and category have been set.' });
+        } catch (error) {
+            console.error("Error analyzing ticket:", error);
+            toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Could not get AI suggestions.' });
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     const onSubmit = (data: TicketFormData) => {
         if (!user) return;
@@ -221,7 +248,7 @@ export default function SupportTicketsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[120px]">ID</TableHead>
+                                    <TableHead className="w-[80px]">ID</TableHead>
                                     <TableHead>Subject</TableHead>
                                     <TableHead className="hidden md:table-cell">Requester</TableHead>
                                     <TableHead className="hidden md:table-cell">Assigned To</TableHead>
@@ -283,6 +310,12 @@ export default function SupportTicketsPage() {
                             <FormField control={form.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
+
+                            <Button type="button" variant="outline" size="sm" onClick={handleAiAnalyze} disabled={isAnalyzing || !watchedTitle || !watchedDescription}>
+                                {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                Get AI Suggestions
+                            </Button>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="category" render={({ field }) => (
                                     <FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} placeholder="e.g. Hardware, Software" /></FormControl><FormMessage /></FormItem>
@@ -294,7 +327,7 @@ export default function SupportTicketsPage() {
                             <div className="grid grid-cols-2 gap-4">
                                <FormField control={form.control} name="priority" render={({ field }) => (
                                     <FormItem><FormLabel>Priority</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
                                             <SelectContent>
                                                 <SelectItem value="low">Low</SelectItem>
@@ -309,7 +342,7 @@ export default function SupportTicketsPage() {
                                 <FormField control={form.control} name="assigneeId" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Assign To (Optional)</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl><SelectTrigger><SelectValue placeholder="Select a team member" /></SelectTrigger></FormControl>
                                             <SelectContent>
                                                 <SelectItem value="unassigned">Unassigned</SelectItem>

@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Lead, LeadStatus } from '@/types';
+import type { Lead, LeadStatus, Customer } from '@/types';
 import { MoreHorizontal, PlusCircle, Mail, Phone, Briefcase, DollarSign } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -48,7 +48,7 @@ const nextStatusMap: Partial<Record<LeadStatus, LeadStatus[]>> = {
 
 
 export default function LeadsPage() {
-    const { leads, setLeads, users, addActivityLog, user, currencySymbol } = useAppContext();
+    const { leads, setLeads, users, addActivityLog, user, currencySymbol, customers, setCustomers } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -117,11 +117,33 @@ export default function LeadsPage() {
     };
 
     const handleStatusChange = (leadId: string, newStatus: LeadStatus) => {
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
         const lead = leads.find(l => l.id === leadId);
-        if (lead) {
-            addActivityLog('Lead Status Updated', `${lead.name}'s status changed to ${newStatus}`);
-            toast({ title: 'Status Updated' });
+        if (!lead) return;
+        
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
+        
+        addActivityLog('Lead Status Updated', `${lead.name}'s status changed to ${newStatus}`);
+        toast({ title: 'Status Updated' });
+        
+        if (newStatus === 'proposal-won') {
+            const existingCustomer = customers.find(c => c.email === lead.email);
+            if (existingCustomer) {
+                toast({ title: "Customer Already Exists", description: `${lead.name} already exists as a customer.`});
+                return;
+            }
+
+            const newCustomer: Customer = {
+                id: `cust-${Date.now()}`,
+                name: lead.name,
+                email: lead.email,
+                phone: lead.phone || '',
+                avatar: lead.avatar,
+                loyaltyPoints: 0,
+                tier: 'Bronze',
+            };
+            setCustomers(prev => [newCustomer, ...prev]);
+            addActivityLog('Customer Created', `Created customer from lead: ${lead.name}`);
+            toast({ title: "Customer Created!", description: `${lead.name} has been added to your customers list.`});
         }
     };
 
