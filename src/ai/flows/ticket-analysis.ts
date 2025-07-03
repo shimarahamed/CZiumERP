@@ -10,13 +10,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const TicketAnalysisInputSchema = z.object({
+const TicketAnalysisInputSchema = z.object({
   title: z.string().describe('The title of the support ticket.'),
   description: z.string().describe('The full description of the support ticket issue.'),
 });
 export type TicketAnalysisInput = z.infer<typeof TicketAnalysisInputSchema>;
 
-export const TicketAnalysisOutputSchema = z.object({
+const TicketAnalysisOutputSchema = z.object({
   priority: z
     .enum(['low', 'medium', 'high', 'urgent'])
     .describe('The suggested priority for the ticket.'),
