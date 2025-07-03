@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useMemo, useState, useRef } from 'react';
@@ -194,7 +195,13 @@ export default function ReportsPage() {
                                         </CardContent></Card>
                                     </div>
                                     <Card>
-                                        <CardHeader><CardTitle>AI Forecasting & Trends</CardTitle><CardDescription>Generate a sales forecast based on the selected date range.</CardDescription></CardHeader>
+                                        <CardHeader>
+                                            <div className="flex items-center gap-2">
+                                                <Sparkles className="h-5 w-5 text-primary" />
+                                                <CardTitle>AI Forecasting & Trends</CardTitle>
+                                            </div>
+                                            <CardDescription>Generate a sales forecast based on the selected date range.</CardDescription>
+                                        </CardHeader>
                                         <CardContent>
                                             <Button onClick={handleGenerateForecast} disabled={isGeneratingForecast} className="non-printable">
                                                 {isGeneratingForecast ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Generating...</> : <><Sparkles className="mr-2 h-4 w-4"/> Generate Forecast</>}

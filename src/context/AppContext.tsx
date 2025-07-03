@@ -1,10 +1,13 @@
 
 
+
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket } from '@/types';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification } from '@/types';
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets } from '@/lib/data';
+import { differenceInDays, parseISO } from 'date-fns';
+
 
 // Helper to get item from localStorage. This will only be called on the client.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -103,6 +106,10 @@ interface AppContextType {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   tickets: Ticket[];
   setTickets: React.Dispatch<React.SetStateAction<Ticket[]>>;
+  notifications: Notification[];
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => void;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -147,6 +154,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [companyName, setCompanyName] = useState<string>('BizFlow POS');
   const [companyAddress, setCompanyAddress] = useState<string>('123 Innovation Drive, Tech City, 12345');
   const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState<number>(1);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -180,6 +188,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setProjects(getStoredState('projects', initialProjects));
     setTasks(getStoredState('tasks', initialTasks));
     setTickets(getStoredState('tickets', initialTickets));
+    setNotifications(getStoredState('notifications', []));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -229,6 +238,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('projects', JSON.stringify(projects)); }, [projects, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('tasks', JSON.stringify(tasks)); }, [tasks, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('tickets', JSON.stringify(tickets)); }, [tickets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('notifications', JSON.stringify(notifications)); }, [notifications, isHydrated]);
 
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -243,6 +253,57 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setCurrencySymbol(currencySymbols[currency]);
   }, [currency]);
+
+  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => {
+    setNotifications(prev => {
+        const existing = prev.find(n => n.title === notification.title && n.description === notification.description);
+        if (existing) return prev;
+
+        const newNotification: Notification = {
+            id: `notif-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            isRead: false,
+            ...notification,
+        };
+        return [newNotification, ...prev].slice(0, 50); // Keep last 50
+    });
+  }, []);
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications(prev => prev.map(n => ({...n, isRead: true})));
+  };
+
+  // Effect to generate system-wide notifications based on state changes
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    // Generate overdue invoice notifications
+    const now = new Date();
+    invoices.forEach(invoice => {
+        if ((invoice.status === 'pending' || invoice.status === 'overdue') && differenceInDays(now, parseISO(invoice.date)) > 30) {
+            addNotification({
+                title: 'Overdue Invoice',
+                description: `Invoice ${invoice.id} for ${currencySymbol}${invoice.amount.toFixed(2)} is overdue.`,
+                href: '/invoices'
+            });
+        }
+    });
+
+    // Generate low stock notifications
+    products.forEach(product => {
+        if (product.reorderThreshold && product.stock <= product.reorderThreshold) {
+            addNotification({
+                title: 'Low Stock Alert',
+                description: `${product.name} is low on stock (${product.stock} left).`,
+                href: '/inventory'
+            });
+        }
+    });
+  }, [isHydrated, invoices, products, addNotification, currencySymbol]);
 
 
   const handleSetCurrency = (newCurrency: Currency) => {
@@ -347,6 +408,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('companyName');
     localStorage.removeItem('companyAddress');
     localStorage.removeItem('fiscalYearStartMonth');
+    localStorage.removeItem('notifications');
   };
 
 
@@ -389,6 +451,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       projects, setProjects,
       tasks, setTasks,
       tickets, setTickets,
+      notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead
     }}>
       {children}
     </AppContext.Provider>

@@ -1,3 +1,4 @@
+
 import { AlertCircle } from 'lucide-react';
 import { AlertTriangle } from 'lucide-react';
 import { AreaChart } from 'lucide-react';
@@ -39,6 +40,7 @@ import { Lightbulb } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import { Mail } from 'lucide-react';
+import { MailOpen } from 'lucide-react';
 import { Megaphone } from 'lucide-react';
 import { MessageSquare } from 'lucide-react';
 import { MoreHorizontal } from 'lucide-react';
@@ -117,6 +119,7 @@ export {
   Loader2,
   LogOut,
   Mail,
+  MailOpen,
   Megaphone,
   MessageSquare,
   MoreHorizontal,

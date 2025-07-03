@@ -1,5 +1,6 @@
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -374,4 +375,13 @@ export type Ticket = {
   reporterName: string;
   createdAt: string; // ISO String
   comments: TicketComment[];
+};
+
+export type Notification = {
+  id: string;
+  title: string;
+  description: string;
+  href?: string;
+  isRead: boolean;
+  createdAt: string; // ISO string
 };
