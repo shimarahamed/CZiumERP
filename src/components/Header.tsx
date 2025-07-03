@@ -32,7 +32,7 @@ export default function Header({ title, children, showBackButton = false }: Head
   } = useAppContext();
   const router = useRouter();
   
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   const handleStoreChange = (storeId: string) => {
     selectStore(storeId);
@@ -114,7 +114,7 @@ export default function Header({ title, children, showBackButton = false }: Head
             <DropdownMenuContent align="end" className="w-[350px]">
                 <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                 {notifications.length > 0 ? (
+                 {(notifications || []).length > 0 ? (
                     <ScrollArea className="h-[300px]">
                         {notifications.map(notification => (
                         <DropdownMenuItem 
