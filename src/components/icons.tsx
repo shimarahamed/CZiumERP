@@ -4,6 +4,7 @@ import { AlertTriangle } from 'lucide-react';
 import { AreaChart } from 'lucide-react';
 import { Archive } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
 import { Barcode } from 'lucide-react';
@@ -15,6 +16,7 @@ import { Calendar } from 'lucide-react';
 import { CalendarPlus } from 'lucide-react';
 import { Check } from 'lucide-react';
 import { CheckCircle } from 'lucide-react';
+import { CheckSquare } from 'lucide-react';
 import { ChevronDown } from 'lucide-react';
 import { ChevronLeft } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
@@ -83,6 +85,7 @@ export {
   AreaChart,
   Archive,
   ArrowLeft,
+  ArrowRight,
   Banknote,
   BarChart3,
   Barcode,
@@ -94,6 +97,7 @@ export {
   CalendarPlus,
   Check,
   CheckCircle,
+  CheckSquare,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
