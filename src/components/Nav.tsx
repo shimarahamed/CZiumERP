@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
-  UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase, LifeBuoy
+  UserPlus, Star, Cog, Wrench, ClipboardCheck, Megaphone, Briefcase, LifeBuoy
 } from '@/components/icons';
 import { ChevronDown } from '@/components/icons';
 import Link from 'next/link';
@@ -72,10 +72,10 @@ const categories: NavCategory[] = [
   },
   {
     label: 'Manufacturing',
-    icon: Factory,
+    icon: Cog,
     links: [
       { href: '/manufacturing/bom', label: 'Bill of Materials', icon: Wrench },
-      { href: '/manufacturing/production', label: 'Production Orders', icon: Factory },
+      { href: '/manufacturing/production', label: 'Production Orders', icon: Cog },
       { href: '/manufacturing/quality', label: 'Quality Control', icon: ClipboardCheck },
     ]
   },

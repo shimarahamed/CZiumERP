@@ -26,10 +26,10 @@ import { Circle } from 'lucide-react';
 import { ClipboardCheck } from 'lucide-react';
 import { ClipboardList } from 'lucide-react';
 import { Clock } from 'lucide-react';
+import { Cog } from 'lucide-react';
 import { CreditCard } from 'lucide-react';
 import { DollarSign } from 'lucide-react';
 import { Download } from 'lucide-react';
-import { Factory } from 'lucide-react';
 import { FileText } from 'lucide-react';
 import { Flag } from 'lucide-react';
 import { History } from 'lucide-react';
@@ -109,10 +109,10 @@ export {
   ClipboardCheck,
   ClipboardList,
   Clock,
+  Cog,
   CreditCard,
   DollarSign,
   Download,
-  Factory,
   FileText,
   Flag,
   History,
