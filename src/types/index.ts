@@ -231,7 +231,8 @@ export type Candidate = {
   name: string;
   email: string;
   phone: string;
-  position: string;
+  jobRequisitionId: string;
+  positionAppliedFor: string;
   status: CandidateStatus;
   applicationDate: string; // ISO string
   avatar: string;

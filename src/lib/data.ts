@@ -164,14 +164,6 @@ export const initialBudgets: Budget[] = [
   { id: 'bud-5', category: 'Capital Expenditures', period: 'Yearly', budgetedAmount: 50000, actualAmount: 25000 },
 ];
 
-export const initialCandidates: Candidate[] = [
-  { id: 'cand-1', name: 'Alicia Keys', email: 'alicia@example.com', phone: '111-222-3333', position: 'Senior Sales Associate', status: 'interviewing', applicationDate: '2025-04-10', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-2', name: 'Ben Carter', email: 'ben@example.com', phone: '222-333-4444', position: 'Barista', status: 'applied', applicationDate: '2025-04-15', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-3', name: 'Charlie Davis', email: 'charlie@example.com', phone: '333-444-5555', position: 'Barista', status: 'offer', applicationDate: '2025-04-05', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-4', name: 'Diana Evans', email: 'diana@example.com', phone: '444-555-6666', position: 'Store Manager', status: 'hired', applicationDate: '2025-03-20', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-5', name: 'Frank Green', email: 'frank@example.com', phone: '555-666-7777', position: 'Senior Sales Associate', status: 'rejected', applicationDate: '2025-04-12', avatar: 'https://placehold.co/40x40' },
-];
-
 export const initialPerformanceReviews: PerformanceReview[] = [
   { id: 'pr-1', employeeId: 'emp-3', employeeName: 'Cashier Chloe', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2025-03-30', rating: 4, comments: 'Chloe has excellent customer service skills and is always punctual. Could improve upselling techniques.' },
   { id: 'pr-2', employeeId: 'emp-4', employeeName: 'Inventory Ian', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2025-04-15', rating: 5, comments: 'Ian is extremely organized and has significantly improved inventory accuracy. A model employee.' },
@@ -214,7 +206,33 @@ export const initialJobRequisitions: JobRequisition[] = [
     description: 'Hiring baristas for our new Northpoint Plaza location.',
     requirements: 'Previous coffee shop experience preferred.',
     createdAt: '2025-03-15T00:00:00.000Z',
+  },
+   {
+    id: 'job-5',
+    title: 'Senior Sales Associate',
+    department: 'Sales',
+    status: 'open',
+    description: 'Seeking an experienced sales associate to drive customer engagement and sales.',
+    requirements: '3+ years in a retail or sales environment.',
+    createdAt: '2025-05-01T00:00:00.000Z',
+  },
+  {
+    id: 'job-6',
+    title: 'Barista',
+    department: 'Retail',
+    status: 'open',
+    description: 'Join our team of passionate baristas. Full-time and part-time positions available.',
+    requirements: 'Customer service experience is a plus.',
+    createdAt: '2025-05-01T00:00:00.000Z',
   }
+];
+
+export const initialCandidates: Candidate[] = [
+  { id: 'cand-1', name: 'Alicia Keys', email: 'alicia@example.com', phone: '111-222-3333', jobRequisitionId: 'job-5', positionAppliedFor: 'Senior Sales Associate', status: 'interviewing', applicationDate: '2025-04-10', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-2', name: 'Ben Carter', email: 'ben@example.com', phone: '222-333-4444', jobRequisitionId: 'job-6', positionAppliedFor: 'Barista', status: 'applied', applicationDate: '2025-04-15', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-3', name: 'Charlie Davis', email: 'charlie@example.com', phone: '333-444-5555', jobRequisitionId: 'job-6', positionAppliedFor: 'Barista', status: 'offer', applicationDate: '2025-04-05', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-4', name: 'Diana Evans', email: 'diana@example.com', phone: '444-555-6666', jobRequisitionId: 'job-2', positionAppliedFor: 'Product Manager', status: 'hired', applicationDate: '2025-03-20', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-5', name: 'Frank Green', email: 'frank@example.com', phone: '555-666-7777', jobRequisitionId: 'job-5', positionAppliedFor: 'Senior Sales Associate', status: 'rejected', applicationDate: '2025-04-12', avatar: 'https://placehold.co/40x40' },
 ];
 
 export const initialBillsOfMaterials: BillOfMaterials[] = [

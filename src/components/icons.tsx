@@ -37,8 +37,10 @@ import { Hourglass } from 'lucide-react';
 import { Info } from 'lucide-react';
 import { Landmark } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { LifeBuoy } from 'lucide-react';
 import { Lightbulb } from 'lucide-react';
+import { List } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import { Mail } from 'lucide-react';
@@ -118,8 +120,10 @@ export {
   Info,
   Landmark,
   LayoutDashboard,
+  LayoutGrid,
   LifeBuoy,
   Lightbulb,
+  List,
   Loader2,
   LogOut,
   Mail,
