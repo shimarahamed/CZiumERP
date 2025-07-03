@@ -3,8 +3,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions } from '@/lib/data';
 import { differenceInDays, parseISO } from 'date-fns';
 
 
@@ -109,6 +109,8 @@ interface AppContextType {
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => void;
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
+  jobRequisitions: JobRequisition[];
+  setJobRequisitions: React.Dispatch<React.SetStateAction<JobRequisition[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -144,6 +146,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
+  const [jobRequisitions, setJobRequisitions] = useState<JobRequisition[]>(initialJobRequisitions);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -187,6 +190,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setProjects(getStoredState('projects', initialProjects));
     setTasks(getStoredState('tasks', initialTasks));
     setTickets(getStoredState('tickets', initialTickets));
+    setJobRequisitions(getStoredState('jobRequisitions', initialJobRequisitions));
     setNotifications(getStoredState('notifications', []));
     
     const storedAuth = getStoredState('isAuthenticated', false);
@@ -237,6 +241,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('projects', JSON.stringify(projects)); }, [projects, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('tasks', JSON.stringify(tasks)); }, [tasks, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('tickets', JSON.stringify(tickets)); }, [tickets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('jobRequisitions', JSON.stringify(jobRequisitions)); }, [jobRequisitions, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('notifications', JSON.stringify(notifications)); }, [notifications, isHydrated]);
 
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
@@ -404,6 +409,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('projects');
     localStorage.removeItem('tasks');
     localStorage.removeItem('tickets');
+    localStorage.removeItem('jobRequisitions');
     localStorage.removeItem('companyName');
     localStorage.removeItem('companyAddress');
     localStorage.removeItem('fiscalYearStartMonth');
@@ -450,7 +456,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       projects, setProjects,
       tasks, setTasks,
       tickets, setTickets,
-      notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead
+      notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
+      jobRequisitions, setJobRequisitions
     }}>
       {children}
     </AppContext.Provider>

@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -176,6 +176,45 @@ export const initialPerformanceReviews: PerformanceReview[] = [
   { id: 'pr-1', employeeId: 'emp-3', employeeName: 'Cashier Chloe', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2025-03-30', rating: 4, comments: 'Chloe has excellent customer service skills and is always punctual. Could improve upselling techniques.' },
   { id: 'pr-2', employeeId: 'emp-4', employeeName: 'Inventory Ian', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2025-04-15', rating: 5, comments: 'Ian is extremely organized and has significantly improved inventory accuracy. A model employee.' },
   { id: 'pr-3', employeeId: 'emp-5', employeeName: 'Warehouse William', reviewerId: 'user-2', reviewerName: 'Manager Mike', date: '2025-04-25', rating: 3, comments: 'William is a hard worker but needs to be more careful with handling fragile items. Some breakages reported this quarter.' },
+];
+
+export const initialJobRequisitions: JobRequisition[] = [
+  {
+    id: 'job-1',
+    title: 'Senior Frontend Developer',
+    department: 'Engineering',
+    status: 'open',
+    description: 'Looking for an experienced Frontend Developer to build our next-generation user interfaces.',
+    requirements: '5+ years of React, TypeScript, and Next.js experience.',
+    createdAt: '2025-05-10T00:00:00.000Z',
+  },
+  {
+    id: 'job-2',
+    title: 'Product Manager',
+    department: 'Product',
+    status: 'open',
+    description: 'Seeking a talented Product Manager to lead our mobile app development.',
+    requirements: 'Experience with agile methodologies and B2C products.',
+    createdAt: '2025-05-15T00:00:00.000Z',
+  },
+  {
+    id: 'job-3',
+    title: 'Data Analyst',
+    department: 'Analytics',
+    status: 'on-hold',
+    description: 'Data Analyst to help us make sense of our sales and user data.',
+    requirements: 'Proficiency in SQL and data visualization tools like Tableau.',
+    createdAt: '2025-04-20T00:00:00.000Z',
+  },
+  {
+    id: 'job-4',
+    title: 'Barista',
+    department: 'Retail',
+    status: 'closed',
+    description: 'Hiring baristas for our new Northpoint Plaza location.',
+    requirements: 'Previous coffee shop experience preferred.',
+    createdAt: '2025-03-15T00:00:00.000Z',
+  }
 ];
 
 export const initialBillsOfMaterials: BillOfMaterials[] = [

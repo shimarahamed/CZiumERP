@@ -248,6 +248,18 @@ export type PerformanceReview = {
   comments: string;
 };
 
+export type JobStatus = 'open' | 'on-hold' | 'closed';
+
+export type JobRequisition = {
+  id: string;
+  title: string;
+  department: string;
+  status: JobStatus;
+  description?: string;
+  requirements?: string;
+  createdAt: string; // ISO String
+};
+
 export type BOMItem = {
   componentId: string; // productId of the component
   componentName: string;
