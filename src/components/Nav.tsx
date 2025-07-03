@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -9,8 +8,8 @@ import {
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
   UserPlus, Star, Factory, Wrench, ClipboardCheck, Megaphone, Briefcase, LifeBuoy
-} from 'lucide-react';
-import { ChevronDown } from 'lucide-react';
+} from '@/components/icons';
+import { ChevronDown } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -109,7 +108,7 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Support',
+    label: 'Service Desk',
     icon: LifeBuoy,
     links: [
       { href: '/support/tickets', label: 'Support Tickets', icon: LifeBuoy },
