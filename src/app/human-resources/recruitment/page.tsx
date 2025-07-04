@@ -26,6 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { format, formatDistanceToNow } from 'date-fns';
+import { Label } from '@/components/ui/label';
 
 const candidateSchema = z.object({
   name: z.string().min(1, "Name is required."),
@@ -67,7 +68,7 @@ const RatingStars = ({ rating, className }: { rating: number, className?: string
 );
 
 export default function RecruitmentPage() {
-    const { candidates, setCandidates, addActivityLog, user, jobRequisitions } = useAppContext();
+    const { candidates, setCandidates, addActivityLog, user, users, jobRequisitions } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [candidateToEdit, setCandidateToEdit] = useState<Candidate | null>(null);
@@ -394,7 +395,7 @@ export default function RecruitmentPage() {
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold">Add New Feedback</h3>
                                     <div className="space-y-2">
-                                        <FormLabel>Rating: {newFeedbackRating} / 5</FormLabel>
+                                        <Label>Rating: {newFeedbackRating} / 5</Label>
                                         <Slider
                                             min={1} max={5} step={1}
                                             value={[newFeedbackRating]}
@@ -402,7 +403,7 @@ export default function RecruitmentPage() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <FormLabel htmlFor="feedback-notes">Notes</FormLabel>
+                                        <Label htmlFor="feedback-notes">Notes</Label>
                                         <Textarea 
                                             id="feedback-notes"
                                             value={newFeedbackNotes}
