@@ -57,6 +57,7 @@ export default function RecruitmentPage() {
     const { candidates, setCandidates, addActivityLog, user, jobRequisitions } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [candidateToEdit, setCandidateToEdit] = useState<Candidate | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState<'kanban' | 'list'>('kanban');
 
@@ -89,6 +90,21 @@ export default function RecruitmentPage() {
             </div>
         );
     }
+    
+    const handleOpenForm = (candidate: Candidate | null) => {
+        setCandidateToEdit(candidate);
+        if (candidate) {
+            form.reset({
+                name: candidate.name,
+                email: candidate.email,
+                phone: candidate.phone,
+                jobRequisitionId: candidate.jobRequisitionId,
+            });
+        } else {
+            form.reset({ name: '', email: '', phone: '', jobRequisitionId: '' });
+        }
+        setIsFormOpen(true);
+    };
 
     const onSubmit = (data: CandidateFormData) => {
         const job = openJobRequisitions.find(j => j.id === data.jobRequisitionId);
@@ -97,22 +113,33 @@ export default function RecruitmentPage() {
             return;
         }
 
-        const newCandidate: Candidate = {
-            id: `cand-${Date.now()}`,
-            avatar: `https://placehold.co/40x40`,
-            status: 'applied',
-            applicationDate: new Date().toISOString(),
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            jobRequisitionId: data.jobRequisitionId,
-            positionAppliedFor: job.title,
-        };
-        setCandidates(prev => [newCandidate, ...prev]);
-        addActivityLog('Candidate Added', `Added new candidate: ${data.name} for ${job.title}`);
-        toast({ title: 'Candidate Added' });
+        if (candidateToEdit) {
+            setCandidates(prev => prev.map(c => c.id === candidateToEdit.id ? { 
+                ...c, 
+                ...data,
+                positionAppliedFor: job.title,
+            } : c));
+            addActivityLog('Candidate Updated', `Updated details for ${data.name}`);
+            toast({ title: 'Candidate Updated' });
+        } else {
+            const newCandidate: Candidate = {
+                id: `cand-${Date.now()}`,
+                avatar: `https://placehold.co/40x40`,
+                status: 'applied',
+                applicationDate: new Date().toISOString(),
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                jobRequisitionId: data.jobRequisitionId,
+                positionAppliedFor: job.title,
+            };
+            setCandidates(prev => [newCandidate, ...prev]);
+            addActivityLog('Candidate Added', `Added new candidate: ${data.name} for ${job.title}`);
+            toast({ title: 'Candidate Added' });
+        }
+        
         setIsFormOpen(false);
-        form.reset({ name: '', email: '', phone: '', jobRequisitionId: '' });
+        setCandidateToEdit(null);
     };
 
     const handleStatusChange = (candidateId: string, newStatus: CandidateStatus) => {
@@ -144,7 +171,7 @@ export default function RecruitmentPage() {
                             <Button variant={view === 'kanban' ? 'default' : 'outline'} size="icon" onClick={() => setView('kanban')}><LayoutGrid className="h-4 w-4" /></Button>
                             <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}><List className="h-4 w-4" /></Button>
                         </div>
-                        <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
+                        <Button size="sm" className="gap-1" onClick={() => handleOpenForm(null)}>
                             <PlusCircle className="h-4 w-4" /> Add Candidate
                         </Button>
                     </div>
@@ -161,7 +188,7 @@ export default function RecruitmentPage() {
                                 </div>
                                 <div className="flex-1 flex flex-col gap-4 bg-muted/50 p-4 rounded-lg min-h-[200px]">
                                     {filteredCandidates.filter(c => c.status === column.status).map(candidate => (
-                                        <Card key={candidate.id}>
+                                        <Card key={candidate.id} onClick={() => handleOpenForm(candidate)} className="cursor-pointer hover:bg-card hover:shadow-md transition-shadow">
                                             <CardHeader className="p-4">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex items-center gap-3">
@@ -175,17 +202,17 @@ export default function RecruitmentPage() {
                                                         </div>
                                                     </div>
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal /></Button></DropdownMenuTrigger>
+                                                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}><MoreHorizontal /></Button></DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuLabel>Change Status</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
                                                             {nextStatusMap[candidate.status]?.map(nextStatus => (
-                                                                <DropdownMenuItem key={nextStatus} onClick={() => handleStatusChange(candidate.id, nextStatus)}>
+                                                                <DropdownMenuItem key={nextStatus} onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, nextStatus); }}>
                                                                     Move to {nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}
                                                                 </DropdownMenuItem>
                                                             ))}
                                                             {(nextStatusMap[candidate.status]?.length ?? 0) > 0 && <DropdownMenuSeparator />}
-                                                            <DropdownMenuItem className="text-destructive" onClick={() => handleStatusChange(candidate.id, 'rejected')}>Reject</DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, 'rejected'); }}>Reject</DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </div>
@@ -215,7 +242,7 @@ export default function RecruitmentPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {filteredCandidates.map(candidate => (
-                                        <TableRow key={candidate.id}>
+                                        <TableRow key={candidate.id} onClick={() => handleOpenForm(candidate)} className="cursor-pointer">
                                             <TableCell className="font-medium">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
@@ -231,7 +258,7 @@ export default function RecruitmentPage() {
                                             <TableCell>{candidate.positionAppliedFor}</TableCell>
                                             <TableCell><Badge variant={statusVariant[candidate.status]} className="capitalize">{candidate.status.replace('-', ' ')}</Badge></TableCell>
                                             <TableCell>{new Date(candidate.applicationDate).toLocaleDateString()}</TableCell>
-                                            <TableCell>
+                                            <TableCell onClick={(e) => e.stopPropagation()}>
                                                  <DropdownMenu>
                                                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal /></Button></DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
@@ -259,7 +286,7 @@ export default function RecruitmentPage() {
 
              <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Add New Candidate</DialogTitle></DialogHeader>
+                    <DialogHeader><DialogTitle>{candidateToEdit ? 'Edit Candidate' : 'Add New Candidate'}</DialogTitle></DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
                             <FormField control={form.control} name="name" render={({ field }) => (
@@ -281,7 +308,7 @@ export default function RecruitmentPage() {
                                     </Select>
                                 <FormMessage /></FormItem>
                             )}/>
-                            <DialogFooter><Button type="submit">Add Candidate</Button></DialogFooter>
+                            <DialogFooter><Button type="submit">{candidateToEdit ? 'Save Changes' : 'Add Candidate'}</Button></DialogFooter>
                         </form>
                     </Form>
                 </DialogContent>
@@ -289,3 +316,4 @@ export default function RecruitmentPage() {
         </div>
     );
 }
+
