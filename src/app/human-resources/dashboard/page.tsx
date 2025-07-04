@@ -123,7 +123,7 @@ export default function HRDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                     <Card>
                         <CardHeader><CardTitle>Quick Links</CardTitle><CardDescription>Navigate to key HR functions.</CardDescription></CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-4">
                            <QuickLinkCard href="/human-resources/employees" title="Employee Directory" description="View and manage all employees." icon={Users} />
                            <QuickLinkCard href="/human-resources/leave-requests" title="Leave Management" description="Request leave and manage approvals." icon={Calendar} />
                            <QuickLinkCard href="/human-resources/recruitment" title="Recruitment Pipeline" description="Track candidates and manage hiring." icon={UserPlus} />
