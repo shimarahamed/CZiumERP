@@ -13,14 +13,19 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Candidate, CandidateStatus } from '@/types';
-import { MoreHorizontal, PlusCircle, Mail, Briefcase, LayoutGrid, List } from '@/components/icons';
+import type { Candidate, CandidateStatus, InterviewFeedback } from '@/types';
+import { MoreHorizontal, PlusCircle, Mail, Briefcase, LayoutGrid, List, Star } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { format, formatDistanceToNow } from 'date-fns';
 
 const candidateSchema = z.object({
   name: z.string().min(1, "Name is required."),
@@ -53,6 +58,14 @@ const statusVariant: { [key in CandidateStatus]: 'default' | 'secondary' | 'dest
     rejected: 'destructive',
 };
 
+const RatingStars = ({ rating, className }: { rating: number, className?: string }) => (
+    <div className={cn("flex items-center gap-0.5", className)}>
+        {[...Array(5)].map((_, i) => (
+            <Star key={i} className={cn("h-4 w-4", i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30')} />
+        ))}
+    </div>
+);
+
 export default function RecruitmentPage() {
     const { candidates, setCandidates, addActivityLog, user, jobRequisitions } = useAppContext();
     const { toast } = useToast();
@@ -60,6 +73,10 @@ export default function RecruitmentPage() {
     const [candidateToEdit, setCandidateToEdit] = useState<Candidate | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState<'kanban' | 'list'>('kanban');
+
+    // State for the simple feedback form
+    const [newFeedbackNotes, setNewFeedbackNotes] = useState('');
+    const [newFeedbackRating, setNewFeedbackRating] = useState(3);
 
     const form = useForm<CandidateFormData>({
         resolver: zodResolver(candidateSchema),
@@ -93,6 +110,8 @@ export default function RecruitmentPage() {
     
     const handleOpenForm = (candidate: Candidate | null) => {
         setCandidateToEdit(candidate);
+        setNewFeedbackNotes('');
+        setNewFeedbackRating(3);
         if (candidate) {
             form.reset({
                 name: candidate.name,
@@ -132,6 +151,7 @@ export default function RecruitmentPage() {
                 phone: data.phone,
                 jobRequisitionId: data.jobRequisitionId,
                 positionAppliedFor: job.title,
+                feedback: [],
             };
             setCandidates(prev => [newCandidate, ...prev]);
             addActivityLog('Candidate Added', `Added new candidate: ${data.name} for ${job.title}`);
@@ -140,6 +160,33 @@ export default function RecruitmentPage() {
         
         setIsFormOpen(false);
         setCandidateToEdit(null);
+    };
+
+    const handleAddFeedback = () => {
+        if (!newFeedbackNotes.trim() || !candidateToEdit || !user) return;
+
+        const newFeedback: InterviewFeedback = {
+            id: `fb-${Date.now()}`,
+            interviewerId: user.id,
+            interviewerName: user.name,
+            date: new Date().toISOString(),
+            notes: newFeedbackNotes,
+            rating: newFeedbackRating,
+        };
+        
+        const updatedCandidates = candidates.map(c => {
+            if (c.id === candidateToEdit.id) {
+                return { ...c, feedback: [...(c.feedback || []), newFeedback] };
+            }
+            return c;
+        });
+
+        setCandidates(updatedCandidates);
+        setCandidateToEdit(prev => prev ? { ...prev, feedback: [...(prev.feedback || []), newFeedback] } : null);
+        
+        toast({ title: "Feedback Added" });
+        setNewFeedbackNotes('');
+        setNewFeedbackRating(3);
     };
 
     const handleStatusChange = (candidateId: string, newStatus: CandidateStatus) => {
@@ -203,16 +250,16 @@ export default function RecruitmentPage() {
                                                     </div>
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}><MoreHorizontal /></Button></DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
+                                                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                                                             <DropdownMenuLabel>Change Status</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
                                                             {nextStatusMap[candidate.status]?.map(nextStatus => (
-                                                                <DropdownMenuItem key={nextStatus} onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, nextStatus); }}>
+                                                                <DropdownMenuItem key={nextStatus} onClick={() => handleStatusChange(candidate.id, nextStatus)}>
                                                                     Move to {nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}
                                                                 </DropdownMenuItem>
                                                             ))}
                                                             {(nextStatusMap[candidate.status]?.length ?? 0) > 0 && <DropdownMenuSeparator />}
-                                                            <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, 'rejected'); }}>Reject</DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-destructive" onClick={() => handleStatusChange(candidate.id, 'rejected')}>Reject</DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </div>
@@ -285,35 +332,91 @@ export default function RecruitmentPage() {
             </main>
 
              <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>{candidateToEdit ? 'Edit Candidate' : 'Add New Candidate'}</DialogTitle></DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                            <FormField control={form.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="email" render={({ field }) => (
-                                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="phone" render={({ field }) => (
-                                <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                             <FormField control={form.control} name="jobRequisitionId" render={({ field }) => (
-                                <FormItem><FormLabel>Position Applied For</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select a job" /></SelectTrigger></FormControl>
-                                        <SelectContent>
-                                            {openJobRequisitions.map(job => <SelectItem key={job.id} value={job.id}>{job.title}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                <FormMessage /></FormItem>
-                            )}/>
-                            <DialogFooter><Button type="submit">{candidateToEdit ? 'Save Changes' : 'Add Candidate'}</Button></DialogFooter>
-                        </form>
-                    </Form>
+                <DialogContent className="sm:max-w-3xl">
+                    <DialogHeader>
+                        <DialogTitle>{candidateToEdit ? 'Edit Candidate' : 'Add New Candidate'}</DialogTitle>
+                    </DialogHeader>
+                    <Tabs defaultValue="details" className="pt-4">
+                        <TabsList className="grid w-full grid-cols-2">
+                           <TabsTrigger value="details">Candidate Details</TabsTrigger>
+                           <TabsTrigger value="feedback" disabled={!candidateToEdit}>Interview Feedback</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="details">
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                                    <FormField control={form.control} name="name" render={({ field }) => (
+                                        <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="email" render={({ field }) => (
+                                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="phone" render={({ field }) => (
+                                        <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                     <FormField control={form.control} name="jobRequisitionId" render={({ field }) => (
+                                        <FormItem><FormLabel>Position Applied For</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl><SelectTrigger><SelectValue placeholder="Select a job" /></SelectTrigger></FormControl>
+                                                <SelectContent>
+                                                    {openJobRequisitions.map(job => <SelectItem key={job.id} value={job.id}>{job.title}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        <FormMessage /></FormItem>
+                                    )}/>
+                                    <DialogFooter><Button type="submit">{candidateToEdit ? 'Save Changes' : 'Add Candidate'}</Button></DialogFooter>
+                                </form>
+                            </Form>
+                        </TabsContent>
+                        <TabsContent value="feedback">
+                           <div className="py-4 space-y-6">
+                                <div>
+                                    <h3 className="text-lg font-semibold">Existing Feedback</h3>
+                                    <div className="mt-4 space-y-4 max-h-48 overflow-y-auto">
+                                        {candidateToEdit?.feedback?.length ? candidateToEdit.feedback.map(fb => (
+                                            <div key={fb.id} className="flex gap-3">
+                                                <Avatar>
+                                                    <AvatarImage src={users.find(u=>u.id === fb.interviewerId)?.avatar} data-ai-hint="person user"/>
+                                                    <AvatarFallback>{fb.interviewerName.slice(0,2)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-center">
+                                                        <p className="font-semibold">{fb.interviewerName}</p>
+                                                        <RatingStars rating={fb.rating} />
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(fb.date), { addSuffix: true })}</p>
+                                                    <p className="text-sm mt-1">{fb.notes}</p>
+                                                </div>
+                                            </div>
+                                        )) : <p className="text-sm text-muted-foreground">No feedback yet.</p>}
+                                    </div>
+                                </div>
+                                <Separator />
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold">Add New Feedback</h3>
+                                    <div className="space-y-2">
+                                        <FormLabel>Rating: {newFeedbackRating} / 5</FormLabel>
+                                        <Slider
+                                            min={1} max={5} step={1}
+                                            value={[newFeedbackRating]}
+                                            onValueChange={(values) => setNewFeedbackRating(values[0])}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <FormLabel htmlFor="feedback-notes">Notes</FormLabel>
+                                        <Textarea 
+                                            id="feedback-notes"
+                                            value={newFeedbackNotes}
+                                            onChange={(e) => setNewFeedbackNotes(e.target.value)}
+                                            placeholder={`Feedback from ${user?.name}...`}
+                                        />
+                                    </div>
+                                    <Button type="button" onClick={handleAddFeedback}>Add Feedback</Button>
+                                </div>
+                           </div>
+                        </TabsContent>
+                    </Tabs>
                 </DialogContent>
             </Dialog>
         </div>
     );
 }
-

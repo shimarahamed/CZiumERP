@@ -226,6 +226,15 @@ export type Budget = {
 
 export type CandidateStatus = 'applied' | 'interviewing' | 'offer' | 'hired' | 'rejected';
 
+export type InterviewFeedback = {
+  id: string;
+  interviewerId: string;
+  interviewerName: string;
+  date: string; // ISO String
+  notes: string;
+  rating: number; // 1-5
+};
+
 export type Candidate = {
   id: string;
   name: string;
@@ -236,6 +245,7 @@ export type Candidate = {
   status: CandidateStatus;
   applicationDate: string; // ISO string
   avatar: string;
+  feedback?: InterviewFeedback[];
 };
 
 export type PerformanceReview = {

@@ -228,11 +228,11 @@ export const initialJobRequisitions: JobRequisition[] = [
 ];
 
 export const initialCandidates: Candidate[] = [
-  { id: 'cand-1', name: 'Alicia Keys', email: 'alicia@example.com', phone: '111-222-3333', jobRequisitionId: 'job-5', positionAppliedFor: 'Senior Sales Associate', status: 'interviewing', applicationDate: '2025-04-10', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-2', name: 'Ben Carter', email: 'ben@example.com', phone: '222-333-4444', jobRequisitionId: 'job-6', positionAppliedFor: 'Barista', status: 'applied', applicationDate: '2025-04-15', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-3', name: 'Charlie Davis', email: 'charlie@example.com', phone: '333-444-5555', jobRequisitionId: 'job-6', positionAppliedFor: 'Barista', status: 'offer', applicationDate: '2025-04-05', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-4', name: 'Diana Evans', email: 'diana@example.com', phone: '444-555-6666', jobRequisitionId: 'job-2', positionAppliedFor: 'Product Manager', status: 'hired', applicationDate: '2025-03-20', avatar: 'https://placehold.co/40x40' },
-  { id: 'cand-5', name: 'Frank Green', email: 'frank@example.com', phone: '555-666-7777', jobRequisitionId: 'job-5', positionAppliedFor: 'Senior Sales Associate', status: 'rejected', applicationDate: '2025-04-12', avatar: 'https://placehold.co/40x40' },
+  { id: 'cand-1', name: 'Alicia Keys', email: 'alicia@example.com', phone: '111-222-3333', jobRequisitionId: 'job-5', positionAppliedFor: 'Senior Sales Associate', status: 'interviewing', applicationDate: '2025-04-10', avatar: 'https://placehold.co/40x40', feedback: [{ id: 'fb-1', interviewerId: 'user-2', interviewerName: 'Manager Mike', date: '2025-04-20T00:00:00.000Z', notes: 'Strong candidate with relevant experience. Good communication skills. Follow up on technical skills in next round.', rating: 4 }] },
+  { id: 'cand-2', name: 'Ben Carter', email: 'ben@example.com', phone: '222-333-4444', jobRequisitionId: 'job-6', positionAppliedFor: 'Barista', status: 'applied', applicationDate: '2025-04-15', avatar: 'https://placehold.co/40x40', feedback: [] },
+  { id: 'cand-3', name: 'Charlie Davis', email: 'charlie@example.com', phone: '333-444-5555', jobRequisitionId: 'job-6', positionAppliedFor: 'Barista', status: 'offer', applicationDate: '2025-04-05', avatar: 'https://placehold.co/40x40', feedback: [] },
+  { id: 'cand-4', name: 'Diana Evans', email: 'diana@example.com', phone: '444-555-6666', jobRequisitionId: 'job-2', positionAppliedFor: 'Product Manager', status: 'hired', applicationDate: '2025-03-20', avatar: 'https://placehold.co/40x40', feedback: [] },
+  { id: 'cand-5', name: 'Frank Green', email: 'frank@example.com', phone: '555-666-7777', jobRequisitionId: 'job-5', positionAppliedFor: 'Senior Sales Associate', status: 'rejected', applicationDate: '2025-04-12', avatar: 'https://placehold.co/40x40', feedback: [] },
 ];
 
 export const initialBillsOfMaterials: BillOfMaterials[] = [
