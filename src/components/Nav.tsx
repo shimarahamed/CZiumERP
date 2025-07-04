@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, useSidebar } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
@@ -133,6 +133,7 @@ const categories: NavCategory[] = [
 export default function Nav() {
   const pathname = usePathname();
   const { user } = useAppContext();
+  const { state, setOpen } = useSidebar();
 
   // Determine initially open categories based on the active link
   const initialOpenState = categories.reduce((acc, category) => {
@@ -150,6 +151,9 @@ export default function Nav() {
   }
 
   const toggleCategory = (label: string) => {
+    if (state === 'collapsed') {
+      setOpen(true);
+    }
     setOpenCategories(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
