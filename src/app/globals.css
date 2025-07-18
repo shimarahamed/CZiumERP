@@ -84,50 +84,19 @@
 }
 
 @media print {
+  body {
+    background: white !important;
+  }
+
   body * {
     visibility: hidden;
   }
-
-  .printable-receipt-area,
-  .printable-receipt-area *,
-  .printable-invoice-area,
-  .printable-invoice-area *,
-  .printable-po-area,
-  .printable-po-area *,
-  .printable-report-area,
-  .printable-report-area * {
+  
+  .printable-area, .printable-area * {
     visibility: visible;
   }
 
-  .printable-report-area [data-state="inactive"] {
-    display: none !important;
-  }
-  
-  .printable-report-area .non-printable {
-    display: none !important;
-  }
-
-  .printable-receipt-area {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 80mm; /* Standard thermal receipt width */
-    padding: 0.5rem;
-    margin: 0;
-    background: white !important;
-    color: black !important;
-    border: none !important;
-    box-shadow: none !important;
-    font-family: monospace;
-    font-size: 7pt;
-    line-height: 1.2;
-  }
-  
-  .printable-invoice-area,
-  .printable-po-area,
-  .printable-report-area {
+  .printable-area {
     position: absolute;
     left: 0;
     top: 0;
@@ -137,12 +106,24 @@
     margin: 0;
     background: white !important;
     color: black !important;
-    border: none !important;
-    box-shadow: none !important;
     font-size: 12pt;
   }
 
+  .printable-area.receipt {
+    max-width: 80mm; /* Standard thermal receipt width */
+    padding: 0.5rem;
+    font-family: monospace;
+    font-size: 7pt;
+    line-height: 1.2;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   .non-printable {
+    display: none !important;
+  }
+  
+  .printable-report-area [data-state="inactive"] {
     display: none !important;
   }
 }

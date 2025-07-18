@@ -15,7 +15,7 @@ interface FullPurchaseOrderProps {
 }
 
 const FullPurchaseOrder = ({ purchaseOrder }: FullPurchaseOrderProps) => {
-    const { currentStore, currencySymbol, vendors } = useAppContext();
+    const { companyName, companyAddress, currencySymbol, vendors } = useAppContext();
     
     const handlePrint = () => {
         window.print();
@@ -28,14 +28,14 @@ const FullPurchaseOrder = ({ purchaseOrder }: FullPurchaseOrderProps) => {
             <DialogHeader className="sr-only">
               <DialogTitle>Purchase Order {purchaseOrder.id}</DialogTitle>
             </DialogHeader>
-            <div className="printable-po-area bg-white text-black p-8">
+            <div className="printable-area bg-white text-black p-8">
                 <header className="flex justify-between items-start mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <StoreIcon className="h-8 w-8 text-primary" />
-                            <h1 className="text-2xl font-bold">{currentStore?.name}</h1>
+                            <h1 className="text-2xl font-bold">{companyName}</h1>
                         </div>
-                        <p className="text-muted-foreground">{currentStore?.address}</p>
+                        <p className="text-muted-foreground">{companyAddress}</p>
                     </div>
                     <div className="text-right">
                         <h2 className="text-3xl font-bold text-gray-800">PURCHASE ORDER</h2>

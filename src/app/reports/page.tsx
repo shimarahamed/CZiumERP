@@ -30,7 +30,7 @@ const ReportKPI = ({ title, value, icon: Icon }: { title: string, value: string,
 );
 
 export default function ReportsPage() {
-    const { invoices, products, currentStore, currencySymbol, user } = useAppContext();
+    const { invoices, products, currentStore, currencySymbol, companyName, user } = useAppContext();
     const [isGeneratingForecast, setIsGeneratingForecast] = useState(false);
     const [forecast, setForecast] = useState<SalesForecastOutput | null>(null);
 
@@ -165,9 +165,10 @@ export default function ReportsPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                       <div className="printable-report-area">
+                       <div className="printable-area">
                          <div className="text-center mb-6 hidden print:block">
-                            <h1 className="text-2xl font-bold">Report for {currentStore?.name}</h1>
+                            <h1 className="text-2xl font-bold">Report for {companyName}</h1>
+                            <p className="text-sm text-muted-foreground">{currentStore?.name}</p>
                             {date?.from && <p className="text-sm text-muted-foreground">{format(date.from, 'PPP')} - {date.to ? format(date.to, 'PPP') : 'Today'}</p>}
                          </div>
                          <Tabs defaultValue="sales">

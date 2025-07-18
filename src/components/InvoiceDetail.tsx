@@ -14,7 +14,7 @@ interface InvoiceDetailProps {
 }
 
 const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
-    const { currentStore, currencySymbol, customers } = useAppContext();
+    const { companyName, companyAddress, currencySymbol, customers } = useAppContext();
     const { toast } = useToast();
     
     const handlePrint = () => {
@@ -26,7 +26,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
     const taxAmount = (subtotal - discountAmount) * ((invoice.taxRate || 0) / 100);
 
     const generateTextReceipt = () => {
-      let receipt = `RECEIPT from ${currentStore?.name}\n`;
+      let receipt = `RECEIPT from ${companyName}\n`;
       receipt += `Invoice ID: ${invoice.id}\n`;
       receipt += `Date: ${new Date(invoice.date).toLocaleString()}\n\n`;
       receipt += `Items:\n`;
@@ -56,7 +56,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
           return;
       }
 
-      const subject = `Your Receipt from ${currentStore?.name} (#${invoice.id})`;
+      const subject = `Your Receipt from ${companyName} (#${invoice.id})`;
       const body = generateTextReceipt();
 
       window.location.href = `mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -67,11 +67,11 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
             <DialogHeader className="sr-only">
               <DialogTitle>Invoice Receipt for {invoice.id}</DialogTitle>
             </DialogHeader>
-            <div className="printable-receipt-area p-4">
+            <div className="printable-area receipt p-4">
                 <div className="text-center mb-4">
                     <StoreIcon className="mx-auto h-10 w-10 mb-2" />
-                    <h2 className="text-lg font-bold">{currentStore?.name}</h2>
-                    <p>{currentStore?.address}</p>
+                    <h2 className="text-lg font-bold">{companyName}</h2>
+                    <p>{companyAddress}</p>
                 </div>
                 <div className="border-t border-dashed my-2"></div>
                 <div className="flex justify-between">

@@ -16,7 +16,7 @@ interface FullInvoiceProps {
 }
 
 const FullInvoice = ({ invoice }: FullInvoiceProps) => {
-    const { currentStore, currencySymbol, customers } = useAppContext();
+    const { currentStore, currencySymbol, customers, companyName, companyAddress } = useAppContext();
     const { toast } = useToast();
     
     const handlePrint = () => {
@@ -28,7 +28,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
     const taxAmount = (subtotal - discountAmount) * ((invoice.taxRate || 0) / 100);
 
     const generateTextReceipt = () => {
-      let receipt = `INVOICE from ${currentStore?.name}\n`;
+      let receipt = `INVOICE from ${companyName}\n`;
       receipt += `Invoice ID: ${invoice.id}\n`;
       receipt += `Date: ${new Date(invoice.date).toLocaleDateString()}\n\n`;
       receipt += `Items:\n`;
@@ -58,7 +58,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
           return;
       }
 
-      const subject = `Your Invoice from ${currentStore?.name} (#${invoice.id})`;
+      const subject = `Your Invoice from ${companyName} (#${invoice.id})`;
       const body = generateTextReceipt();
 
       window.location.href = `mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -70,14 +70,14 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
             <DialogHeader className="sr-only">
               <DialogTitle>Full Invoice for {invoice.id}</DialogTitle>
             </DialogHeader>
-            <div className="printable-invoice-area bg-white text-black p-8">
+            <div className="printable-area bg-white text-black p-8">
                 <header className="flex justify-between items-start mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <StoreIcon className="h-8 w-8 text-primary" />
-                            <h1 className="text-2xl font-bold">{currentStore?.name}</h1>
+                            <h1 className="text-2xl font-bold">{companyName}</h1>
                         </div>
-                        <p className="text-muted-foreground">{currentStore?.address}</p>
+                        <p className="text-muted-foreground">{companyAddress}</p>
                     </div>
                     <div className="text-right">
                         <h2 className="text-3xl font-bold text-gray-800">INVOICE</h2>
