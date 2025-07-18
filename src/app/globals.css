@@ -91,15 +91,14 @@
 
   /* This group hides all the app UI that is not the print dialog */
   body > .group\/sidebar-wrapper,
-  body > [data-radix-portal][role="dialog"] > .fixed.inset-0.z-50.bg-black\/80 {
+  body > [data-radix-portal][role="dialog"] > .fixed.inset-0.z-50 {
     display: none;
   }
 
   /*
     This makes the print dialog take up the full screen.
-    The dialogs for invoices add a 'printable-area' class to their content.
   */
-  body > [data-radix-portal][role="dialog"] > .printable-area-container {
+  .printable-area-container {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -115,6 +114,9 @@
     margin: 0 !important;
     background: white !important;
     overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
   }
 
   .printable-area.receipt {
