@@ -88,15 +88,12 @@
     background: white !important;
   }
 
-  body * {
-    visibility: hidden;
-  }
-  
-  .printable-area, .printable-area * {
-    visibility: visible;
+  body > *:not(.printable-area) {
+    display: none;
   }
 
   .printable-area {
+    display: block !important;
     position: absolute;
     left: 0;
     top: 0;
