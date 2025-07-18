@@ -24,7 +24,7 @@ const FullPurchaseOrder = ({ purchaseOrder }: FullPurchaseOrderProps) => {
     const vendor = vendors.find(v => v.id === purchaseOrder.vendorId);
 
     return (
-        <DialogContent className="sm:max-w-4xl p-0">
+        <DialogContent className="sm:max-w-4xl p-0 printable-area-container">
             <DialogHeader className="sr-only">
               <DialogTitle>Purchase Order {purchaseOrder.id}</DialogTitle>
             </DialogHeader>

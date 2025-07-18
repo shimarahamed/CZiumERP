@@ -63,7 +63,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
     }
 
     return (
-        <DialogContent className="sm:max-w-sm p-0">
+        <DialogContent className="sm:max-w-sm p-0 printable-area-container">
             <DialogHeader className="sr-only">
               <DialogTitle>Invoice Receipt for {invoice.id}</DialogTitle>
             </DialogHeader>
