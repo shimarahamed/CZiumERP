@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useMemo, useState, useRef } from 'react';
@@ -10,7 +11,10 @@ import { Download, DollarSign, FileText, Users, ShoppingBag, BarChart3, Package,
 import { useAppContext } from '@/context/AppContext';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
-import { subDays, isWithinInterval, parseISO, format } from 'date-fns';
+import { subDays } from 'date-fns/subDays';
+import { isWithinInterval } from 'date-fns/isWithinInterval';
+import { parseISO } from 'date-fns/parseISO';
+import { format } from 'date-fns/format';
 import type { Invoice, Product } from '@/types';
 import { getSalesForecast } from '@/ai/flows/sales-forecast';
 import type { SalesForecastOutput } from '@/ai/flows/sales-forecast';

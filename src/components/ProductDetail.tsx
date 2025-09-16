@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { Product } from '@/types';
 import { useAppContext } from '@/context/AppContext';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns/format';
+import { parseISO } from 'date-fns/parseISO';
 
 interface ProductDetailProps {
     product: Product;

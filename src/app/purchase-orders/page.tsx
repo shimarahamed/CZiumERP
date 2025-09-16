@@ -5,7 +5,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, addDays } from "date-fns";
+import { format } from 'date-fns/format';
+import { addDays } from 'date-fns/addDays';
 import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle } from "@/components/icons";
 import { useSearchParams, useRouter } from 'next/navigation';
 

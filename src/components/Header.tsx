@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from 'next/navigation';
 import { ScrollArea } from './ui/scroll-area';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {

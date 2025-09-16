@@ -11,7 +11,7 @@ import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, Ale
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
-import { format, differenceInDays, parseISO, getMonth } from 'date-fns';
+import { format, differenceInDays, parseISO } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
