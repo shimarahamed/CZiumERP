@@ -439,3 +439,5 @@ export type Vehicle = {
   status: 'available' | 'in-use' | 'maintenance';
   currentDriverId?: string;
 };
+
+    
