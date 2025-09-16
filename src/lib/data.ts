@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -118,11 +118,11 @@ export const initialRfqs: RFQ[] = [
 ];
 
 export const initialAssets: Asset[] = [
-  { id: 'asset-1', name: 'Delivery Van 01', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
+  { id: 'asset-1', name: 'Delivery Van 01', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'emp-6' },
   { id: 'asset-2', name: 'Head Office Printer', category: 'Office Equipment', serialNumber: 'PRINTER-XYZ', purchaseDate: '2023-05-20', purchaseCost: 800, status: 'in-use', location: 'Head Office' },
   { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2025-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
   { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2022-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2' },
-  { id: 'asset-5', name: 'Delivery Van 02', category: 'Vehicle', serialNumber: 'VIN987654321', purchaseDate: '2024-08-01', purchaseCost: 28000, status: 'in-use', location: 'store-2' },
+  { id: 'asset-5', name: 'Delivery Van 02', category: 'Vehicle', serialNumber: 'VIN987654321', purchaseDate: '2024-08-01', purchaseCost: 28000, status: 'under-maintenance', location: 'store-2' },
 ];
 
 export const initialAttendance: AttendanceEntry[] = [];
@@ -509,4 +509,41 @@ export const initialTickets: Ticket[] = [
   },
 ];
 
-export const initialShipments: any[] = [];
+export const initialShipments: Shipment[] = [
+    {
+        id: 'SHIP-1672531200000',
+        invoiceId: 'INV-001',
+        customerId: 'cust-1',
+        customerName: 'John Doe',
+        trackingNumber: '1Z999AA10123456784',
+        status: 'delivered',
+        assignedDriverId: 'emp-6',
+        assignedDriverName: 'Driver Dan',
+        vehicleId: 'asset-1',
+        items: [{ productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }],
+        shippingAddress: '123 Shipping Rd, Anytown, USA',
+        dispatchDate: '2025-10-25T00:00:00.000Z',
+        estimatedDeliveryDate: '2025-10-27T00:00:00.000Z',
+        actualDeliveryDate: '2025-10-26T00:00:00.000Z',
+    },
+    {
+        id: 'SHIP-1672617600000',
+        invoiceId: 'INV-004',
+        customerId: 'cust-1',
+        customerName: 'John Doe',
+        trackingNumber: '1Z999AA10123456785',
+        status: 'in-transit',
+        assignedDriverId: 'emp-6',
+        assignedDriverName: 'Driver Dan',
+        vehicleId: 'asset-5',
+        items: [
+            { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
+            { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00, cost: 12.00 }
+        ],
+        shippingAddress: '123 Shipping Rd, Anytown, USA',
+        dispatchDate: '2025-10-28T00:00:00.000Z',
+        estimatedDeliveryDate: '2025-10-30T00:00:00.000Z',
+    },
+];
+
+export const initialVehicles: Asset[] = [];

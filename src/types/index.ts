@@ -409,3 +409,22 @@ export type Notification = {
   isRead: boolean;
   createdAt: string; // ISO string
 };
+
+export type ShipmentStatus = 'pending' | 'in-transit' | 'delivered' | 'cancelled';
+
+export type Shipment = {
+  id: string;
+  invoiceId: string;
+  customerId?: string;
+  customerName: string;
+  trackingNumber?: string;
+  status: ShipmentStatus;
+  assignedDriverId?: string;
+  assignedDriverName?: string;
+  vehicleId?: string; // Corresponds to an Asset ID
+  items: InvoiceItem[];
+  shippingAddress: string;
+  dispatchDate: string; // ISO String
+  estimatedDeliveryDate?: string; // ISO String
+  actualDeliveryDate?: string; // ISO String
+};
