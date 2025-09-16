@@ -2,7 +2,7 @@
 'use client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Search, Bell, ChevronsUpDown, ArrowLeft, MailOpen } from '@/components/icons';
+import { Search, Bell, ChevronsUpDown, ArrowLeft, MailOpen } from 'lucide-react';
 import { Input } from './ui/input';
 import type React from 'react';
 import { useAppContext } from '@/context/AppContext';
