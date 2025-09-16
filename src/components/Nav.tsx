@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
-  UserPlus, Star, ClipboardCheck, Megaphone, Briefcase, LifeBuoy
+  UserPlus, Star, ClipboardCheck, Megaphone, Briefcase, LifeBuoy, Truck, Route
 } from '@/components/icons';
 import { ChevronDown } from '@/components/icons';
 import Link from 'next/link';
@@ -31,8 +31,8 @@ type NavCategory = {
 
 
 const navLinksConfig: Record<Role, string[]> = {
-    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting', 'Job Requisitions', 'Candidate Pipeline', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control', 'Projects', 'Support Tickets', 'HR Dashboard'],
-    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting', 'Job Requisitions', 'Candidate Pipeline', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control', 'Projects', 'Support Tickets', 'HR Dashboard'],
+    admin: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Assets', 'Employees', 'User Accounts', 'Attendance', 'Leave Requests', 'Payroll', 'Activity Logs', 'Settings', 'General Ledger', 'Tax Management', 'Budgeting', 'Job Requisitions', 'Candidate Pipeline', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control', 'Projects', 'Support Tickets', 'HR Dashboard', 'Shipments', 'Fleet Management', 'Route Planning'],
+    manager: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling', 'Leads', 'Marketing Campaigns', 'Inventory', 'Purchase Orders', 'Request for Quotation', 'Vendors', 'Stores', 'Reports', 'Activity Logs', 'Settings', 'Assets', 'Employees', 'General Ledger', 'Tax Management', 'Budgeting', 'Job Requisitions', 'Candidate Pipeline', 'Performance', 'Bill of Materials', 'Production Orders', 'Quality Control', 'Projects', 'Support Tickets', 'HR Dashboard', 'Shipments', 'Fleet Management', 'Route Planning'],
     cashier: ['Dashboard', 'Invoices', 'Payments', 'Returns', 'Customers', 'AI Upselling'],
     'inventory-staff': ['Inventory', 'Purchase Orders', 'Vendors', 'Reports', 'Bill of Materials', 'Production Orders', 'Quality Control'],
 };
@@ -59,6 +59,15 @@ const categories: NavCategory[] = [
       { href: '/returns', label: 'Returns', icon: Undo2 },
       { href: '/upselling', label: 'AI Upselling', icon: Lightbulb },
     ],
+  },
+  {
+    label: 'Shipping & Logistics',
+    icon: Truck,
+    links: [
+        { href: '/shipping/shipments', label: 'Shipments', icon: Truck },
+        { href: '/shipping/vehicles', label: 'Fleet Management', icon: Package },
+        { href: '/shipping/routes', label: 'Route Planning', icon: Route },
+    ]
   },
   {
     label: 'Supply Chain',
