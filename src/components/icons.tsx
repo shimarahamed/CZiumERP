@@ -1,4 +1,3 @@
-
 import { AlertCircle } from 'lucide-react';
 import { AlertTriangle } from 'lucide-react';
 import { AreaChart } from 'lucide-react';
@@ -53,7 +52,6 @@ import { Phone } from 'lucide-react';
 import { Plane } from 'lucide-react';
 import { PlusCircle } from 'lucide-react';
 import { Printer } from 'lucide-react';
-import { Route } from 'lucide-react';
 import { ScanLine } from 'lucide-react';
 import { ScrollText } from 'lucide-react';
 import { Search } from 'lucide-react';
@@ -67,7 +65,6 @@ import { Store } from 'lucide-react';
 import { Target } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { TrendingUp } from 'lucide-react';
-import { Truck } from 'lucide-react';
 import { Trophy } from 'lucide-react';
 import { Undo2 } from 'lucide-react';
 import { User } from 'lucide-react';
@@ -136,7 +133,6 @@ export {
   Plane,
   PlusCircle,
   Printer,
-  Route,
   ScanLine,
   ScrollText,
   Search,
@@ -151,7 +147,6 @@ export {
   Trash2,
   TrendingUp,
   Trophy,
-  Truck,
   Undo2,
   User,
   UserCheck,

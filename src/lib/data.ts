@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -509,41 +509,4 @@ export const initialTickets: Ticket[] = [
   },
 ];
 
-export const initialShipments: Shipment[] = [
-    { 
-        id: 'SHP-1001', 
-        invoiceId: 'INV-001', 
-        trackingNumber: 'TN123456789', 
-        status: 'in-transit', 
-        customerId: 'cust-1', 
-        customerName: 'John Doe',
-        shippingAddress: '123 Shipping Rd, Anytown, USA',
-        items: [{ productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }],
-        carrier: 'Internal Fleet',
-        vehicleId: 'asset-1',
-        driverId: 'emp-6',
-        estimatedDelivery: '2025-10-28',
-        shippingCost: 25.00
-    },
-    { 
-        id: 'SHP-1002', 
-        invoiceId: 'INV-004', 
-        trackingNumber: 'TN987654321', 
-        status: 'delivered', 
-        customerId: 'cust-1', 
-        customerName: 'John Doe',
-        shippingAddress: '123 Shipping Rd, Anytown, USA',
-        items: [
-            { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
-            { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00, cost: 12.00 }
-        ],
-        carrier: 'Internal Fleet',
-        vehicleId: 'asset-5',
-        driverId: 'emp-6',
-        estimatedDelivery: '2025-10-30',
-        actualDelivery: '2025-10-29',
-        shippingCost: 15.00
-    },
-];
-
-    
+export const initialShipments: any[] = [];

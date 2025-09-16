@@ -409,35 +409,3 @@ export type Notification = {
   isRead: boolean;
   createdAt: string; // ISO string
 };
-
-// Shipping Company Specific Types
-export type ShipmentStatus = 'pending' | 'ready-for-pickup' | 'in-transit' | 'out-for-delivery' | 'delivered' | 'cancelled' | 'failed-delivery';
-
-export type Shipment = {
-  id: string; // e.g., SHP-001
-  invoiceId: string;
-  trackingNumber: string;
-  status: ShipmentStatus;
-  customerId: string;
-  customerName: string;
-  shippingAddress: string;
-  items: InvoiceItem[];
-  carrier?: string; // e.g., 'Internal Fleet', 'FedEx'
-  vehicleId?: string; // From Asset type
-  driverId?: string; // From Employee type
-  estimatedDelivery: string; // ISO Date String
-  actualDelivery?: string; // ISO Date String
-  shippingCost: number;
-};
-
-export type Vehicle = {
-  id: string; // assetId from Asset type
-  make: string;
-  model: string;
-  year: number;
-  licensePlate: string;
-  status: 'available' | 'in-use' | 'maintenance';
-  currentDriverId?: string;
-};
-
-    
