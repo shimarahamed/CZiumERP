@@ -1,6 +1,6 @@
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition } from '@/types';
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -15,6 +15,7 @@ export const initialEmployees: Employee[] = [
   { id: 'emp-3', userId: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Cashier', department: 'Sales', dateOfJoining: '2024-06-01', salary: 45000, annualLeaveAllowance: 20, leaveTaken: 2 },
   { id: 'emp-4', userId: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Inventory Specialist', department: 'Logistics', dateOfJoining: '2024-09-20', salary: 55000, annualLeaveAllowance: 20, leaveTaken: 0 },
   { id: 'emp-5', name: 'Warehouse William', email: 'william@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Warehouse Associate', department: 'Logistics', dateOfJoining: '2025-01-10', salary: 42000, annualLeaveAllowance: 18, leaveTaken: 3 },
+  { id: 'emp-6', name: 'Driver Dan', email: 'dan@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Delivery Driver', department: 'Logistics', dateOfJoining: '2024-02-20', salary: 48000, annualLeaveAllowance: 20, leaveTaken: 8 },
 ];
 
 export const initialStores: Store[] = [
@@ -117,10 +118,11 @@ export const initialRfqs: RFQ[] = [
 ];
 
 export const initialAssets: Asset[] = [
-  { id: 'asset-1', name: 'Company Van', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
+  { id: 'asset-1', name: 'Delivery Van 01', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
   { id: 'asset-2', name: 'Head Office Printer', category: 'Office Equipment', serialNumber: 'PRINTER-XYZ', purchaseDate: '2023-05-20', purchaseCost: 800, status: 'in-use', location: 'Head Office' },
   { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2025-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
   { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2022-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2' },
+  { id: 'asset-5', name: 'Delivery Van 02', category: 'Vehicle', serialNumber: 'VIN987654321', purchaseDate: '2024-08-01', purchaseCost: 28000, status: 'in-use', location: 'store-2' },
 ];
 
 export const initialAttendance: AttendanceEntry[] = [];
@@ -505,4 +507,41 @@ export const initialTickets: Ticket[] = [
     createdAt: '2025-05-10T09:00:00.000Z',
     comments: [],
   },
+];
+
+export const initialShipments: Shipment[] = [
+    { 
+        id: 'SHP-1001', 
+        invoiceId: 'INV-001', 
+        trackingNumber: 'TN123456789', 
+        status: 'in-transit', 
+        customerId: 'cust-1', 
+        customerName: 'John Doe',
+        shippingAddress: '123 Shipping Rd, Anytown, USA',
+        items: [{ productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }],
+        carrier: 'Internal Fleet',
+        vehicleId: 'asset-1',
+        driverId: 'emp-6',
+        estimatedDelivery: '2025-10-28',
+        shippingCost: 25.00
+    },
+    { 
+        id: 'SHP-1002', 
+        invoiceId: 'INV-004', 
+        trackingNumber: 'TN987654321', 
+        status: 'delivered', 
+        customerId: 'cust-1', 
+        customerName: 'John Doe',
+        shippingAddress: '123 Shipping Rd, Anytown, USA',
+        items: [
+            { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
+            { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00, cost: 12.00 }
+        ],
+        carrier: 'Internal Fleet',
+        vehicleId: 'asset-5',
+        driverId: 'emp-6',
+        estimatedDelivery: '2025-10-30',
+        actualDelivery: '2025-10-29',
+        shippingCost: 15.00
+    },
 ];
