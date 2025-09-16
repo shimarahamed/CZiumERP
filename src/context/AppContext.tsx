@@ -60,7 +60,7 @@ interface AppContextType {
   user: User | null;
   users: User[];
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
-  login: (email: string, pass: string) => boolean;
+  login: (email: string, pass: string) => User | null;
   logout: () => void;
   activityLogs: ActivityLog[];
   addActivityLog: (action: string, details: string) => void;
@@ -338,7 +338,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setActivityLogs(prevLogs => [newLog, ...prevLogs]);
   };
 
-  const login = (email: string, pass: string): boolean => {
+  const login = (email: string, pass: string): User | null => {
     const foundUser = users.find(u => u.email === email && u.password === pass);
 
     if (foundUser) {
@@ -357,9 +357,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setCurrentStore(null);
       }
 
-      return true;
+      return loggedInUser;
     }
-    return false;
+    return null;
   };
 
   const selectStore = (storeId: string) => {

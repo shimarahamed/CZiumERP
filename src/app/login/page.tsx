@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,14 +14,19 @@ import { Store } from '@/components/icons';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAppContext();
+  const { login, user } = useAppContext();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(email, password)) {
-      router.push('/select-store');
+    const loggedInUser = login(email, password);
+    if (loggedInUser) {
+      if (loggedInUser.role === 'admin' || loggedInUser.role === 'manager') {
+        router.push('/');
+      } else {
+        router.push('/select-store');
+      }
     } else {
       toast({
         variant: 'destructive',
