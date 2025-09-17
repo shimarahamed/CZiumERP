@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useMemo } from 'react';
@@ -73,7 +74,7 @@ export default function RoutePlanningPage() {
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 flex flex-col gap-6">
-                        <Card className="flex flex-col">
+                        <Card className="flex-1 flex flex-col">
                             <CardHeader>
                                 <CardTitle>Pending Shipments</CardTitle>
                                 <CardDescription>Select shipments to include in the delivery route.</CardDescription>
@@ -108,12 +109,12 @@ export default function RoutePlanningPage() {
                                 </div>
                             </ScrollArea>
                             </CardContent>
-                            <div className="p-6 pt-0">
+                            <CardFooter className="p-6 pt-0">
                                 <Button onClick={handlePlanRoute} className="w-full" disabled={selectedShipmentIds.length === 0 || isPlanning}>
                                     {isPlanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                                     {isPlanning ? 'Optimizing...' : `Plan Route for ${selectedShipmentIds.length} Shipment(s)`}
                                 </Button>
-                            </div>
+                            </CardFooter>
                         </Card>
                     </div>
                     <div className="lg:col-span-2 flex flex-col gap-6">
@@ -127,9 +128,9 @@ export default function RoutePlanningPage() {
                                     <h3 className="font-semibold mb-4 flex items-center gap-2"><Truck className="h-4 w-4"/>Delivery Stops</h3>
                                     {optimizedRoute.length > 0 ? (
                                         <ol className="list-decimal list-inside space-y-4">
-                                            {optimizedRoute.map((shipment, index) => (
+                                            {optimizedRoute.map((shipment) => (
                                                 <li key={shipment.id} className="p-3 bg-secondary rounded-md">
-                                                    <span className="font-semibold">{index + 1}. {shipment.customerName}</span>
+                                                    <span className="font-semibold">{shipment.customerName}</span>
                                                     <p className="text-sm text-muted-foreground">{shipment.shippingAddress}</p>
                                                 </li>
                                             ))}
