@@ -19,7 +19,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { PlusCircle, Ship, Search, Truck } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 
@@ -234,7 +234,7 @@ export default function ShipmentsPage() {
                                             </div>
                                              <div>
                                                 <p className="text-xs text-muted-foreground">Est. Delivery</p>
-                                                <p className="font-medium">{shipment.estimatedDeliveryDate ? format(new Date(shipment.estimatedDeliveryDate), 'MMM d, yyyy') : 'N/A'}</p>
+                                                <p className="font-medium">{shipment.estimatedDeliveryDate ? format(parseISO(shipment.estimatedDeliveryDate), 'MMM d, yyyy') : 'N/A'}</p>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -337,5 +337,3 @@ export default function ShipmentsPage() {
         </div>
     );
 }
-
-    

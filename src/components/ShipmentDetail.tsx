@@ -7,7 +7,7 @@ import { DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescripti
 import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Truck, Package, User, Map, Calendar, CheckCircle, Ship } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { Dialog } from './ui/dialog';
@@ -48,7 +48,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                     <DialogTitle className="flex items-center gap-2">
                         <Ship className="h-6 w-6"/> Shipment Details for {shipment.id}
                     </DialogTitle>
-                    <DialogDescription>Tracking Number: {shipment.trackingNumber}</DialogDescription>
+                    <DialogDescription>Tracking Number: {shipment.trackingNumber || 'N/A'}</DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-6 max-h-[70vh] overflow-y-auto px-1">
                     
@@ -81,8 +81,8 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4"/>Vehicle</p><p>{vehicle?.name || 'Unassigned'}</p></div>
                              </div>
                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4"/>Dispatched</p><p>{shipment.dispatchDate ? format(new Date(shipment.dispatchDate), 'PPP') : 'N/A'}</p></div>
-                                 {shipment.actualDeliveryDate && <div><p className="font-medium text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4"/>Delivered</p><p>{format(new Date(shipment.actualDeliveryDate), 'PPP')}</p></div>}
+                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4"/>Dispatched</p><p>{shipment.dispatchDate ? format(parseISO(shipment.dispatchDate), 'PPP') : 'N/A'}</p></div>
+                                 {shipment.actualDeliveryDate && <div><p className="font-medium text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4"/>Delivered</p><p>{format(parseISO(shipment.actualDeliveryDate), 'PPP')}</p></div>}
                              </div>
                         </div>
                         <div className="space-y-4">
@@ -111,5 +111,3 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
         </>
     );
 }
-
-    
