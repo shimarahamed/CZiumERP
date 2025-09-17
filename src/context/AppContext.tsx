@@ -120,6 +120,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 // A static object for the "All Stores" view
 const allStoresView: Store = { id: 'all', name: 'All Stores', address: 'Global Administrator View' };
 
+let notificationIdCounter = 0;
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Initialize with server-safe defaults
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
@@ -267,9 +269,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setNotifications(prev => {
         const existing = prev.find(n => n.title === notification.title && n.description === notification.description && !n.isRead);
         if (existing) return prev;
-
+        
+        notificationIdCounter++;
         const newNotification: Notification = {
-            id: `notif-${Date.now()}-${Math.random()}`,
+            id: `notif-${Date.now()}-${notificationIdCounter}`,
             createdAt: new Date().toISOString(),
             isRead: false,
             ...notification,
