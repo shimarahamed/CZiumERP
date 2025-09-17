@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { Truck, Package, User, MapPin, Calendar, CheckCircle } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { Dialog } from './ui/dialog';
 import { useState } from 'react';
@@ -75,9 +75,9 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                              <h3 className="font-semibold text-lg">Details</h3>
                              <div className="grid grid-cols-2 gap-4 text-sm">
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><User className="h-4 w-4"/>Customer</p><p>{shipment.customerName}</p></div>
-                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4"/>Address</p><p>{shipment.shippingAddress}</p></div>
+                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Map className="h-4 w-4"/>Address</p><p>{shipment.shippingAddress}</p></div>
                                  <div><p className="font-medium text-muted-foreground">Status</p><Badge variant={statusVariant[shipment.status]} className="capitalize">{shipment.status.replace('-', ' ')}</Badge></div>
-                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><UserIcon className="h-4 w-4"/>Driver</p><p>{driver?.name || 'Unassigned'}</p></div>
+                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><User className="h-4 w-4"/>Driver</p><p>{driver?.name || 'Unassigned'}</p></div>
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4"/>Vehicle</p><p>{vehicle?.name || 'Unassigned'}</p></div>
                              </div>
                              <div className="grid grid-cols-2 gap-4 text-sm">
@@ -111,4 +111,3 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
         </>
     );
 }
-
