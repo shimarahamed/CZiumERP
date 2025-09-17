@@ -16,6 +16,7 @@ import { Calendar } from 'lucide-react';
 import { CalendarPlus } from 'lucide-react';
 import { Check } from 'lucide-react';
 import { CheckCircle } from 'lucide-react';
+import { Checkbox } from 'lucide-react';
 import { CheckSquare } from 'lucide-react';
 import { ChevronDown } from 'lucide-react';
 import { ChevronLeft } from 'lucide-react';
@@ -81,6 +82,7 @@ import { UserX } from 'lucide-react';
 import { Video } from 'lucide-react';
 import { VideoOff } from 'lucide-react';
 import { X } from 'lucide-react';
+import { CheckboxIcon } from 'lucide-react';
 
 export {
   AlertCircle,
@@ -100,6 +102,7 @@ export {
   CalendarPlus,
   Check,
   CheckCircle,
+  CheckboxIcon,
   CheckSquare,
   ChevronDown,
   ChevronLeft,

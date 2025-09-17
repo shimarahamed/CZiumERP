@@ -512,6 +512,7 @@ export const initialTickets: Ticket[] = [
 export const initialShipments: Shipment[] = [
     {
         id: 'SHIP-1672531200000',
+        customId: 'CUST1-ORD1',
         invoiceId: 'INV-001',
         customerId: 'cust-1',
         customerName: 'John Doe',
@@ -550,7 +551,7 @@ export const initialShipments: Shipment[] = [
         customerId: undefined,
         customerName: 'Walk-in Customer',
         trackingNumber: '1Z999AA10123456786',
-        status: 'pending',
+        status: 'processing',
         assignedDriverId: undefined,
         assignedDriverName: undefined,
         vehicleId: undefined,
@@ -560,6 +561,41 @@ export const initialShipments: Shipment[] = [
         shippingAddress: '789 Pine Ln, Anytown, USA',
         dispatchDate: '2025-10-29T00:00:00.000Z',
         estimatedDeliveryDate: '2025-11-01T00:00:00.000Z',
+    },
+     {
+        id: 'SHIP-1672790400000',
+        invoiceId: 'INV-009',
+        customerId: 'cust-8',
+        customerName: 'Sarah Black',
+        trackingNumber: '1Z999AA10123456787',
+        status: 'out-for-delivery',
+        assignedDriverId: 'emp-6',
+        assignedDriverName: 'Driver Dan',
+        vehicleId: 'asset-1',
+        items: [
+            { productId: 'prod-13', productName: 'Barista Apron', quantity: 1, price: 30.00, cost: 18.00 },
+            { productId: 'prod-14', productName: 'Syrup Variety Pack', quantity: 1, price: 18.00, cost: 10.00 }
+        ],
+        shippingAddress: '555 Shipping Way, Anytown, USA',
+        dispatchDate: '2025-11-06T00:00:00.000Z',
+        estimatedDeliveryDate: '2025-11-07T00:00:00.000Z',
+    },
+    {
+        id: 'SHIP-1672876800000',
+        invoiceId: 'INV-011',
+        customerId: 'cust-4',
+        customerName: 'Alice Johnson',
+        trackingNumber: '1Z999AA10123456788',
+        status: 'failed',
+        assignedDriverId: 'emp-6',
+        assignedDriverName: 'Driver Dan',
+        vehicleId: 'asset-5',
+        items: [
+            { productId: 'prod-1', productName: 'Espresso Machine', quantity: 1, price: 499.99, cost: 350.00 }
+        ],
+        shippingAddress: '101 Shipping Blvd, Anytown, USA',
+        dispatchDate: '2025-11-11T00:00:00.000Z',
+        estimatedDeliveryDate: '2025-11-12T00:00:00.000Z',
     },
 ];
 

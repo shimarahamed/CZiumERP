@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
-import { Truck, Package, User, Map, Calendar, CheckCircle, Ship } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { Dialog } from './ui/dialog';
 import { useState } from 'react';
@@ -20,15 +20,20 @@ interface ShipmentDetailProps {
 
 const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     pending: 'secondary',
+    processing: 'secondary',
     'in-transit': 'default',
+    'out-for-delivery': 'default',
     delivered: 'outline',
+    failed: 'destructive',
     cancelled: 'destructive'
 };
 
 const timelineSteps = [
-    { status: 'pending', title: 'Shipment Created', description: 'The shipment has been registered in the system.'},
-    { status: 'in-transit', title: 'In Transit', description: 'The shipment is on its way to the destination.'},
-    { status: 'delivered', title: 'Delivered', description: 'The shipment has been successfully delivered.'},
+    { status: 'pending', title: 'Pending', description: 'Shipment created.'},
+    { status: 'processing', title: 'Processing', description: 'Items are being prepared.'},
+    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.'},
+    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route to destination.'},
+    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.'},
 ];
 
 export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
@@ -41,12 +46,14 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
     
     const currentStepIndex = timelineSteps.findIndex(step => step.status === shipment.status);
 
+    const isFailedOrCancelled = shipment.status === 'failed' || shipment.status === 'cancelled';
+
     return (
         <>
             <DialogContent className="sm:max-w-3xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Ship className="h-6 w-6"/> Shipment Details for {shipment.id}
+                        <Ship className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
                     </DialogTitle>
                     <DialogDescription>Tracking Number: {shipment.trackingNumber || 'N/A'}</DialogDescription>
                 </DialogHeader>
@@ -54,20 +61,30 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                     
                     <div className="mb-6">
                         <h3 className="font-semibold text-lg mb-4">Shipment Timeline</h3>
-                        <div className="flex justify-between items-center px-2">
-                            {timelineSteps.map((step, index) => (
-                                <React.Fragment key={step.status}>
-                                    <div className="flex flex-col items-center text-center">
-                                        <div className={`h-8 w-8 rounded-full flex items-center justify-center ${index <= currentStepIndex ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                                            {index <= currentStepIndex ? <CheckCircle className="h-5 w-5"/> : <div className="h-2 w-2 bg-muted-foreground rounded-full"/>}
+                         {isFailedOrCancelled ? (
+                            <div className="flex items-center justify-center p-8 bg-muted rounded-lg text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <AlertCircle className="h-10 w-10 text-destructive" />
+                                    <p className="font-bold text-lg capitalize">{shipment.status}</p>
+                                    <p className="text-sm text-muted-foreground">This shipment has been marked as {shipment.status}.</p>
+                                </div>
+                            </div>
+                         ) : (
+                            <div className="flex justify-between items-start px-2">
+                                {timelineSteps.map((step, index) => (
+                                    <React.Fragment key={step.status}>
+                                        <div className="flex flex-col items-center text-center w-24">
+                                            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${index <= currentStepIndex ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                                {index <= currentStepIndex ? <CheckCircle className="h-5 w-5"/> : <div className="h-2 w-2 bg-muted-foreground rounded-full"/>}
+                                            </div>
+                                            <p className={`mt-2 font-medium text-sm ${index <= currentStepIndex ? 'text-primary' : 'text-muted-foreground'}`}>{step.title}</p>
+                                            <p className="text-xs text-muted-foreground">{step.description}</p>
                                         </div>
-                                        <p className={`mt-2 font-medium text-sm ${index <= currentStepIndex ? 'text-primary' : 'text-muted-foreground'}`}>{step.title}</p>
-                                        <p className="text-xs text-muted-foreground">{step.description}</p>
-                                    </div>
-                                    {index < timelineSteps.length - 1 && <div className={`flex-1 h-1 mx-2 ${index < currentStepIndex ? 'bg-primary' : 'bg-muted'}`}/>}
-                                </React.Fragment>
-                            ))}
-                        </div>
+                                        {index < timelineSteps.length - 1 && <div className={`flex-1 h-1 mt-3.5 mx-2 ${index < currentStepIndex ? 'bg-primary' : 'bg-muted'}`}/>}
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                         )}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -87,7 +104,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                         </div>
                         <div className="space-y-4">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="h-5 w-5"/>Items in Shipment</h3>
-                            <div className="border rounded-md">
+                            <div className="border rounded-md max-h-48 overflow-y-auto">
                                 {shipment.items.map(item => (
                                     <div key={item.productId} className="flex justify-between items-center p-3 border-b last:border-b-0 text-sm">
                                         <span>{item.productName}</span>

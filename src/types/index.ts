@@ -410,10 +410,11 @@ export type Notification = {
   createdAt: string; // ISO string
 };
 
-export type ShipmentStatus = 'pending' | 'in-transit' | 'delivered' | 'cancelled';
+export type ShipmentStatus = 'pending' | 'processing' | 'in-transit' | 'out-for-delivery' | 'delivered' | 'failed' | 'cancelled';
 
 export type Shipment = {
   id: string;
+  customId?: string;
   invoiceId: string;
   customerId?: string;
   customerName: string;
