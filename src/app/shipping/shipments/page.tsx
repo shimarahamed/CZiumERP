@@ -478,8 +478,8 @@ export default function ShipmentsPage() {
                       {customItemsFields.map((field, index) => (
                           <div key={field.id} className="flex items-end gap-2">
                               <div className="flex-1">
-                                  <label htmlFor={`items.${index}.productName`} className="text-sm font-medium">Product</label>
-                                  <Input id={`items.${index}.productName`} value={field.productName} disabled />
+                                  <label className="text-sm font-medium">Product</label>
+                                  <Input value={field.productName} disabled />
                               </div>
                                <div className="w-24">
                                   <Label htmlFor={`items.${index}.quantity`}>Qty</Label>
@@ -487,9 +487,7 @@ export default function ShipmentsPage() {
                                       control={form.control}
                                       name={`items.${index}.quantity`}
                                       render={({ field: quantityField }) => (
-                                        <div className="w-24">
-                                            <Input type="number" id={`items.${index}.quantity`} {...quantityField} />
-                                        </div>
+                                        <Input type="number" id={`items.${index}.quantity`} {...quantityField} />
                                       )}
                                   />
                               </div>
@@ -519,4 +517,5 @@ export default function ShipmentsPage() {
             </Dialog>
         </div>
     );
-}
+
+    
