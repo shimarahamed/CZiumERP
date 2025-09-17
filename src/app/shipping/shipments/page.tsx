@@ -17,13 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { parseISO } from 'date-fns/parseISO';
+import { format, parseISO } from 'date-fns';
 import { PlusCircle, Ship, Search, MoreHorizontal, Trash2, CheckCircle, Circle, Archive, Send, Truck } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Label } from '@/components/ui/label';
 
 
 const shipmentItemSchema = z.object({
@@ -480,8 +478,8 @@ export default function ShipmentsPage() {
                       {customItemsFields.map((field, index) => (
                           <div key={field.id} className="flex items-end gap-2">
                               <div className="flex-1">
-                                  <Label>Product</Label>
-                                  <Input value={field.productName} disabled />
+                                  <label htmlFor={`items.${index}.productName`} className="text-sm font-medium">Product</label>
+                                  <Input id={`items.${index}.productName`} value={field.productName} disabled />
                               </div>
                               <FormField
                                   control={form.control}
@@ -522,3 +520,4 @@ export default function ShipmentsPage() {
         </div>
     );
 }
+
