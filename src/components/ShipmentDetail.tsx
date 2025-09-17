@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { Truck, Package, User, Map, Calendar, CheckCircle } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle, Ship } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { Dialog } from './ui/dialog';
 import { useState } from 'react';
@@ -46,7 +46,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
             <DialogContent className="sm:max-w-3xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Truck className="h-6 w-6"/> Shipment Details for {shipment.id}
+                        <Ship className="h-6 w-6"/> Shipment Details for {shipment.id}
                     </DialogTitle>
                     <DialogDescription>Tracking Number: {shipment.trackingNumber}</DialogDescription>
                 </DialogHeader>
