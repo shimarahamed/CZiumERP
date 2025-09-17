@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Users, FileText, CreditCard, BarChart3, Lightbulb, Package, 
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
-  UserPlus, Star, ClipboardCheck, Megaphone, Briefcase, LifeBuoy, Truck, Map, ChevronDown, Ship
+  UserPlus, Star, ClipboardCheck, Megaphone, Briefcase, LifeBuoy, Truck, Map, ChevronDown
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -73,7 +73,7 @@ const categories: NavCategory[] = [
     label: 'Shipping & Logistics',
     icon: Truck,
     links: [
-      { href: '/shipping/shipments', label: 'Shipment Tracking', icon: Ship },
+      { href: '/shipping/shipments', label: 'Shipment Tracking', icon: ClipboardList },
       { href: '/shipping/vehicles', label: 'Fleet Management', icon: UserCog },
       { href: '/shipping/routes', label: 'Route Planning', icon: Map },
     ],

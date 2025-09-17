@@ -60,7 +60,6 @@ import { ScrollText } from 'lucide-react';
 import { Search } from 'lucide-react';
 import { Send } from 'lucide-react';
 import { Settings } from 'lucide-react';
-import { Ship } from 'lucide-react';
 import { ShoppingBag } from 'lucide-react';
 import { ShoppingCart } from 'lucide-react';
 import { Smartphone } from 'lucide-react';
@@ -147,7 +146,6 @@ export {
   Search,
   Send,
   Settings,
-  Ship,
   ShoppingBag,
   ShoppingCart,
   Smartphone,
