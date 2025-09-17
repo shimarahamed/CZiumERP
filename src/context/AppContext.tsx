@@ -265,11 +265,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => {
     setNotifications(prev => {
-        const existing = prev.find(n => n.title === notification.title && n.description === notification.description);
+        const existing = prev.find(n => n.title === notification.title && n.description === notification.description && !n.isRead);
         if (existing) return prev;
 
         const newNotification: Notification = {
-            id: `notif-${Date.now()}`,
+            id: `notif-${Date.now()}-${Math.random()}`,
             createdAt: new Date().toISOString(),
             isRead: false,
             ...notification,
