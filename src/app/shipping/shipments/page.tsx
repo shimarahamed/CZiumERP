@@ -22,7 +22,7 @@ import { PlusCircle, Ship, Search, MoreHorizontal, Trash2, CheckCircle, Circle, 
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
+import { Label } from '@/components/ui/label';
 
 const shipmentItemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
@@ -481,18 +481,18 @@ export default function ShipmentsPage() {
                                   <label htmlFor={`items.${index}.productName`} className="text-sm font-medium">Product</label>
                                   <Input id={`items.${index}.productName`} value={field.productName} disabled />
                               </div>
-                              <FormField
-                                  control={form.control}
-                                  name={`items.${index}.quantity`}
-                                  render={({ field }) => (
-                                      <FormItem className="w-24">
-                                          <FormLabel>Qty</FormLabel>
+                               <div className="w-24">
+                                  <label htmlFor={`items.${index}.quantity`} className="text-sm font-medium">Qty</label>
+                                  <FormField
+                                      control={form.control}
+                                      name={`items.${index}.quantity`}
+                                      render={({ field }) => (
                                           <FormControl>
-                                              <Input type="number" {...field} />
+                                              <Input type="number" id={`items.${index}.quantity`} {...field} />
                                           </FormControl>
-                                      </FormItem>
-                                  )}
-                              />
+                                      )}
+                                  />
+                              </div>
                               <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4" /></Button>
                           </div>
                       ))}
@@ -520,4 +520,3 @@ export default function ShipmentsPage() {
         </div>
     );
 }
-
