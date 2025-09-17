@@ -18,7 +18,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { PlusCircle, Ship, Search, MoreHorizontal, Trash2, CheckCircle, Circle, Archive, Send, Truck } from '@/components/icons';
+import { PlusCircle, ClipboardList, Search, MoreHorizontal, Trash2, CheckCircle, Circle, Archive, Send, Truck } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -318,7 +318,7 @@ export default function ShipmentsPage() {
                                             )}
                                             <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 items-center cursor-pointer" onClick={() => setShipmentToView(shipment)}>
                                                 <div className="md:col-span-2">
-                                                    <p className="font-semibold flex items-center gap-2 text-primary"><Ship className="h-4 w-4"/> {shipment.customId || shipment.id}</p>
+                                                    <p className="font-semibold flex items-center gap-2 text-primary"><ClipboardList className="h-4 w-4"/> {shipment.customId || shipment.id}</p>
                                                     <p className="text-sm text-muted-foreground truncate">{shipment.customerName}</p>
                                                     <p className="text-xs text-muted-foreground truncate">{shipment.shippingAddress}</p>
                                                 </div>
@@ -486,10 +486,8 @@ export default function ShipmentsPage() {
                                   <FormField
                                       control={form.control}
                                       name={`items.${index}.quantity`}
-                                      render={({ field }) => (
-                                          <FormControl>
-                                              <Input type="number" id={`items.${index}.quantity`} {...field} />
-                                          </FormControl>
+                                      render={({ field: quantityField }) => (
+                                         <Input type="number" id={`items.${index}.quantity`} {...quantityField} />
                                       )}
                                   />
                               </div>
