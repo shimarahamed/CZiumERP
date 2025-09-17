@@ -4,16 +4,17 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
-import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send, Check, ClipboardList, Ticket } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle, AlertCircle, Circle, Check } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import ShippingLabel from './ShippingLabel';
+import { Ticket } from '@/components/icons';
 
 
 interface ShipmentDetailProps {
@@ -74,7 +75,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
             <DialogContent className="sm:max-w-4xl bg-card">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <ClipboardList className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
+                        <Truck className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
                     </DialogTitle>
                     <DialogDescription>Tracking Number: {shipment.trackingNumber || 'N/A'}</DialogDescription>
                 </DialogHeader>
@@ -130,7 +131,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                                 ) : index === currentStepIndex ? (
                                                     <div className="h-3 w-3 rounded-full bg-primary animate-pulse" />
                                                 ) : (
-                                                    <div className="h-3 w-3 rounded-full bg-muted-foreground/30" />
+                                                    <Circle className="h-3 w-3 text-muted-foreground/30" />
                                                 )}
                                             </div>
                                             <div className="ml-4">
