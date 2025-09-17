@@ -22,6 +22,7 @@ import { PlusCircle, Ship, Search, Truck, CheckboxIcon, Package, MoreHorizontal,
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Label } from '@/components/ui/label';
 
 
 const shipmentItemSchema = z.object({
@@ -326,7 +327,7 @@ export default function ShipmentsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-muted-foreground">Est. Delivery</p>
-                                                    <p className="font-medium">{shipment.estimatedDeliveryDate ? format(parseISO(shipment.estimatedDeliveryDate), 'MMM d, yyyy') : 'N/A'}</p>
+                                                    <p className="font-medium">{shipment.estimatedDeliveryDate ? format(parseISO(shipment.estimatedDeliveryDate), 'PPP') : 'N/A'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -512,3 +513,5 @@ export default function ShipmentsPage() {
         </div>
     );
 }
+
+    
