@@ -1,7 +1,7 @@
 
 'use client'
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,10 +15,11 @@ import { Textarea } from '@/components/ui/textarea';
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Shipment, ShipmentStatus, Invoice, InvoiceItem, Product } from '@/types';
+import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { format, parseISO } from 'date-fns';
-import { PlusCircle, Ship, Search, Truck, CheckboxIcon, Package, MoreHorizontal, Trash2 } from '@/components/icons';
+import { format } from 'date-fns';
+import { parseISO } from 'date-fns/parseISO';
+import { PlusCircle, Ship, Search, MoreHorizontal, Trash2, CheckCircle, Circle, Archive, Send, Truck } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -55,7 +56,14 @@ const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destr
     cancelled: 'destructive'
 };
 
-const timelineSteps = ['pending', 'processing', 'in-transit', 'out-for-delivery', 'delivered'];
+const timelineSteps = [
+    { status: 'pending', title: 'Pending', icon: Circle },
+    { status: 'processing', title: 'Processing', icon: Archive },
+    { status: 'in-transit', title: 'In Transit', icon: Send },
+    { status: 'out-for-delivery', title: 'Out for Delivery', icon: Truck },
+    { status: 'delivered', title: 'Delivered', icon: CheckCircle },
+];
+
 
 export default function ShipmentsPage() {
     const { 
@@ -237,31 +245,7 @@ export default function ShipmentsPage() {
                                 <CardTitle>Manage Shipments</CardTitle>
                                 <CardDescription>Track, search, and manage all your outgoing shipments.</CardDescription>
                             </div>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <div className="relative w-full md:w-auto">
-                                    <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Search by ID, customer..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full md:w-[250px] pl-8 bg-secondary"
-                                    />
-                                </div>
-                                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ShipmentStatus | 'all')}>
-                                    <SelectTrigger className="w-full sm:w-[150px]">
-                                        <SelectValue placeholder="Filter by status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Statuses</SelectItem>
-                                        <SelectItem value="pending">Pending</SelectItem>
-                                        <SelectItem value="processing">Processing</SelectItem>
-                                        <SelectItem value="in-transit">In Transit</SelectItem>
-                                        <SelectItem value="out-for-delivery">Out for Delivery</SelectItem>
-                                        <SelectItem value="delivered">Delivered</SelectItem>
-                                        <SelectItem value="failed">Failed</SelectItem>
-                                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="flex justify-end items-center gap-2 w-full md:w-auto">
                                 {canManage && (
                                 <Button size="sm" className="gap-1 flex-shrink-0" onClick={() => handleOpenForm(null)}>
                                     <PlusCircle className="h-4 w-4" /> New Shipment
@@ -269,18 +253,44 @@ export default function ShipmentsPage() {
                                 )}
                             </div>
                         </div>
-                        {selectedShipmentIds.length > 0 && (
-                            <div className="mt-4 flex items-center gap-4">
-                                <p className="text-sm text-muted-foreground">{selectedShipmentIds.length} shipment(s) selected.</p>
+                        <div className="mt-4 flex flex-col md:flex-row items-center gap-4">
+                            <div className="relative w-full md:flex-grow">
+                                <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search by ID, customer..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-8 bg-background"
+                                />
+                            </div>
+                             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ShipmentStatus | 'all')}>
+                                <SelectTrigger className="w-full md:w-[180px]">
+                                    <SelectValue placeholder="Filter by status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Statuses</SelectItem>
+                                    {timelineSteps.map(step => (
+                                        <SelectItem key={step.status} value={step.status} className="capitalize">
+                                            {step.title}
+                                        </SelectItem>
+                                    ))}
+                                    <SelectItem value="failed">Failed</SelectItem>
+                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         {selectedShipmentIds.length > 0 && canManage && (
+                            <div className="mt-4 flex items-center gap-4 p-3 bg-muted rounded-lg">
+                                <p className="text-sm font-medium">{selectedShipmentIds.length} shipment(s) selected.</p>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="outline" size="sm">Bulk Actions</Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
                                         <DropdownMenuLabel>Update Status To</DropdownMenuLabel>
-                                        {timelineSteps.map(status => (
-                                            <DropdownMenuItem key={status} onSelect={() => handleBulkUpdate(status as ShipmentStatus)}>
-                                                {status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        {timelineSteps.map(step => (
+                                            <DropdownMenuItem key={step.status} onSelect={() => handleBulkUpdate(step.status as ShipmentStatus)} className="capitalize">
+                                                {step.title}
                                             </DropdownMenuItem>
                                         ))}
                                         <DropdownMenuItem onSelect={() => handleBulkUpdate('failed')} className="text-destructive">Failed</DropdownMenuItem>
@@ -293,54 +303,53 @@ export default function ShipmentsPage() {
                     <CardContent>
                         <div className="space-y-4">
                            {filteredShipments.map(shipment => {
-                                const currentStepIndex = timelineSteps.indexOf(shipment.status);
+                                const currentStepIndex = timelineSteps.findIndex(step => step.status === shipment.status);
+                                const isFailedOrCancelled = shipment.status === 'failed' || shipment.status === 'cancelled';
                                 return (
-                                <Card key={shipment.id}>
+                                <Card key={shipment.id} className="overflow-hidden">
                                     <div className="flex items-center p-4">
-                                         <Checkbox
-                                            className="mr-4"
-                                            checked={selectedShipmentIds.includes(shipment.id)}
-                                            onCheckedChange={(checked) => {
-                                                setSelectedShipmentIds(prev => checked ? [...prev, shipment.id] : prev.filter(id => id !== shipment.id))
-                                            }}
-                                        />
-                                        <div className="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-6 gap-4 items-center flex-1 cursor-pointer" onClick={() => setShipmentToView(shipment)}>
-                                            <div className="font-medium">
-                                                <p className="flex items-center gap-2"><Ship className="h-4 w-4 text-muted-foreground"/> {shipment.customId || shipment.id}</p>
-                                                <p className="text-sm text-muted-foreground truncate">{shipment.customerName}</p>
-                                            </div>
-                                            <div className="sm:col-span-3 md:col-span-5 grid grid-cols-3 md:grid-cols-5 gap-4 items-center">
-                                                <div className="md:col-span-3">
-                                                    <div className="flex items-center">
+                                        <div className="flex items-center flex-grow gap-4">
+                                            {canManage && (
+                                                <Checkbox
+                                                    className="translate-y-1"
+                                                    checked={selectedShipmentIds.includes(shipment.id)}
+                                                    onCheckedChange={(checked) => {
+                                                        setSelectedShipmentIds(prev => checked ? [...prev, shipment.id] : prev.filter(id => id !== shipment.id))
+                                                    }}
+                                                />
+                                            )}
+                                            <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 items-center cursor-pointer" onClick={() => setShipmentToView(shipment)}>
+                                                <div className="md:col-span-2">
+                                                    <p className="font-semibold flex items-center gap-2 text-primary"><Ship className="h-4 w-4"/> {shipment.customId || shipment.id}</p>
+                                                    <p className="text-sm text-muted-foreground truncate">{shipment.customerName}</p>
+                                                    <p className="text-xs text-muted-foreground truncate">{shipment.shippingAddress}</p>
+                                                </div>
+                                                 <div className="md:col-span-3 flex flex-col justify-center">
+                                                     <div className="flex items-center w-full">
                                                         {timelineSteps.map((step, index) => (
-                                                            <React.Fragment key={step}>
-                                                                <div className={`h-2.5 w-2.5 rounded-full ${index <= currentStepIndex ? 'bg-primary' : 'bg-muted'}`} />
-                                                                {index < timelineSteps.length - 1 && <div className={`flex-1 h-0.5 ${index < currentStepIndex ? 'bg-primary' : 'bg-muted'}`} />}
+                                                            <React.Fragment key={step.status}>
+                                                                <div className={`h-2 w-2 rounded-full ${index <= currentStepIndex && !isFailedOrCancelled ? 'bg-primary' : 'bg-muted'}`} />
+                                                                {index < timelineSteps.length - 1 && <div className={`flex-1 h-0.5 ${index < currentStepIndex && !isFailedOrCancelled ? 'bg-primary' : 'bg-muted'}`} />}
                                                             </React.Fragment>
                                                         ))}
                                                     </div>
-                                                    <p className="text-xs text-muted-foreground mt-1 capitalize">{shipment.status.replace('-', ' ')}</p>
-                                                </div>
-                                                <div className="hidden md:block">
-                                                    <p className="text-xs text-muted-foreground">Driver</p>
-                                                    <p className="font-medium truncate">{shipment.assignedDriverName || 'N/A'}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground">Est. Delivery</p>
-                                                    <p className="font-medium">{shipment.estimatedDeliveryDate ? format(parseISO(shipment.estimatedDeliveryDate), 'PPP') : 'N/A'}</p>
+                                                    <Badge variant={statusVariant[shipment.status]} className="capitalize mt-2 w-fit">{shipment.status.replace('-', ' ')}</Badge>
                                                 </div>
                                             </div>
                                         </div>
-                                        {canManage && (
+                                         {canManage && (
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="ml-4"><MoreHorizontal className="h-4 w-4"/></Button>
+                                                    <Button variant="ghost" size="icon" className="ml-4 flex-shrink-0"><MoreHorizontal className="h-4 w-4"/></Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
+                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onSelect={() => setShipmentToView(shipment)}>View Details</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleOpenForm(shipment)}>Edit</DropdownMenuItem>
                                                     <DropdownMenuLabel>Update Status</DropdownMenuLabel>
-                                                    {timelineSteps.map(status => (
-                                                        <DropdownMenuItem key={status} onSelect={() => handleStatusChange(shipment.id, status as ShipmentStatus)} disabled={shipment.status === status}>
-                                                            Mark as {status.replace('-', ' ')}
+                                                    {timelineSteps.map(step => (
+                                                        <DropdownMenuItem key={step.status} onSelect={() => handleStatusChange(shipment.id, step.status as ShipmentStatus)} disabled={shipment.status === step.status} className="capitalize">
+                                                          Mark as {step.title}
                                                         </DropdownMenuItem>
                                                     ))}
                                                     <DropdownMenuItem className="text-destructive" onSelect={() => handleStatusChange(shipment.id, 'failed')}>Mark as Failed</DropdownMenuItem>
@@ -513,5 +522,3 @@ export default function ShipmentsPage() {
         </div>
     );
 }
-
-    
