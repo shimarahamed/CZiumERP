@@ -31,11 +31,11 @@ const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destr
 };
 
 const timelineSteps = [
-    { status: 'pending', title: 'Pending', description: 'Shipment created.', icon: <Circle className="h-5 w-5"/>, color: 'bg-gray-500', textColor: 'text-gray-600' },
-    { status: 'processing', title: 'Processing', description: 'Items are being prepared.', icon: <Archive className="h-5 w-5"/>, color: 'bg-amber-500', textColor: 'text-amber-600'},
-    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.', icon: <Send className="h-5 w-5"/>, color: 'bg-blue-500', textColor: 'text-blue-600'},
-    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route.', icon: <Truck className="h-5 w-5"/>, color: 'bg-indigo-500', textColor: 'text-indigo-600'},
-    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.', icon: <CheckCircle className="h-5 w-5"/>, color: 'bg-green-500', textColor: 'text-green-600'},
+    { status: 'pending', title: 'Pending', description: 'Shipment created.', icon: <Circle className="h-5 w-5"/> },
+    { status: 'processing', title: 'Processing', description: 'Items are being prepared.', icon: <Archive className="h-5 w-5"/> },
+    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.', icon: <Send className="h-5 w-5"/> },
+    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route.', icon: <Truck className="h-5 w-5"/> },
+    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.', icon: <CheckCircle className="h-5 w-5"/> },
 ];
 
 
@@ -51,9 +51,22 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
 
     const isFailedOrCancelled = shipment.status === 'failed' || shipment.status === 'cancelled';
 
+    const getTimelineDate = (status: ShipmentStatus) => {
+        if (status === 'delivered' && shipment.actualDeliveryDate) {
+            return format(parseISO(shipment.actualDeliveryDate), 'PPP');
+        }
+        if (status === 'in-transit' && shipment.dispatchDate) {
+            return format(parseISO(shipment.dispatchDate), 'PPP');
+        }
+         if (status === 'processing' && shipment.dispatchDate) {
+            return format(parseISO(shipment.dispatchDate), 'PPP');
+        }
+        return null;
+    }
+
     return (
         <>
-            <DialogContent className="sm:max-w-3xl bg-card">
+            <DialogContent className="sm:max-w-4xl bg-card">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Ship className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
@@ -62,54 +75,17 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                 </DialogHeader>
                 <div className="py-4 space-y-6 max-h-[70vh] overflow-y-auto px-1">
                     
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-lg mb-4">Shipment Timeline</h3>
-                         {isFailedOrCancelled ? (
-                            <div className="flex items-center justify-center p-8 bg-muted rounded-lg text-center">
-                                <div className="flex flex-col items-center gap-2">
-                                    <AlertCircle className="h-10 w-10 text-destructive" />
-                                    <p className="font-bold text-lg capitalize">{shipment.status}</p>
-                                    <p className="text-sm text-muted-foreground">This shipment has been marked as {shipment.status}.</p>
-                                </div>
-                            </div>
-                         ) : (
-                            <div className="flex justify-between items-start px-2">
-                                {timelineSteps.map((step, index) => (
-                                    <React.Fragment key={step.status}>
-                                        <div className="flex flex-col items-center text-center w-24">
-                                            <div className={cn(
-                                                'h-8 w-8 rounded-full flex items-center justify-center text-white',
-                                                index <= currentStepIndex ? step.color : 'bg-muted'
-                                            )}>
-                                                {index <= currentStepIndex ? step.icon : <div className="h-2 w-2 bg-muted-foreground rounded-full"/>}
-                                            </div>
-                                            <p className={cn('mt-2 font-medium text-sm', index <= currentStepIndex ? step.textColor : 'text-muted-foreground')}>{step.title}</p>
-                                            <p className="text-xs text-muted-foreground">{step.description}</p>
-                                        </div>
-                                        {index < timelineSteps.length - 1 && <div className={cn('flex-1 h-1 mt-3.5 mx-2', index < currentStepIndex ? timelineSteps[index+1].color : 'bg-muted')}/>}
-                                    </React.Fragment>
-                                ))}
-                            </div>
-                         )}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 space-y-4">
                              <h3 className="font-semibold text-lg">Details</h3>
-                             <div className="grid grid-cols-2 gap-4 text-sm">
+                             <div className="grid grid-cols-2 gap-4 text-sm bg-muted/50 p-4 rounded-lg">
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><User className="h-4 w-4"/>Customer</p><p>{shipment.customerName}</p></div>
-                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Map className="h-4 w-4"/>Address</p><p>{shipment.shippingAddress}</p></div>
+                                 <div className="col-span-2 sm:col-span-1"><p className="font-medium text-muted-foreground flex items-center gap-2"><Map className="h-4 w-4"/>Address</p><p>{shipment.shippingAddress}</p></div>
                                  <div><p className="font-medium text-muted-foreground">Status</p><Badge variant={statusVariant[shipment.status]} className="capitalize">{shipment.status.replace('-', ' ')}</Badge></div>
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><User className="h-4 w-4"/>Driver</p><p>{driver?.name || 'Unassigned'}</p></div>
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4"/>Vehicle</p><p>{vehicle?.name || 'Unassigned'}</p></div>
                              </div>
-                             <div className="grid grid-cols-2 gap-4 text-sm">
-                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4"/>Dispatched</p><p>{shipment.dispatchDate ? format(parseISO(shipment.dispatchDate), 'PPP') : 'N/A'}</p></div>
-                                 {shipment.actualDeliveryDate && <div><p className="font-medium text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4"/>Delivered</p><p>{format(parseISO(shipment.actualDeliveryDate), 'PPP')}</p></div>}
-                             </div>
-                        </div>
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="h-5 w-5"/>Items in Shipment</h3>
+                             <h3 className="font-semibold text-lg flex items-center gap-2 pt-4"><Package className="h-5 w-5"/>Items in Shipment</h3>
                             <div className="border rounded-md max-h-48 overflow-y-auto">
                                 {shipment.items.map(item => (
                                     <div key={item.productId} className="flex justify-between items-center p-3 border-b last:border-b-0 text-sm">
@@ -118,6 +94,51 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                     </div>
                                 ))}
                             </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="font-semibold text-lg mb-4">Shipment Timeline</h3>
+                            {isFailedOrCancelled ? (
+                                <div className="flex items-center justify-center p-8 bg-destructive/10 rounded-lg text-center border border-destructive/20">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <AlertCircle className="h-10 w-10 text-destructive" />
+                                        <p className="font-bold text-lg capitalize text-destructive">{shipment.status}</p>
+                                        <p className="text-sm text-muted-foreground">This shipment has been marked as {shipment.status}.</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="relative pl-4">
+                                    {timelineSteps.map((step, index) => (
+                                        <div key={step.status} className="relative flex items-start pb-8">
+                                            {index < timelineSteps.length - 1 && (
+                                                <div className={cn(
+                                                    "absolute left-[11px] top-[1.2rem] h-full w-0.5",
+                                                    index < currentStepIndex ? "bg-primary" : "bg-muted-foreground/30"
+                                                )} />
+                                            )}
+                                            <div className={cn(
+                                                "relative z-10 flex h-6 w-6 items-center justify-center rounded-full",
+                                                index <= currentStepIndex ? "bg-primary" : "bg-muted-foreground/30"
+                                            )}>
+                                                {index < currentStepIndex ? (
+                                                    <CheckCircle className="h-4 w-4 text-primary-foreground" />
+                                                ) : (
+                                                    <div className="h-2 w-2 rounded-full bg-background" />
+                                                )}
+                                            </div>
+                                            <div className="ml-4">
+                                                <p className={cn(
+                                                    "font-semibold",
+                                                    index <= currentStepIndex ? "text-foreground" : "text-muted-foreground"
+                                                )}>
+                                                    {step.title}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">{getTimelineDate(step.status as ShipmentStatus) || step.description}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
