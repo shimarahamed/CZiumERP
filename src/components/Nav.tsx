@@ -47,7 +47,7 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Sales &amp; Customers',
+    label: 'Sales & Customers',
     icon: ShoppingCart,
     links: [
       { href: '/campaigns', label: 'Marketing Campaigns', icon: Megaphone },
@@ -70,7 +70,7 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Shipping &amp; Logistics',
+    label: 'Shipping & Logistics',
     icon: Truck,
     links: [
         { href: '/shipping/shipments', label: 'Shipment Tracking', icon: Truck },
