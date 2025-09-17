@@ -540,9 +540,26 @@ export const initialShipments: Shipment[] = [
             { productId: 'prod-4', productName: 'Milk Frother', quantity: 1, price: 75.00, cost: 45.00 },
             { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 5, price: 22.00, cost: 12.00 }
         ],
-        shippingAddress: '123 Shipping Rd, Anytown, USA',
+        shippingAddress: '456 Oak Ave, Anytown, USA',
         dispatchDate: '2025-10-28T00:00:00.000Z',
         estimatedDeliveryDate: '2025-10-30T00:00:00.000Z',
+    },
+     {
+        id: 'SHIP-1672704000000',
+        invoiceId: 'INV-006',
+        customerId: undefined,
+        customerName: 'Walk-in Customer',
+        trackingNumber: '1Z999AA10123456786',
+        status: 'pending',
+        assignedDriverId: undefined,
+        assignedDriverName: undefined,
+        vehicleId: undefined,
+        items: [
+            { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00, cost: 12.00 }
+        ],
+        shippingAddress: '789 Pine Ln, Anytown, USA',
+        dispatchDate: '2025-10-29T00:00:00.000Z',
+        estimatedDeliveryDate: '2025-11-01T00:00:00.000Z',
     },
 ];
 

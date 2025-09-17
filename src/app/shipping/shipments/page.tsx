@@ -7,8 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -17,10 +16,10 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
-import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, Truck, Package, User as UserIcon, Calendar, Info, FileText } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Textarea } from '@/components/ui/textarea';
+import { ShipmentDetail } from '@/components/ShipmentDetail';
 
 const shipmentSchema = z.object({
   invoiceId: z.string().min(1, "An invoice must be selected."),
@@ -42,8 +41,10 @@ export default function ShipmentsPage() {
     const { shipments, setShipments, invoices, employees, assets, addActivityLog, user } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [viewingShipment, setViewingShipment] = useState<Shipment | null>(null);
     const [shipmentToEdit, setShipmentToEdit] = useState<Shipment | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState<ShipmentStatus | 'all'>('all');
 
     const form = useForm<ShipmentFormData>({
         resolver: zodResolver(shipmentSchema),
@@ -51,6 +52,7 @@ export default function ShipmentsPage() {
     
     const selectedInvoiceId = form.watch('invoiceId');
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+    const hasExistingShipment = useMemo(() => shipments.some(s => s.invoiceId === selectedInvoiceId), [shipments, selectedInvoiceId]);
 
     useEffect(() => {
         const invoice = invoices.find(inv => inv.id === selectedInvoiceId);
@@ -60,21 +62,26 @@ export default function ShipmentsPage() {
     const canManage = user?.role === 'admin' || user?.role === 'manager';
 
     const paidInvoices = useMemo(() => 
-        invoices.filter(inv => inv.status === 'paid' && !shipments.some(s => s.invoiceId === inv.id)), 
-    [invoices, shipments]);
+        invoices.filter(inv => inv.status === 'paid'),
+    [invoices]);
     
     const drivers = useMemo(() => employees.filter(e => e.jobTitle?.toLowerCase().includes('driver')), [employees]);
     const vehicles = useMemo(() => assets.filter(a => a.category.toLowerCase() === 'vehicle' && a.status === 'in-use'), [assets]);
 
     const filteredShipments = useMemo(() => {
-        if (!searchTerm) return shipments;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return shipments.filter(shipment =>
-            shipment.id.toLowerCase().includes(lowercasedFilter) ||
-            (shipment.trackingNumber && shipment.trackingNumber.toLowerCase().includes(lowercasedFilter)) ||
-            shipment.customerName.toLowerCase().includes(lowercasedFilter)
-        );
-    }, [shipments, searchTerm]);
+        return shipments.filter(shipment => {
+            if (statusFilter !== 'all' && shipment.status !== statusFilter) return false;
+
+            if (!searchTerm) return true;
+            const lowercasedFilter = searchTerm.toLowerCase();
+            return (
+                shipment.id.toLowerCase().includes(lowercasedFilter) ||
+                (shipment.trackingNumber && shipment.trackingNumber.toLowerCase().includes(lowercasedFilter)) ||
+                shipment.customerName.toLowerCase().includes(lowercasedFilter) ||
+                shipment.shippingAddress.toLowerCase().includes(lowercasedFilter)
+            );
+        });
+    }, [shipments, searchTerm, statusFilter]);
 
     const handleOpenForm = (shipment: Shipment | null = null) => {
         setShipmentToEdit(shipment);
@@ -92,9 +99,17 @@ export default function ShipmentsPage() {
     };
 
     const handleStatusChange = (shipmentId: string, status: ShipmentStatus) => {
-        setShipments(prev => prev.map(s => s.id === shipmentId ? { ...s, status } : s));
+        const shipment = shipments.find(s => s.id === shipmentId);
+        if (!shipment) return;
+        
+        const updates: Partial<Shipment> = { status };
+        if (status === 'delivered') {
+            updates.actualDeliveryDate = new Date().toISOString();
+        }
+
+        setShipments(prev => prev.map(s => s.id === shipmentId ? { ...s, ...updates } : s));
         toast({ title: "Shipment Status Updated" });
-        addActivityLog('Shipment Status Updated', `Shipment ${shipmentId} moved to ${status}`);
+        addActivityLog('Shipment Status Updated', `Shipment #${shipmentId} for ${shipment.customerName} set to ${status}.`);
     };
 
     const onSubmit = (data: ShipmentFormData) => {
@@ -148,13 +163,25 @@ export default function ShipmentsPage() {
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                                 <Input
-                                    placeholder="Search by ID, tracking, or customer..."
+                                    placeholder="Search shipments..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                                    className="w-full md:w-auto md:min-w-[200px] bg-secondary"
                                 />
+                                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as ShipmentStatus | 'all')}>
+                                    <SelectTrigger className="w-full sm:w-auto">
+                                        <SelectValue placeholder="Filter by status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Statuses</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="in-transit">In-Transit</SelectItem>
+                                        <SelectItem value="delivered">Delivered</SelectItem>
+                                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 {canManage && (
-                                <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                                <Button size="sm" className="gap-1 flex-shrink-0" onClick={() => handleOpenForm()}>
                                     <PlusCircle className="h-4 w-4" /> New Shipment
                                 </Button>
                                 )}
@@ -162,42 +189,59 @@ export default function ShipmentsPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Shipment ID</TableHead>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Driver</TableHead>
-                                    <TableHead>Tracking #</TableHead>
-                                    <TableHead><span className="sr-only">Actions</span></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredShipments.map(shipment => (
-                                    <TableRow key={shipment.id}>
-                                        <TableCell>{shipment.id}</TableCell>
-                                        <TableCell>{shipment.customerName}</TableCell>
-                                        <TableCell><Badge variant={statusVariant[shipment.status]} className="capitalize">{shipment.status.replace('-', ' ')}</Badge></TableCell>
-                                        <TableCell>{shipment.assignedDriverName || 'Unassigned'}</TableCell>
-                                        <TableCell>{shipment.trackingNumber}</TableCell>
-                                        <TableCell>
+                       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                           {filteredShipments.map(shipment => {
+                               const driver = employees.find(e => e.id === shipment.assignedDriverId);
+                               const vehicle = assets.find(a => a.id === shipment.vehicleId);
+                               return (
+                                   <Card key={shipment.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setViewingShipment(shipment)}>
+                                       <CardHeader className="pb-4">
+                                           <div className="flex justify-between items-start">
+                                               <div>
+                                                   <CardTitle className="text-lg flex items-center gap-2">
+                                                        <Truck className="h-5 w-5 text-muted-foreground"/> {shipment.id}
+                                                   </CardTitle>
+                                                   <CardDescription>{shipment.trackingNumber}</CardDescription>
+                                               </div>
+                                               <Badge variant={statusVariant[shipment.status]} className="capitalize">{shipment.status.replace('-', ' ')}</Badge>
+                                           </div>
+                                       </CardHeader>
+                                       <CardContent className="space-y-3 text-sm">
+                                            <div className="flex items-start gap-3">
+                                                <UserIcon className="h-4 w-4 mt-0.5 text-muted-foreground"/>
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold">{shipment.customerName}</span>
+                                                    <span className="text-muted-foreground text-xs">{shipment.shippingAddress}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <Package className="h-4 w-4 text-muted-foreground"/>
+                                                <span>{shipment.items.length} item(s)</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <Calendar className="h-4 w-4 text-muted-foreground"/>
+                                                <span>Dispatched: {format(new Date(shipment.dispatchDate), 'MMM d, yyyy')}</span>
+                                            </div>
+                                       </CardContent>
+                                       <CardFooter className="flex justify-end p-4 pt-0">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" disabled={!canManage}><MoreHorizontal/></Button>
+                                                    <Button variant="ghost" size="icon" disabled={!canManage} onClick={(e) => e.stopPropagation()}><MoreHorizontal/></Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(shipment)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(shipment.id, 'in-transit')}>Mark In-Transit</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(shipment.id, 'delivered')}>Mark Delivered</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleStatusChange(shipment.id, 'cancelled')}>Cancel</DropdownMenuItem>
+                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenForm(shipment); }}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'in-transit'); }}>Mark In-Transit</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'delivered'); }}>Mark Delivered</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'cancelled'); }}>Cancel</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                       </CardFooter>
+                                   </Card>
+                               )
+                           })}
+                       </div>
                     </CardContent>
                 </Card>
             </main>
@@ -217,16 +261,21 @@ export default function ShipmentsPage() {
                                     <Select onValueChange={field.onChange} value={field.value} disabled={!!shipmentToEdit}>
                                         <FormControl><SelectTrigger><SelectValue placeholder="Select a paid invoice..." /></SelectTrigger></FormControl>
                                         <SelectContent>
-                                            {shipmentToEdit && <SelectItem value={shipmentToEdit.invoiceId}>INV-{shipmentToEdit.invoiceId}</SelectItem>}
+                                            {shipmentToEdit && <SelectItem value={shipmentToEdit.invoiceId}>{shipmentToEdit.invoiceId} - {shipmentToEdit.customerName}</SelectItem>}
                                             {paidInvoices.map(inv => <SelectItem key={inv.id} value={inv.id}>{inv.id} - {inv.customerName}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    {hasExistingShipment && !shipmentToEdit && (
+                                        <FormDescription className="flex items-center gap-2 text-amber-600">
+                                            <Info className="h-4 w-4" /> A shipment already exists for this invoice. Creating a new one will not replace it.
+                                        </FormDescription>
+                                    )}
                                 <FormMessage /></FormItem>
                             )}/>
                             {selectedInvoice && (
                                 <Card>
-                                    <CardHeader><CardTitle>Shipment Details from {selectedInvoice.id}</CardTitle></CardHeader>
-                                    <CardContent className="text-sm space-y-2">
+                                    <CardHeader className="p-4"><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" /> Details from Invoice {selectedInvoice.id}</CardTitle></CardHeader>
+                                    <CardContent className="text-sm space-y-2 p-4 pt-0">
                                         <p><span className="font-semibold">Customer:</span> {selectedInvoice.customerName}</p>
                                         <p><span className="font-semibold">Items:</span> {selectedInvoice.items.map(i => `${i.productName} (x${i.quantity})`).join(', ')}</p>
                                     </CardContent>
@@ -258,6 +307,11 @@ export default function ShipmentsPage() {
                     </Form>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={!!viewingShipment} onOpenChange={(open) => !open && setViewingShipment(null)}>
+                {viewingShipment && <ShipmentDetail shipment={viewingShipment} onClose={() => setViewingShipment(null)} />}
+            </Dialog>
+
         </div>
     );
 }
