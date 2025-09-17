@@ -18,7 +18,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { PlusCircle, ClipboardList, Search, MoreHorizontal, Trash2, CheckCircle, Circle, Archive, Send, Truck } from '@/components/icons';
+import { PlusCircle, Search, MoreHorizontal, Trash2 } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -55,11 +55,11 @@ const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destr
 };
 
 const timelineSteps = [
-    { status: 'pending', title: 'Pending', icon: Circle },
-    { status: 'processing', title: 'Processing', icon: Archive },
-    { status: 'in-transit', title: 'In Transit', icon: Send },
-    { status: 'out-for-delivery', title: 'Out for Delivery', icon: Truck },
-    { status: 'delivered', title: 'Delivered', icon: CheckCircle },
+    { status: 'pending', title: 'Pending' },
+    { status: 'processing', title: 'Processing' },
+    { status: 'in-transit', title: 'In Transit' },
+    { status: 'out-for-delivery', title: 'Out for Delivery' },
+    { status: 'delivered', title: 'Delivered' },
 ];
 
 
@@ -482,7 +482,7 @@ export default function ShipmentsPage() {
                                   <Input id={`items.${index}.productName`} value={field.productName} disabled />
                               </div>
                                <div className="w-24">
-                                  <label htmlFor={`items.${index}.quantity`} className="text-sm font-medium">Qty</label>
+                                  <Label htmlFor={`items.${index}.quantity`}>Qty</Label>
                                   <FormField
                                       control={form.control}
                                       name={`items.${index}.quantity`}
