@@ -9,10 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
-import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send, Check } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send, Check, ClipboardList, Ticket } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import ShippingLabel from './ShippingLabel';
 
 
 interface ShipmentDetailProps {
@@ -31,17 +32,18 @@ const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destr
 };
 
 const timelineSteps = [
-    { status: 'pending', title: 'Pending', description: 'Shipment created.', icon: <Circle className="h-5 w-5"/> },
-    { status: 'processing', title: 'Processing', description: 'Items are being prepared.', icon: <Archive className="h-5 w-5"/> },
-    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.', icon: <Send className="h-5 w-5"/> },
-    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route.', icon: <Truck className="h-5 w-5"/> },
-    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.', icon: <CheckCircle className="h-5 w-5"/> },
+    { status: 'pending', title: 'Pending', description: 'Shipment created.' },
+    { status: 'processing', title: 'Processing', description: 'Items are being prepared.' },
+    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.' },
+    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route.' },
+    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.' },
 ];
 
 
 export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
     const { employees, assets, invoices } = useAppContext();
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+    const [isLabelOpen, setIsLabelOpen] = useState(false);
     
     const driver = employees.find(e => e.id === shipment.assignedDriverId);
     const vehicle = assets.find(a => a.id === shipment.vehicleId);
@@ -72,7 +74,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
             <DialogContent className="sm:max-w-4xl bg-card">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Ship className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
+                        <ClipboardList className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
                     </DialogTitle>
                     <DialogDescription>Tracking Number: {shipment.trackingNumber || 'N/A'}</DialogDescription>
                 </DialogHeader>
@@ -119,16 +121,16 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                                     index < currentStepIndex ? "bg-primary" : "bg-muted-foreground/30"
                                                 )} />
                                             )}
-                                            <div className={cn(
+                                             <div className={cn(
                                                 "relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-card",
                                                 index <= currentStepIndex ? "border-2 border-primary" : "border-2 border-muted-foreground/30"
                                             )}>
                                                 {index < currentStepIndex ? (
                                                     <Check className="h-4 w-4 text-primary" />
                                                 ) : index === currentStepIndex ? (
-                                                    <div className="h-4 w-4 rounded-full bg-primary animate-pulse" />
+                                                    <div className="h-3 w-3 rounded-full bg-primary animate-pulse" />
                                                 ) : (
-                                                    <Circle className="h-4 w-4 text-muted-foreground/30" />
+                                                    <div className="h-3 w-3 rounded-full bg-muted-foreground/30" />
                                                 )}
                                             </div>
                                             <div className="ml-4">
@@ -147,8 +149,12 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                         </div>
                     </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="gap-2 sm:justify-end">
                     {invoice && <Button variant="outline" onClick={() => setIsInvoiceOpen(true)}>View Linked Invoice</Button>}
+                    <Button variant="outline" onClick={() => setIsLabelOpen(true)}>
+                        <Ticket className="mr-2 h-4 w-4" />
+                        Generate Shipping Label
+                    </Button>
                     <Button onClick={onClose}>Close</Button>
                 </DialogFooter>
             </DialogContent>
@@ -157,6 +163,9 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                     <FullInvoice invoice={invoice}/>
                 </Dialog>
             )}
+             <Dialog open={isLabelOpen} onOpenChange={setIsLabelOpen}>
+                <ShippingLabel shipment={shipment} />
+            </Dialog>
         </>
     );
 }

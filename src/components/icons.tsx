@@ -68,6 +68,7 @@ import { Sparkles } from 'lucide-react';
 import { Star } from 'lucide-react';
 import { Store } from 'lucide-react';
 import { Target } from 'lucide-react';
+import { Ticket } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { TrendingUp } from 'lucide-react';
 import { Trophy } from 'lucide-react';
@@ -154,6 +155,7 @@ export {
   Star,
   Store,
   Target,
+  Ticket,
   Trash2,
   TrendingUp,
   Trophy,
