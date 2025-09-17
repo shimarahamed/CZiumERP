@@ -70,15 +70,6 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Shipping & Logistics',
-    icon: Truck,
-    links: [
-        { href: '/shipping/shipments', label: 'Shipment Tracking', icon: Truck },
-        { href: '/shipping/vehicles', label: 'Fleet Management', icon: Building2 },
-        { href: '/shipping/routes', label: 'Route Planning', icon: Map },
-    ],
-  },
-  {
     label: 'Manufacturing',
     icon: Settings,
     links: [
