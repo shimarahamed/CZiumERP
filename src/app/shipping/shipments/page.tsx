@@ -18,7 +18,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { PlusCircle, Search, MoreHorizontal, Trash2 } from '@/components/icons';
+import { PlusCircle, Search, MoreHorizontal, Trash2, ClipboardList } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -487,7 +487,9 @@ export default function ShipmentsPage() {
                                       control={form.control}
                                       name={`items.${index}.quantity`}
                                       render={({ field: quantityField }) => (
-                                         <Input type="number" id={`items.${index}.quantity`} {...quantityField} />
+                                        <div className="w-24">
+                                            <Input type="number" id={`items.${index}.quantity`} {...quantityField} />
+                                        </div>
                                       )}
                                   />
                               </div>
