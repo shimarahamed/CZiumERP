@@ -121,7 +121,7 @@ export default function ShipmentsPage() {
                     shipment.id.toLowerCase().includes(lowercasedFilter) ||
                     shipment.customId?.toLowerCase().includes(lowercasedFilter) ||
                     shipment.trackingNumber?.toLowerCase().includes(lowercasedFilter) ||
-                    shipment.customerName.toLowerCase().includes(lowercasedFilter) ||
+                    (shipment.customerName && shipment.customerName.toLowerCase().includes(lowercasedFilter)) ||
                     shipment.invoiceId.toLowerCase().includes(lowercasedFilter)
                 );
             })
