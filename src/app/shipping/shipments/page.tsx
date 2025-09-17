@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -220,7 +220,7 @@ export default function ShipmentsPage() {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <Calendar className="h-4 w-4 text-muted-foreground"/>
-                                                <span>Dispatched: {format(new Date(shipment.dispatchDate), 'MMM d, yyyy')}</span>
+                                                <span>Dispatched: {format(new Date(shipment.dispatchDate), 'PPP')}</span>
                                             </div>
                                        </CardContent>
                                        <CardFooter className="flex justify-end p-4 pt-0">

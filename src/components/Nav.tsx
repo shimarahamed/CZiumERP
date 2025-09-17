@@ -9,7 +9,7 @@ import {
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
   UserPlus, Star, ClipboardCheck, Megaphone, Briefcase, LifeBuoy, Truck, Map, ChevronDown
-} from 'lucide-react';
+} from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role } from '@/types';
@@ -47,7 +47,7 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Sales & Customers',
+    label: 'Sales &amp; Customers',
     icon: ShoppingCart,
     links: [
       { href: '/campaigns', label: 'Marketing Campaigns', icon: Megaphone },
@@ -70,7 +70,7 @@ const categories: NavCategory[] = [
     ],
   },
   {
-    label: 'Shipping & Logistics',
+    label: 'Shipping &amp; Logistics',
     icon: Truck,
     links: [
         { href: '/shipping/shipments', label: 'Shipment Tracking', icon: Truck },
