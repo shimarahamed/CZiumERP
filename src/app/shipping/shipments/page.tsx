@@ -59,7 +59,7 @@ const timelineSteps = ['pending', 'processing', 'in-transit', 'out-for-delivery'
 export default function ShipmentsPage() {
     const { 
         shipments, setShipments, 
-        invoices, employees, assets, products,
+        invoices, employees, assets, products, customers,
         addActivityLog, user: currentUser
     } = useAppContext();
     const { toast } = useToast();
@@ -142,7 +142,7 @@ export default function ShipmentsPage() {
     const handleInvoiceChange = (invoiceId: string) => {
         const invoice = invoices.find(inv => inv.id === invoiceId);
         if(invoice) {
-          const customer = useAppContext().customers.find(c => c.id === invoice.customerId);
+          const customer = customers.find(c => c.id === invoice.customerId);
           form.setValue('shippingAddress', customer?.shippingAddress || '');
           form.setValue('items', invoice.items);
         } else {
