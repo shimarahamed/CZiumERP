@@ -81,7 +81,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                  <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4"/>Vehicle</p><p>{vehicle?.name || 'Unassigned'}</p></div>
                              </div>
                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4"/>Dispatched</p><p>{format(new Date(shipment.dispatchDate), 'PPP')}</p></div>
+                                 <div><p className="font-medium text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4"/>Dispatched</p><p>{shipment.dispatchDate ? format(new Date(shipment.dispatchDate), 'PPP') : 'N/A'}</p></div>
                                  {shipment.actualDeliveryDate && <div><p className="font-medium text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4"/>Delivered</p><p>{format(new Date(shipment.actualDeliveryDate), 'PPP')}</p></div>}
                              </div>
                         </div>
@@ -111,3 +111,5 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
         </>
     );
 }
+
+    
