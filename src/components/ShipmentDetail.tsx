@@ -4,16 +4,15 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
-import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send, Check } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Dialog } from '@/components/ui/dialog';
 
 
 interface ShipmentDetailProps {
@@ -121,15 +120,15 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                                 )} />
                                             )}
                                             <div className={cn(
-                                                "relative z-10 flex h-6 w-6 items-center justify-center rounded-full",
-                                                index < currentStepIndex ? "border-2 border-primary" : "bg-muted-foreground/30"
+                                                "relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-card",
+                                                index <= currentStepIndex ? "border-2 border-primary" : "border-2 border-muted-foreground/30"
                                             )}>
                                                 {index < currentStepIndex ? (
-                                                    <CheckCircle className="h-4 w-4 text-primary" />
+                                                    <Check className="h-4 w-4 text-primary" />
                                                 ) : index === currentStepIndex ? (
                                                     <div className="h-4 w-4 rounded-full bg-primary animate-pulse" />
                                                 ) : (
-                                                    <div className="h-2 w-2 rounded-full bg-background" />
+                                                    <Circle className="h-4 w-4 text-muted-foreground/30" />
                                                 )}
                                             </div>
                                             <div className="ml-4">
