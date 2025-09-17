@@ -7,13 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppContext } from "@/context/AppContext";
 import type { Shipment } from '@/types';
-import { Map, List, Truck, CheckCircle } from '@/components/icons';
+import { Map, List, Truck, CheckCircle, Sparkles, Loader2 } from '@/components/icons';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getOptimizedRoute } from '@/ai/flows/route-optimization';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RoutePlanningPage() {
-    const { shipments } = useAppContext();
+    const { shipments, companyAddress } = useAppContext();
+    const { toast } = useToast();
     const [selectedShipmentIds, setSelectedShipmentIds] = useState<string[]>([]);
     const [optimizedRoute, setOptimizedRoute] = useState<Shipment[]>([]);
+    const [routeSummary, setRouteSummary] = useState<string | null>(null);
+    const [isPlanning, setIsPlanning] = useState(false);
 
     const pendingShipments = useMemo(() => 
         shipments.filter(s => s.status === 'pending'), 
@@ -33,14 +38,33 @@ export default function RoutePlanningPage() {
         }
     };
 
-    const handlePlanRoute = () => {
-        const route = pendingShipments
-            .filter(s => selectedShipmentIds.includes(s.id))
-            // Basic optimization: sort by ID as a stand-in for location proximity.
-            // A real implementation would use a mapping API.
-            .sort((a, b) => a.id.localeCompare(b.id)); 
+    const handlePlanRoute = async () => {
+        setIsPlanning(true);
+        setOptimizedRoute([]);
+        setRouteSummary(null);
+
+        const shipmentsToRoute = pendingShipments.filter(s => selectedShipmentIds.includes(s.id));
         
-        setOptimizedRoute(route);
+        try {
+            const result = await getOptimizedRoute({
+                shipments: shipmentsToRoute.map(s => ({ id: s.id, customerName: s.customerName, shippingAddress: s.shippingAddress })),
+                startAddress: companyAddress,
+            });
+
+            // Re-order the original full shipment objects based on the AI's sorted IDs
+            const orderedRoute = result.optimizedRoute.map(optimizedShipment => 
+                shipmentsToRoute.find(s => s.id === optimizedShipment.id)!
+            );
+
+            setOptimizedRoute(orderedRoute);
+            setRouteSummary(result.summary);
+            toast({ title: 'Route Optimized', description: 'The AI has planned the delivery route.' });
+        } catch (error) {
+            console.error("Error optimizing route:", error);
+            toast({ variant: 'destructive', title: 'Optimization Failed', description: 'Could not generate an optimized route.'});
+        } finally {
+            setIsPlanning(false);
+        }
     };
 
     return (
@@ -85,8 +109,9 @@ export default function RoutePlanningPage() {
                             </ScrollArea>
                             </CardContent>
                             <div className="p-6 pt-0">
-                                <Button onClick={handlePlanRoute} className="w-full" disabled={selectedShipmentIds.length === 0}>
-                                    <List className="mr-2 h-4 w-4" /> Plan Route for {selectedShipmentIds.length} Shipment(s)
+                                <Button onClick={handlePlanRoute} className="w-full" disabled={selectedShipmentIds.length === 0 || isPlanning}>
+                                    {isPlanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                    {isPlanning ? 'Optimizing...' : `Plan Route for ${selectedShipmentIds.length} Shipment(s)`}
                                 </Button>
                             </div>
                         </Card>
@@ -95,7 +120,7 @@ export default function RoutePlanningPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>Optimized Route</CardTitle>
-                                <CardDescription>Generated delivery route based on selected shipments.</CardDescription>
+                                <CardDescription>{routeSummary || 'Generated delivery route will appear here.'}</CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                 <div className="flex flex-col">
@@ -111,8 +136,17 @@ export default function RoutePlanningPage() {
                                         </ol>
                                     ) : (
                                         <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center text-center text-muted-foreground bg-muted/50 rounded-lg">
-                                            <List className="h-10 w-10 mb-2" />
-                                            <p>Your optimized route will appear here.</p>
+                                            {isPlanning ? (
+                                                <>
+                                                    <Loader2 className="h-10 w-10 mb-2 animate-spin" />
+                                                    <p>AI is planning the optimal route...</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <List className="h-10 w-10 mb-2" />
+                                                    <p>Your optimized route will appear here.</p>
+                                                </>
+                                            )}
                                         </div>
                                     )}
                                 </div>
