@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import React from 'react';
@@ -10,7 +11,6 @@ import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
 import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send } from '@/components/icons';
 import FullInvoice from './FullInvoice';
-import { Dialog } from './ui/dialog';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -53,7 +53,7 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
 
     return (
         <>
-            <DialogContent className="sm:max-w-3xl">
+            <DialogContent className="sm:max-w-3xl bg-card">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Ship className="h-6 w-6"/> Shipment Details for {shipment.customId || shipment.id}
