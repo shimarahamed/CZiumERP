@@ -158,7 +158,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
   const [currency, setCurrency] = useState<Currency>('AED');
   const [currencySymbol, setCurrencySymbol] = useState<string>('AED');
-  const [companyName, setCompanyName] = useState<string>('BizFlow POS');
+  const [companyName, setCompanyName] = useState<string>('CZium ERP');
   const [companyAddress, setCompanyAddress] = useState<string>('123 Innovation Drive, Tech City, 12345');
   const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState<number>(1);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -213,7 +213,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     }
     setCurrency(getStoredState('currency', 'AED'));
-    setCompanyName(getStoredState('companyName', 'BizFlow POS'));
+    setCompanyName(getStoredState('companyName', 'CZium ERP'));
     setCompanyAddress(getStoredState('companyAddress', '123 Innovation Drive, Tech City, 12345'));
     setFiscalYearStartMonth(getStoredState('fiscalYearStartMonth', 1));
     
