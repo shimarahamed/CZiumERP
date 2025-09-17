@@ -289,35 +289,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setNotifications(prev => prev.map(n => ({...n, isRead: true})));
   };
 
-  // Effect to generate system-wide notifications based on state changes
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    // Generate overdue invoice notifications
-    const now = new Date();
-    invoices.forEach(invoice => {
-        if ((invoice.status === 'pending' || invoice.status === 'overdue') && differenceInDays(now, parseISO(invoice.date)) > 30) {
-            addNotification({
-                title: 'Overdue Invoice',
-                description: `Invoice ${invoice.id} for ${currencySymbol}${invoice.amount.toFixed(2)} is overdue.`,
-                href: '/invoices'
-            });
-        }
-    });
-
-    // Generate low stock notifications
-    products.forEach(product => {
-        if (product.reorderThreshold && product.stock <= product.reorderThreshold) {
-            addNotification({
-                title: 'Low Stock Alert',
-                description: `${product.name} is low on stock (${product.stock} left).`,
-                href: '/inventory'
-            });
-        }
-    });
-  }, [isHydrated, invoices, products, addNotification, currencySymbol]);
-
-
   const handleSetCurrency = (newCurrency: Currency) => {
     if (currencySymbols[newCurrency]) {
       setCurrency(newCurrency);
