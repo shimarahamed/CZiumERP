@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
@@ -13,6 +13,7 @@ import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Ci
 import FullInvoice from './FullInvoice';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Dialog } from '@/components/ui/dialog';
 
 
 interface ShipmentDetailProps {
@@ -53,13 +54,16 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
 
     const getTimelineDate = (status: ShipmentStatus) => {
         if (status === 'delivered' && shipment.actualDeliveryDate) {
-            return format(parseISO(shipment.actualDeliveryDate), 'PPP');
+            return `on ${format(parseISO(shipment.actualDeliveryDate), 'PPP')}`;
         }
         if (status === 'in-transit' && shipment.dispatchDate) {
-            return format(parseISO(shipment.dispatchDate), 'PPP');
+            return `on ${format(parseISO(shipment.dispatchDate), 'PPP')}`;
         }
          if (status === 'processing' && shipment.dispatchDate) {
-            return format(parseISO(shipment.dispatchDate), 'PPP');
+            return `on ${format(parseISO(shipment.dispatchDate), 'PPP')}`;
+        }
+         if (status === 'pending' && shipment.dispatchDate) {
+            return `on ${format(parseISO(shipment.dispatchDate), 'PPP')}`;
         }
         return null;
     }
@@ -118,10 +122,12 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                             )}
                                             <div className={cn(
                                                 "relative z-10 flex h-6 w-6 items-center justify-center rounded-full",
-                                                index <= currentStepIndex ? "bg-primary" : "bg-muted-foreground/30"
+                                                index < currentStepIndex ? "border-2 border-primary" : "bg-muted-foreground/30"
                                             )}>
                                                 {index < currentStepIndex ? (
-                                                    <CheckCircle className="h-4 w-4 text-primary-foreground" />
+                                                    <CheckCircle className="h-4 w-4 text-primary" />
+                                                ) : index === currentStepIndex ? (
+                                                    <div className="h-4 w-4 rounded-full bg-primary animate-pulse" />
                                                 ) : (
                                                     <div className="h-2 w-2 rounded-full bg-background" />
                                                 )}
