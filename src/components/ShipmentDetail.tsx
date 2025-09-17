@@ -8,10 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import type { Shipment, ShipmentStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
-import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle } from '@/components/icons';
+import { Truck, Package, User, Map, Calendar, CheckCircle, Ship, AlertCircle, Circle, Archive, Send } from '@/components/icons';
 import FullInvoice from './FullInvoice';
 import { Dialog } from './ui/dialog';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
+
 
 interface ShipmentDetailProps {
     shipment: Shipment;
@@ -29,12 +31,13 @@ const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destr
 };
 
 const timelineSteps = [
-    { status: 'pending', title: 'Pending', description: 'Shipment created.'},
-    { status: 'processing', title: 'Processing', description: 'Items are being prepared.'},
-    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.'},
-    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route to destination.'},
-    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.'},
+    { status: 'pending', title: 'Pending', description: 'Shipment created.', icon: <Circle className="h-5 w-5"/>, color: 'bg-gray-500', textColor: 'text-gray-600' },
+    { status: 'processing', title: 'Processing', description: 'Items are being prepared.', icon: <Archive className="h-5 w-5"/>, color: 'bg-amber-500', textColor: 'text-amber-600'},
+    { status: 'in-transit', title: 'In Transit', description: 'Shipment is on its way.', icon: <Send className="h-5 w-5"/>, color: 'bg-blue-500', textColor: 'text-blue-600'},
+    { status: 'out-for-delivery', title: 'Out for Delivery', description: 'Driver is en route.', icon: <Truck className="h-5 w-5"/>, color: 'bg-indigo-500', textColor: 'text-indigo-600'},
+    { status: 'delivered', title: 'Delivered', description: 'Shipment has been delivered.', icon: <CheckCircle className="h-5 w-5"/>, color: 'bg-green-500', textColor: 'text-green-600'},
 ];
+
 
 export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
     const { employees, assets, invoices } = useAppContext();
@@ -74,13 +77,16 @@ export function ShipmentDetail({ shipment, onClose }: ShipmentDetailProps) {
                                 {timelineSteps.map((step, index) => (
                                     <React.Fragment key={step.status}>
                                         <div className="flex flex-col items-center text-center w-24">
-                                            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${index <= currentStepIndex ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                                                {index <= currentStepIndex ? <CheckCircle className="h-5 w-5"/> : <div className="h-2 w-2 bg-muted-foreground rounded-full"/>}
+                                            <div className={cn(
+                                                'h-8 w-8 rounded-full flex items-center justify-center text-white',
+                                                index <= currentStepIndex ? step.color : 'bg-muted'
+                                            )}>
+                                                {index <= currentStepIndex ? step.icon : <div className="h-2 w-2 bg-muted-foreground rounded-full"/>}
                                             </div>
-                                            <p className={`mt-2 font-medium text-sm ${index <= currentStepIndex ? 'text-primary' : 'text-muted-foreground'}`}>{step.title}</p>
+                                            <p className={cn('mt-2 font-medium text-sm', index <= currentStepIndex ? step.textColor : 'text-muted-foreground')}>{step.title}</p>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                         </div>
-                                        {index < timelineSteps.length - 1 && <div className={`flex-1 h-1 mt-3.5 mx-2 ${index < currentStepIndex ? 'bg-primary' : 'bg-muted'}`}/>}
+                                        {index < timelineSteps.length - 1 && <div className={cn('flex-1 h-1 mt-3.5 mx-2', index < currentStepIndex ? timelineSteps[index+1].color : 'bg-muted')}/>}
                                     </React.Fragment>
                                 ))}
                             </div>

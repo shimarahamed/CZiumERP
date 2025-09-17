@@ -58,6 +58,7 @@ import { Printer } from 'lucide-react';
 import { ScanLine } from 'lucide-react';
 import { ScrollText } from 'lucide-react';
 import { Search } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import { Ship } from 'lucide-react';
 import { ShoppingBag } from 'lucide-react';
@@ -143,6 +144,7 @@ export {
   ScanLine,
   ScrollText,
   Search,
+  Send,
   Settings,
   Ship,
   ShoppingBag,
