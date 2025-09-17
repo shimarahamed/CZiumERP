@@ -16,10 +16,11 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
-import { MoreHorizontal, PlusCircle, Truck, Package, User as UserIcon, Calendar, Info, FileText } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, Truck, Package, User as UserIcon, Calendar, Info, FileText, CheckCircle } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
+import { cn } from '@/lib/utils';
 
 const shipmentSchema = z.object({
   invoiceId: z.string().min(1, "An invoice must be selected."),
@@ -36,6 +37,12 @@ const statusVariant: { [key in ShipmentStatus]: 'default' | 'secondary' | 'destr
     delivered: 'outline',
     cancelled: 'destructive'
 };
+
+const timelineSteps: { status: ShipmentStatus; title: string }[] = [
+    { status: 'pending', title: 'Pending' },
+    { status: 'in-transit', title: 'In Transit' },
+    { status: 'delivered', title: 'Delivered' },
+];
 
 export default function ShipmentsPage() {
     const { shipments, setShipments, invoices, employees, assets, addActivityLog, user } = useAppContext();
@@ -149,6 +156,11 @@ export default function ShipmentsPage() {
         }
         setIsFormOpen(false);
     };
+    
+    const getStatusIndex = (status: ShipmentStatus) => {
+        if (status === 'cancelled' || status === 'delivered') return 2;
+        return timelineSteps.findIndex(step => step.status === status);
+    };
 
     return (
         <div className="flex flex-col h-full">
@@ -189,55 +201,56 @@ export default function ShipmentsPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                       <div className="space-y-4">
                            {filteredShipments.map(shipment => {
-                               const driver = employees.find(e => e.id === shipment.assignedDriverId);
-                               const vehicle = assets.find(a => a.id === shipment.vehicleId);
-                               return (
+                                const currentStepIndex = getStatusIndex(shipment.status);
+                                return (
                                    <Card key={shipment.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setViewingShipment(shipment)}>
-                                       <CardHeader className="pb-4">
-                                           <div className="flex justify-between items-start">
-                                               <div>
-                                                   <CardTitle className="text-lg flex items-center gap-2">
-                                                        <Truck className="h-5 w-5 text-muted-foreground"/> {shipment.id}
-                                                   </CardTitle>
-                                                   <CardDescription>{shipment.trackingNumber}</CardDescription>
-                                               </div>
-                                               <Badge variant={statusVariant[shipment.status]} className="capitalize">{shipment.status.replace('-', ' ')}</Badge>
-                                           </div>
-                                       </CardHeader>
-                                       <CardContent className="space-y-3 text-sm">
-                                            <div className="flex items-start gap-3">
-                                                <UserIcon className="h-4 w-4 mt-0.5 text-muted-foreground"/>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold">{shipment.customerName}</span>
-                                                    <span className="text-muted-foreground text-xs">{shipment.shippingAddress}</span>
+                                        <CardHeader className="p-4 grid grid-cols-1 md:grid-cols-5 gap-4">
+                                            <div className="md:col-span-2 space-y-1">
+                                                <CardTitle className="text-lg flex items-center gap-2">
+                                                    <Truck className="h-5 w-5 text-muted-foreground"/> {shipment.id}
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    To: {shipment.customerName} - {shipment.trackingNumber}
+                                                </CardDescription>
+                                            </div>
+                                            <div className="md:col-span-3 flex items-center justify-between">
+                                                <div className="flex-1 space-y-2">
+                                                    <div className="flex justify-between items-center px-1">
+                                                        {timelineSteps.map((step, index) => (
+                                                            <React.Fragment key={step.status}>
+                                                                <div className="flex flex-col items-center text-center w-24">
+                                                                    <div className={cn("h-6 w-6 rounded-full flex items-center justify-center text-xs", 
+                                                                        index <= currentStepIndex ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                                                                    )}>
+                                                                        {index <= currentStepIndex ? <CheckCircle className="h-4 w-4"/> : <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full"/>}
+                                                                    </div>
+                                                                    <p className={cn("mt-1 font-medium text-xs", index <= currentStepIndex ? 'text-primary' : 'text-muted-foreground')}>{step.title}</p>
+                                                                </div>
+                                                                {index < timelineSteps.length - 1 && <div className={cn("flex-1 h-0.5 self-start mt-3", index < currentStepIndex ? 'bg-primary' : 'bg-muted')} />}
+                                                            </React.Fragment>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="ml-4">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" disabled={!canManage} onClick={(e) => e.stopPropagation()}><MoreHorizontal/></Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenForm(shipment); }}>Edit</DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'in-transit'); }}>Mark In-Transit</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'delivered'); }}>Mark Delivered</DropdownMenuItem>
+                                                            <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'cancelled'); }}>Cancel</DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <Package className="h-4 w-4 text-muted-foreground"/>
-                                                <span>{shipment.items.length} item(s)</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <Calendar className="h-4 w-4 text-muted-foreground"/>
-                                                <span>Dispatched: {format(new Date(shipment.dispatchDate), 'PPP')}</span>
-                                            </div>
-                                       </CardContent>
-                                       <CardFooter className="flex justify-end p-4 pt-0">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" disabled={!canManage} onClick={(e) => e.stopPropagation()}><MoreHorizontal/></Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenForm(shipment); }}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'in-transit'); }}>Mark In-Transit</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'delivered'); }}>Mark Delivered</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleStatusChange(shipment.id, 'cancelled'); }}>Cancel</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                       </CardFooter>
+                                        </CardHeader>
                                    </Card>
                                )
                            })}
@@ -315,3 +328,4 @@ export default function ShipmentsPage() {
         </div>
     );
 }
+
