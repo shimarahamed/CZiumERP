@@ -1,12 +1,4 @@
 
-
-
-
-
-
-
-
-
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
@@ -350,7 +342,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const purchaseOrders = useMemo(() => filterByStore(_purchaseOrders), [_purchaseOrders, filterByStore]);
   const rfqs = useMemo(() => filterByStore(_rfqs), [_rfqs, filterByStore]);
   const assets = useMemo(() => filterByStore(_assets), [_assets, filterByStore]);
-  const itAssets = useMemo(() => filterByStore(_itAssets), [_itAssets, filterByStore]);
+  const itAssets = useMemo(() => _itAssets, [_itAssets]);
   const budgets = useMemo(() => filterByStore(_budgets), [_budgets, filterByStore]);
   const productionOrders = useMemo(() => filterByStore(_productionOrders), [_productionOrders, filterByStore]);
   const qualityChecks = useMemo(() => filterByStore(_qualityChecks), [_qualityChecks, filterByStore]);
