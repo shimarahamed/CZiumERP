@@ -103,16 +103,15 @@ export default function SettingsPage() {
         <div className="flex flex-col h-full">
             <Header title="Settings" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <Tabs defaultValue="company" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="company">Company Details</TabsTrigger>
-                        <TabsTrigger value="branding">Theme & Branding</TabsTrigger>
-                        <TabsTrigger value="financial">Financial</TabsTrigger>
+                <Tabs defaultValue="company-branding" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="company-branding">Company & Branding</TabsTrigger>
+                        <TabsTrigger value="financial-regional">Financial & Regional</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="company">
+                    <TabsContent value="company-branding">
                         <Card>
-                            <CardHeader><CardTitle>Company Details</CardTitle><CardDescription>Manage your organization's global information.</CardDescription></CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardHeader><CardTitle>Company & Branding</CardTitle><CardDescription>Manage your organization's global information and appearance.</CardDescription></CardHeader>
+                            <CardContent className="space-y-6">
                                 <div className="grid w-full max-w-sm items-center gap-2">
                                     <Label htmlFor="company-name">Company Name</Label>
                                     <Input id="company-name" value={localCompanyName} onChange={(e) => setLocalCompanyName(e.target.value)} />
@@ -121,18 +120,7 @@ export default function SettingsPage() {
                                     <Label htmlFor="company-address">Company Address</Label>
                                     <Textarea id="company-address" value={localCompanyAddress} onChange={(e) => setLocalCompanyAddress(e.target.value)} />
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value="branding">
-                        <Card>
-                            <CardHeader><CardTitle>Theme & Branding</CardTitle><CardDescription>Customize the look and feel of the application.</CardDescription></CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="grid w-full max-w-md items-center gap-2">
-                                    <Label htmlFor="app-name">Application Name</Label>
-                                    <Input id="app-name" value={localThemeSettings.appName} onChange={(e) => setLocalThemeSettings(prev => ({...prev, appName: e.target.value}))} />
-                                </div>
-                                <div className="space-y-2">
+                                 <div className="space-y-2">
                                     <Label>Company Logo</Label>
                                     <div className="flex items-center gap-4">
                                         {localThemeSettings.logoUrl && <Image src={localThemeSettings.logoUrl} alt="Logo preview" width={48} height={48} className="rounded-md object-contain bg-muted p-1" />}
@@ -147,9 +135,9 @@ export default function SettingsPage() {
                             </CardContent>
                         </Card>
                     </TabsContent>
-                    <TabsContent value="financial">
+                    <TabsContent value="financial-regional">
                         <Card>
-                            <CardHeader><CardTitle>Financial Settings</CardTitle><CardDescription>Manage currency and fiscal year settings.</CardDescription></CardHeader>
+                            <CardHeader><CardTitle>Financial & Regional Settings</CardTitle><CardDescription>Manage currency and fiscal year settings.</CardDescription></CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid w-full max-w-sm items-center gap-2">
                                     <Label htmlFor="fiscal-year">Fiscal Year Start</Label>
@@ -174,4 +162,3 @@ export default function SettingsPage() {
         </div>
     );
 }
-
