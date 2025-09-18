@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,20 +10,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { Currency, Module, ThemeSettings } from "@/types";
+import type { Currency, Module, ThemeSettings, CustomerTier, LoyaltySettings } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { hexToHsl, hslToHex } from '@/lib/color-utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const months = [
     { value: 1, label: 'January' }, { value: 2, label: 'February' },
     { value: 3, label: 'March' }, { value: 4, label: 'April' },
     { value: 5, label: 'May' }, { value: 6, label: 'June' },
-    { value: 7, label: 'July' }, { value: 8, label: 'August' },
-    { value: 9, label: 'September' }, { value: 10, label: 'October' },
+    { value: 7, 'label': 'July' }, { value: 8, 'label': 'August' },
+    { value: 9, 'label': 'September' }, { value: 10, 'label': 'October' },
     { value: 11, 'label': 'November' }, { value: 12, 'label': 'December' }
 ];
 
@@ -107,6 +108,25 @@ export default function SettingsPage() {
         });
     }
 
+    const handleTierSettingChange = (tier: 'Silver' | 'Gold', field: 'points' | 'discount', value: string) => {
+        const numericValue = Number(value);
+        if (isNaN(numericValue)) return;
+
+        setLocalThemeSettings(prev => ({
+            ...prev,
+            loyaltySettings: {
+                ...prev.loyaltySettings,
+                tiers: {
+                    ...prev.loyaltySettings?.tiers,
+                    [tier]: {
+                        ...prev.loyaltySettings?.tiers?.[tier],
+                        [field]: numericValue
+                    }
+                }
+            }
+        }))
+    };
+
     if (!canManage) {
         return (
             <div className="flex flex-col h-full">
@@ -132,9 +152,10 @@ export default function SettingsPage() {
             <Header title="Settings" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Tabs defaultValue="company-branding" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-4">
                         <TabsTrigger value="company-branding">Company & Branding</TabsTrigger>
                         <TabsTrigger value="financial-regional">Financial & Regional</TabsTrigger>
+                        <TabsTrigger value="loyalty">Loyalty Program</TabsTrigger>
                         <TabsTrigger value="modules">Modules</TabsTrigger>
                     </TabsList>
                     <TabsContent value="company-branding">
@@ -203,6 +224,54 @@ export default function SettingsPage() {
                                         </Button>
                                     </CardContent>
                                 </Card>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="loyalty">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Customer Loyalty Program</CardTitle>
+                                <CardDescription>Define the tiers and rewards for your customer loyalty program.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-4">
+                                    <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="secondary" className="text-base px-4 py-1">Bronze</Badge>
+                                            <p className="text-sm text-muted-foreground">Default tier for all new customers. No special discounts.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg">
+                                        <div className="flex items-center gap-2">
+                                            <Badge className="text-base px-4 py-1 bg-gray-400">Silver</Badge>
+                                        </div>
+                                        <div className="flex-1 grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Points to Reach Tier</Label>
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Silver.points || ''} onChange={(e) => handleTierSettingChange('Silver', 'points', e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Discount Percentage</Label>
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Silver.discount || ''} onChange={(e) => handleTierSettingChange('Silver', 'discount', e.target.value)} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg">
+                                        <div className="flex items-center gap-2">
+                                            <Badge className="text-base px-4 py-1 bg-amber-500 text-white">Gold</Badge>
+                                        </div>
+                                        <div className="flex-1 grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Points to Reach Tier</Label>
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Gold.points || ''} onChange={(e) => handleTierSettingChange('Gold', 'points', e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Discount Percentage</Label>
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Gold.discount || ''} onChange={(e) => handleTierSettingChange('Gold', 'discount', e.target.value)} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>

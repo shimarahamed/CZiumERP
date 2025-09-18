@@ -46,7 +46,7 @@ const tierVariant: { [key in CustomerTier]: 'secondary' | 'default' | 'outline' 
 
 
 export default function CustomersPage() {
-    const { customers, setCustomers, invoices, addActivityLog, currencySymbol, user } = useAppContext();
+    const { customers, setCustomers, invoices, addActivityLog, currencySymbol, user, themeSettings } = useAppContext();
     const { toast } = useToast();
     
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -291,3 +291,4 @@ export default function CustomersPage() {
         </div>
     );
 }
+

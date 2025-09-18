@@ -170,7 +170,11 @@ export default function InvoicesPage() {
         }
 
         const customer = customers.find(c => c.id === watchedCustomerId);
-        const tierDiscounts: Record<CustomerTier, number> = { Bronze: 0, Silver: 5, Gold: 10 };
+        const loyaltyTiers = themeSettings.loyaltySettings?.tiers || {
+            Silver: { points: 500, discount: 5 },
+            Gold: { points: 2000, discount: 10 },
+        };
+        const tierDiscounts = { Bronze: 0, Silver: loyaltyTiers.Silver.discount, Gold: loyaltyTiers.Gold.discount };
         
         if (customer?.tier) {
             const rate = tierDiscounts[customer.tier];
@@ -184,7 +188,7 @@ export default function InvoicesPage() {
             form.setValue('discount', 0, { shouldValidate: true });
             setActiveTier(null);
         }
-    }, [watchedCustomerId, customers, form]);
+    }, [watchedCustomerId, customers, form, themeSettings.loyaltySettings]);
 
 
     const handleScanSuccess = (productId: string) => {
@@ -245,6 +249,10 @@ export default function InvoicesPage() {
         // Loyalty Points Logic
         if (data.status === 'paid' && data.customerId && data.customerId !== 'none') {
             const wasAlreadyPaid = invoiceToEdit?.status === 'paid';
+            const loyaltyTiers = themeSettings.loyaltySettings?.tiers || {
+                Silver: { points: 500, discount: 5 },
+                Gold: { points: 2000, discount: 10 },
+            };
             
             if (!wasAlreadyPaid) { // Award points only if newly paid
                 const customerIndex = customers.findIndex(c => c.id === data.customerId);
@@ -256,9 +264,9 @@ export default function InvoicesPage() {
                     customerToUpdate.loyaltyPoints = (customerToUpdate.loyaltyPoints || 0) + pointsEarned;
 
                     // Tier logic
-                    if (customerToUpdate.loyaltyPoints >= 2000 && customerToUpdate.tier !== 'Gold') {
+                    if (customerToUpdate.loyaltyPoints >= loyaltyTiers.Gold.points && customerToUpdate.tier !== 'Gold') {
                         customerToUpdate.tier = 'Gold';
-                    } else if (customerToUpdate.loyaltyPoints >= 500 && customerToUpdate.tier === 'Bronze') {
+                    } else if (customerToUpdate.loyaltyPoints >= loyaltyTiers.Silver.points && customerToUpdate.tier === 'Bronze') {
                         customerToUpdate.tier = 'Silver';
                     }
 

@@ -2,6 +2,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -180,6 +181,13 @@ export type Module =
   | 'Service Desk'
   | 'System';
 
+export type LoyaltySettings = {
+    tiers: {
+        Silver: { points: number; discount: number; };
+        Gold: { points: number; discount: number; };
+    }
+}
+
 export type ThemeSettings = {
     appName: string;
     logoUrl: string;
@@ -189,6 +197,7 @@ export type ThemeSettings = {
     invoicePrefix?: string;
     purchaseOrderPrefix?: string;
     disabledModules?: Module[];
+    loyaltySettings?: LoyaltySettings;
 };
 
 export type AssetStatus = 'in-use' | 'in-storage' | 'under-maintenance' | 'retired';
@@ -456,3 +465,4 @@ export type Shipment = {
 };
 
     
+
