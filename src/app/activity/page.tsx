@@ -57,8 +57,6 @@ export default function ActivityLogPage() {
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Audit Trail</CardTitle>
-                        <CardDescription>A log of all significant actions performed in the system.</CardDescription>
                          <div className="mt-4">
                             <Input
                                 placeholder="Search logs..."
@@ -108,3 +106,5 @@ export default function ActivityLogPage() {
         </div>
     );
 }
+
+    

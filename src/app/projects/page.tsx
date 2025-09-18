@@ -122,11 +122,7 @@ export default function ProjectsPage() {
         <div className="flex flex-col h-full">
             <Header title="Projects" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold">Project Dashboard</h1>
-                        <p className="text-muted-foreground">Overview of all company projects.</p>
-                    </div>
+                <div className="flex justify-end items-center mb-6">
                     {canManage && (
                         <Button size="sm" className="gap-1" onClick={handleOpenForm}>
                             <PlusCircle className="h-4 w-4" /> New Project
@@ -217,7 +213,7 @@ export default function ProjectsPage() {
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                              <FormField control={form.control} name="client" render={({ field }) => (
-                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input {...field} placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
                             )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="managerId" render={({ field }) => (
@@ -292,3 +288,5 @@ export default function ProjectsPage() {
         </div>
     );
 }
+
+    

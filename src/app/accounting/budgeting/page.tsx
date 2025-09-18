@@ -94,11 +94,7 @@ export default function BudgetingPage() {
         <div className="flex flex-col h-full">
             <Header title="Budgeting & Reporting" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold">Budgets</h1>
-                        <p className="text-muted-foreground">Monitor and manage departmental and operational budgets.</p>
-                    </div>
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-6">
                     <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                         <Input
                             placeholder="Search by category..."
@@ -215,3 +211,5 @@ export default function BudgetingPage() {
         </div>
     );
 }
+
+    

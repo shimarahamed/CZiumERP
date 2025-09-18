@@ -149,11 +149,7 @@ export default function CustomersPage() {
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <CardTitle>Customers</CardTitle>
-                                <CardDescription>Manage your customers and view their sales history.</CardDescription>
-                            </div>
+                        <div className="flex flex-col md:flex-row justify-end md:items-center gap-4">
                             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                                 <Input
                                     placeholder="Search customers..."
@@ -337,3 +333,5 @@ export default function CustomersPage() {
     );
 }
 
+
+    

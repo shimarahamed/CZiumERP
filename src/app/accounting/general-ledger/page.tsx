@@ -66,8 +66,6 @@ export default function GeneralLedgerPage() {
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>General Ledger</CardTitle>
-                        <CardDescription>A complete record of all financial transactions.</CardDescription>
                          <div className="mt-4">
                             <Input
                                 placeholder="Search by account or description..."
@@ -118,5 +116,7 @@ export default function GeneralLedgerPage() {
         </div>
     );
 }
+
+    
 
     

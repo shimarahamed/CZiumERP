@@ -167,11 +167,7 @@ export default function LeadsPage() {
         <div className="flex flex-col h-full">
             <Header title="Sales Leads Pipeline" />
             <main className="flex-1 flex flex-col p-4 md:p-6">
-                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold">Leads</h1>
-                        <p className="text-muted-foreground">Track potential customers through your sales funnel.</p>
-                    </div>
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-6">
                     <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                         <Input
                             placeholder="Search leads..."
@@ -304,3 +300,5 @@ export default function LeadsPage() {
         </div>
     );
 }
+
+    
