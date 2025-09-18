@@ -6,7 +6,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from "date-fns";
-import { MoreHorizontal, PlusCircle, Trash2 } from "@/components/icons";
+import { MoreHorizontal, PlusCircle, Trash2, ArrowUpDown } from "@/components/icons";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { useAppContext } from "@/context/AppContext";
-import type { RFQ, RFQItem } from "@/types";
+import type { RFQ, RFQItem, RFQStatus } from "@/types";
 
 const rfqItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),
@@ -36,7 +36,9 @@ const rfqSchema = z.object({
 
 type RFQFormData = z.infer<typeof rfqSchema>;
 
-const statusVariant: { [key in RFQ['status']]: 'default' | 'secondary' | 'outline' } = {
+type SortKey = 'id' | 'creationDate' | 'status';
+
+const statusVariant: { [key in RFQStatus]: 'default' | 'secondary' | 'outline' } = {
     draft: 'secondary',
     sent: 'default',
     closed: 'outline',
@@ -54,6 +56,8 @@ export default function RFQPage() {
     const [rfqToEdit, setRfqToEdit] = useState<RFQ | null>(null);
     const [rfqToDelete, setRfqToDelete] = useState<RFQ | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('creationDate');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const form = useForm<RFQFormData>({
         resolver: zodResolver(rfqSchema),
@@ -70,13 +74,30 @@ export default function RFQPage() {
     
     const canManage = user?.role === 'admin' || user?.role === 'manager';
 
-    const filteredRfqs = useMemo(() => {
-        if (!searchTerm) return rfqs;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return rfqs.filter(rfq =>
-            rfq.id.toLowerCase().includes(lowercasedFilter)
+    const sortedAndFilteredRfqs = useMemo(() => {
+        let filtered = rfqs.filter(rfq =>
+            rfq.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [rfqs, searchTerm]);
+
+        filtered.sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [rfqs, searchTerm, sortKey, sortDirection]);
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (rfq: RFQ | null = null) => {
         setRfqToEdit(rfq);
@@ -170,15 +191,15 @@ export default function RFQPage() {
                          <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>RFQ ID</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Status</TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('id')}>RFQ ID <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('creationDate')}>Date <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('status')}>Status <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead>Vendors</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredRfqs.map(rfq => (
+                                {sortedAndFilteredRfqs.map(rfq => (
                                     <TableRow key={rfq.id}>
                                         <TableCell className="font-medium">{rfq.id}</TableCell>
                                         <TableCell>{new Date(rfq.creationDate).toLocaleDateString()}</TableCell>

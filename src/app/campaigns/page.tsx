@@ -18,7 +18,7 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Campaign, CampaignStatus, CampaignChannel } from '@/types';
-import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,8 @@ const campaignSchema = z.object({
 });
 
 type CampaignFormData = z.infer<typeof campaignSchema>;
+
+type SortKey = 'name' | 'status' | 'channel' | 'budget' | 'startDate';
 
 const statusVariant: { [key in CampaignStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     planning: 'secondary',
@@ -63,6 +65,8 @@ export default function CampaignsPage() {
     const [campaignToEdit, setCampaignToEdit] = useState<Campaign | null>(null);
     const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('startDate');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const form = useForm<CampaignFormData>({
         resolver: zodResolver(campaignSchema),
@@ -70,14 +74,31 @@ export default function CampaignsPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
 
-    const filteredCampaigns = useMemo(() => {
-        if (!searchTerm) return campaigns;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return campaigns.filter(campaign =>
-            campaign.name.toLowerCase().includes(lowercasedFilter) ||
+    const sortedCampaigns = useMemo(() => {
+        let filtered = campaigns.filter(campaign =>
+            campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             campaign.channel.toLowerCase().includes(lowercasedFilter)
         );
-    }, [campaigns, searchTerm]);
+
+        filtered.sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [campaigns, searchTerm, sortKey, sortDirection]);
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (campaign: Campaign | null = null) => {
         setCampaignToEdit(campaign);
@@ -165,16 +186,16 @@ export default function CampaignsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Campaign</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Channel</TableHead>
-                                    <TableHead>Budget</TableHead>
-                                    <TableHead className="hidden md:table-cell">Timeline</TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('name')}>Campaign <ArrowUpDown className="ml-2 h-4 w-4"/></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('status')}>Status <ArrowUpDown className="ml-2 h-4 w-4"/></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('channel')}>Channel <ArrowUpDown className="ml-2 h-4 w-4"/></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('budget')}>Budget <ArrowUpDown className="ml-2 h-4 w-4"/></Button></TableHead>
+                                    <TableHead className="hidden md:table-cell"><Button variant="ghost" onClick={() => handleSort('startDate')}>Timeline <ArrowUpDown className="ml-2 h-4 w-4"/></Button></TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredCampaigns.map(campaign => (
+                                {sortedCampaigns.map(campaign => (
                                     <TableRow key={campaign.id}>
                                         <TableCell className="font-medium">{campaign.name}</TableCell>
                                         <TableCell><Badge variant={statusVariant[campaign.status]} className="capitalize">{campaign.status}</Badge></TableCell>
@@ -259,7 +280,16 @@ export default function CampaignsPage() {
                                 )}/>
                             </div>
                             <DialogFooter>
-                                <Button type="submit">{campaignToEdit ? 'Save Changes' : 'Create Campaign'}</Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild><Button type="button">{campaignToEdit ? 'Save Changes' : 'Create Campaign'}</Button></AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>Confirm</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DialogFooter>
                         </form>
                     </Form>

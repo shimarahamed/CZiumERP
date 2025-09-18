@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { MoreHorizontal, PlusCircle } from "@/components/icons";
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { User } from '@/types';
+import type { User, Role } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,7 @@ const userSchema = z.object({
 });
 
 type UserFormData = z.infer<typeof userSchema>;
+type SortKey = 'name' | 'email' | 'role';
 
 export default function UsersPage() {
     const { users, setUsers, addActivityLog, user: currentUser } = useAppContext();
@@ -38,6 +39,10 @@ export default function UsersPage() {
     const [userToEdit, setUserToEdit] = useState<User | null>(null);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [roleFilter, setRoleFilter] = useState<Role | 'all'>('all');
+    const [sortKey, setSortKey] = useState<SortKey>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
 
     const form = useForm<UserFormData>({
         resolver: zodResolver(userSchema),
@@ -51,13 +56,22 @@ export default function UsersPage() {
     }, [isFormOpen, form]);
     
     const filteredUsers = useMemo(() => {
-        if (!searchTerm) return users;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return users.filter(user =>
-            user.name.toLowerCase().includes(lowercasedFilter) ||
-            user.email.toLowerCase().includes(lowercasedFilter)
+        let filtered = users.filter(user =>
+            (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (roleFilter === 'all' || user.role === roleFilter)
         );
-    }, [users, searchTerm]);
+
+        filtered.sort((a,b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [users, searchTerm, roleFilter, sortKey, sortDirection]);
 
     if (currentUser?.role !== 'admin') {
         return (
@@ -76,6 +90,15 @@ export default function UsersPage() {
             </div>
         );
     }
+    
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (user: User | null = null) => {
         setUserToEdit(user);
@@ -147,6 +170,18 @@ export default function UsersPage() {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full md:w-auto md:min-w-[250px] bg-secondary"
                                 />
+                                 <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as Role | 'all')}>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
+                                        <SelectValue placeholder="Filter by role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Roles</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                        <SelectItem value="manager">Manager</SelectItem>
+                                        <SelectItem value="cashier">Cashier</SelectItem>
+                                        <SelectItem value="inventory-staff">Inventory Staff</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
                                     <PlusCircle className="h-4 w-4" />
                                     Add User
@@ -158,8 +193,8 @@ export default function UsersPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Role</TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('name')}>User <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('role')}>Role <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -240,7 +275,18 @@ export default function UsersPage() {
                             )} />
                             
                             <DialogFooter>
-                                <Button type="submit">{userToEdit ? 'Save Changes' : 'Add User'}</Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button">{userToEdit ? 'Save Changes' : 'Add User'}</Button>
+                                    </AlertDialogTrigger>
+                                     <AlertDialogContent>
+                                         <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
+                                         <AlertDialogFooter>
+                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                             <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>Confirm</AlertDialogAction>
+                                         </AlertDialogFooter>
+                                     </AlertDialogContent>
+                                </AlertDialog>
                             </DialogFooter>
                         </form>
                     </Form>

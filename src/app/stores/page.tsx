@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { MoreHorizontal, PlusCircle, Store, CheckCircle } from "@/components/icons";
+import { MoreHorizontal, PlusCircle, Store, CheckCircle, ArrowUpDown } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,6 +29,7 @@ const storeSchema = z.object({
 });
 
 type StoreFormData = z.infer<typeof storeSchema>;
+type SortKey = 'name' | 'address';
 
 export default function StoresPage() {
     const { stores, setStores, addActivityLog, user: currentUser, currentStore, selectStore } = useAppContext();
@@ -38,6 +39,9 @@ export default function StoresPage() {
     const [storeToEdit, setStoreToEdit] = useState<StoreType | null>(null);
     const [storeToDelete, setStoreToDelete] = useState<StoreType | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
 
     const form = useForm<StoreFormData>({
         resolver: zodResolver(storeSchema),
@@ -46,13 +50,22 @@ export default function StoresPage() {
     const canManageStores = currentUser?.role === 'admin' || currentUser?.role === 'manager';
 
     const filteredStores = useMemo(() => {
-        if (!searchTerm) return stores;
+        let sortedStores = [...stores].sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        if (!searchTerm) return sortedStores;
+        
         const lowercasedFilter = searchTerm.toLowerCase();
-        return stores.filter(store =>
+        return sortedStores.filter(store =>
             store.name.toLowerCase().includes(lowercasedFilter) ||
             store.address.toLowerCase().includes(lowercasedFilter)
         );
-    }, [stores, searchTerm]);
+    }, [stores, searchTerm, sortKey, sortDirection]);
 
     if (!canManageStores) {
         return (
@@ -71,6 +84,15 @@ export default function StoresPage() {
             </div>
         );
     }
+    
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (store: StoreType | null = null) => {
         setStoreToEdit(store);
@@ -164,8 +186,8 @@ export default function StoresPage() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[100px]">Status</TableHead>
-                                        <TableHead>Store Name</TableHead>
-                                        <TableHead>Address</TableHead>
+                                        <TableHead><Button variant="ghost" onClick={() => handleSort('name')}>Store Name <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                        <TableHead><Button variant="ghost" onClick={() => handleSort('address')}>Address <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
