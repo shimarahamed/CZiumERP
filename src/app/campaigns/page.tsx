@@ -11,18 +11,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Campaign, CampaignStatus, CampaignChannel } from '@/types';
-import { MoreHorizontal, PlusCircle, ArrowUpDown } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Filter } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
 
 
 const campaignSchema = z.object({
@@ -42,6 +44,12 @@ const campaignSchema = z.object({
 type CampaignFormData = z.infer<typeof campaignSchema>;
 
 type SortKey = 'name' | 'status' | 'channel' | 'budget' | 'startDate';
+
+type Filters = {
+  name: string;
+  status: CampaignStatus | 'all';
+  channel: CampaignChannel | 'all';
+};
 
 const statusVariant: { [key in CampaignStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     planning: 'secondary',
@@ -64,9 +72,13 @@ export default function CampaignsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [campaignToEdit, setCampaignToEdit] = useState<Campaign | null>(null);
     const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const [sortKey, setSortKey] = useState<SortKey>('startDate');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [filters, setFilters] = useState<Filters>({
+        name: '',
+        status: 'all',
+        channel: 'all',
+    });
 
     const form = useForm<CampaignFormData>({
         resolver: zodResolver(campaignSchema),
@@ -76,8 +88,9 @@ export default function CampaignsPage() {
 
     const sortedCampaigns = useMemo(() => {
         let filtered = campaigns.filter(campaign =>
-            campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            campaign.channel.toLowerCase().includes(lowercasedFilter)
+            (filters.name ? campaign.name.toLowerCase().includes(filters.name.toLowerCase()) : true) &&
+            (filters.status === 'all' || campaign.status === filters.status) &&
+            (filters.channel === 'all' || campaign.channel === filters.channel)
         );
 
         filtered.sort((a, b) => {
@@ -89,7 +102,7 @@ export default function CampaignsPage() {
         });
 
         return filtered;
-    }, [campaigns, searchTerm, sortKey, sortDirection]);
+    }, [campaigns, filters, sortKey, sortDirection]);
 
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
@@ -98,6 +111,10 @@ export default function CampaignsPage() {
             setSortKey(key);
             setSortDirection('asc');
         }
+    };
+    
+    const handleFilterChange = (field: keyof Filters, value: string) => {
+        setFilters(prev => ({ ...prev, [field]: value }));
     };
 
     const handleOpenForm = (campaign: Campaign | null = null) => {
@@ -168,12 +185,55 @@ export default function CampaignsPage() {
                                 <CardDescription>Manage and track all your marketing campaigns.</CardDescription>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search campaigns..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" className="gap-2">
+                                            <Filter className="h-4 w-4" /> Filter
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80">
+                                        <div className="grid gap-4">
+                                            <div className="space-y-2">
+                                                <h4 className="font-medium leading-none">Filters</h4>
+                                                <p className="text-sm text-muted-foreground">Set filters for the campaign list.</p>
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <div className="grid grid-cols-3 items-center gap-4">
+                                                    <Label htmlFor="filter-name">Name</Label>
+                                                    <Input id="filter-name" value={filters.name} onChange={(e) => handleFilterChange('name', e.target.value)} className="col-span-2 h-8" />
+                                                </div>
+                                                <div className="grid grid-cols-3 items-center gap-4">
+                                                    <Label htmlFor="filter-status">Status</Label>
+                                                    <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value as CampaignStatus | 'all')}>
+                                                        <SelectTrigger className="col-span-2 h-8">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All</SelectItem>
+                                                            {Object.keys(statusVariant).map(status => (
+                                                                <SelectItem key={status} value={status} className="capitalize">{status}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                 <div className="grid grid-cols-3 items-center gap-4">
+                                                    <Label htmlFor="filter-channel">Channel</Label>
+                                                    <Select value={filters.channel} onValueChange={(value) => handleFilterChange('channel', value as CampaignChannel | 'all')}>
+                                                        <SelectTrigger className="col-span-2 h-8">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All</SelectItem>
+                                                             {Object.keys(channelDisplay).map(channel => (
+                                                                <SelectItem key={channel} value={channel} className="capitalize">{channel.replace('-', ' ')}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                                 {canManage && (
                                 <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
                                     <PlusCircle className="h-4 w-4" /> New Campaign
