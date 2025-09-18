@@ -18,7 +18,8 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Campaign, CampaignStatus, CampaignChannel } from '@/types';
-import { MoreHorizontal, PlusCircle, ArrowUpDown, Filter } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from '@/components/icons';
+import { Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -177,67 +178,65 @@ export default function CampaignsPage() {
         <div className="flex flex-col h-full">
             <Header title="Marketing Campaigns" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-end md:items-center gap-4">
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" className="gap-2">
-                                            <Filter className="h-4 w-4" /> Filter
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80">
-                                        <div className="grid gap-4">
-                                            <div className="space-y-2">
-                                                <h4 className="font-medium leading-none">Filters</h4>
-                                                <p className="text-sm text-muted-foreground">Set filters for the campaign list.</p>
-                                            </div>
-                                            <div className="grid gap-2">
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-name">Name</Label>
-                                                    <Input id="filter-name" value={filters.name} onChange={(e) => handleFilterChange('name', e.target.value)} className="col-span-2 h-8" />
-                                                </div>
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-status">Status</Label>
-                                                    <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value as CampaignStatus | 'all')}>
-                                                        <SelectTrigger className="col-span-2 h-8">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="all">All</SelectItem>
-                                                            {Object.keys(statusVariant).map(status => (
-                                                                <SelectItem key={status} value={status} className="capitalize">{status}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                 <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-channel">Channel</Label>
-                                                    <Select value={filters.channel} onValueChange={(value) => handleFilterChange('channel', value as CampaignChannel | 'all')}>
-                                                        <SelectTrigger className="col-span-2 h-8">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="all">All</SelectItem>
-                                                             {Object.keys(channelDisplay).map(channel => (
-                                                                <SelectItem key={channel} value={channel} className="capitalize">{channel.replace('-', ' ')}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                                {canManage && (
-                                <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" /> New Campaign
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="gap-2">
+                                    <Filter className="h-4 w-4" /> Filter
                                 </Button>
-                                )}
-                            </div>
-                        </div>
-                    </CardHeader>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                                <div className="grid gap-4">
+                                    <div className="space-y-2">
+                                        <h4 className="font-medium leading-none">Filters</h4>
+                                        <p className="text-sm text-muted-foreground">Set filters for the campaign list.</p>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <div className="grid grid-cols-3 items-center gap-4">
+                                            <Label htmlFor="filter-name">Name</Label>
+                                            <Input id="filter-name" value={filters.name} onChange={(e) => handleFilterChange('name', e.target.value)} className="col-span-2 h-8" />
+                                        </div>
+                                        <div className="grid grid-cols-3 items-center gap-4">
+                                            <Label htmlFor="filter-status">Status</Label>
+                                            <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value as CampaignStatus | 'all')}>
+                                                <SelectTrigger className="col-span-2 h-8">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All</SelectItem>
+                                                    {Object.keys(statusVariant).map(status => (
+                                                        <SelectItem key={status} value={status} className="capitalize">{status}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                         <div className="grid grid-cols-3 items-center gap-4">
+                                            <Label htmlFor="filter-channel">Channel</Label>
+                                            <Select value={filters.channel} onValueChange={(value) => handleFilterChange('channel', value as CampaignChannel | 'all')}>
+                                                <SelectTrigger className="col-span-2 h-8">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All</SelectItem>
+                                                     {Object.keys(channelDisplay).map(channel => (
+                                                        <SelectItem key={channel} value={channel} className="capitalize">{channel.replace('-', ' ')}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                        {canManage && (
+                        <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                            <PlusCircle className="h-4 w-4" /> New Campaign
+                        </Button>
+                        )}
+                    </div>
+                </div>
+                <Card>
                     <CardContent>
                         <Table>
                             <TableHeader>
@@ -367,5 +366,6 @@ export default function CampaignsPage() {
         </div>
     );
 }
+    
 
     
