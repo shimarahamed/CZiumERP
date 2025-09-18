@@ -24,43 +24,31 @@ const ShippingLabel = ({ shipment }: ShippingLabelProps) => {
             <DialogHeader className="sr-only">
               <DialogTitle>Shipping Label for {shipment.id}</DialogTitle>
             </DialogHeader>
-            <div className="printable-area receipt bg-white text-black p-2 flex flex-col text-[10px] leading-tight aspect-[4/6]">
+            <div className="printable-area bg-white text-black p-4 flex flex-col aspect-[4/6] text-sm">
                 <header className="grid grid-cols-2 gap-4 pb-2 border-b-2 border-black">
                     <div>
-                        <p className="font-semibold">FROM:</p>
+                        <p className="text-xs font-semibold">FROM:</p>
                         <p className="font-bold">{companyName}</p>
-                        <p>{companyAddress}</p>
+                        <p className="text-xs">{companyAddress}</p>
                     </div>
-                    <div className="text-right">
-                        <p className="font-semibold">SHIP DATE: <span className="font-normal">{new Date(shipment.dispatchDate).toLocaleDateString()}</span></p>
-                        <p className="font-semibold">INVOICE: <span className="font-normal">{shipment.invoiceId}</span></p>
-                        <p className="font-semibold">ORDER ID: <span className="font-normal">{shipment.customId || 'N/A'}</span></p>
+                    <div className="text-right text-xs">
+                        <p><span className="font-semibold">SHIP DATE:</span> {new Date(shipment.dispatchDate).toLocaleDateString()}</p>
+                        <p><span className="font-semibold">INVOICE:</span> {shipment.invoiceId}</p>
+                        <p><span className="font-semibold">ORDER ID:</span> {shipment.customId || 'N/A'}</p>
                     </div>
                 </header>
                 
-                <section className="py-4 flex-grow">
-                    <p className="text-[9px] font-semibold">SHIP TO:</p>
-                    <div className="pl-4">
-                        <p className="font-bold text-sm">{shipment.customerName}</p>
-                        <p className="text-sm">{shipment.shippingAddress}</p>
+                <section className="py-8 flex-grow flex items-center justify-center">
+                    <div className="pl-8 w-full">
+                        <p className="text-xs font-semibold">SHIP TO:</p>
+                        <p className="font-bold text-lg">{shipment.customerName}</p>
+                        <p className="text-base">{shipment.shippingAddress}</p>
                     </div>
                 </section>
                 
-                <section className="py-2 border-y-2 border-black">
-                     <h4 className="font-semibold text-center mb-1">CONTENTS</h4>
-                     <div className="space-y-0.5 max-h-20 overflow-y-auto px-1">
-                        {shipment.items.map(item => (
-                            <div key={item.productId} className="flex justify-between">
-                                <span className="truncate pr-2">{item.productName}</span>
-                                <span className="font-bold">x{item.quantity}</span>
-                            </div>
-                        ))}
-                     </div>
-                </section>
-
-                <footer className="pt-2 text-center">
-                    <Barcode className="h-16 w-full" />
-                    <p className="font-mono tracking-widest">{shipment.trackingNumber || shipment.id}</p>
+                 <footer className="pt-4 border-t-2 border-black text-center">
+                    <Barcode className="h-24 w-full" />
+                    <p className="font-mono text-lg tracking-[0.2em]">{shipment.trackingNumber || shipment.id}</p>
                 </footer>
             </div>
             <DialogFooter className="non-printable p-4 border-t flex justify-center">
@@ -74,3 +62,4 @@ const ShippingLabel = ({ shipment }: ShippingLabelProps) => {
 };
 
 export default ShippingLabel;
+
