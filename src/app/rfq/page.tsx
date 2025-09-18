@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { MoreHorizontal, PlusCircle, Trash2, ArrowUpDown } from "@/components/icons";
 
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +82,13 @@ export default function RFQPage() {
         filtered.sort((a, b) => {
             const aValue = a[sortKey];
             const bValue = b[sortKey];
+            
+            if (sortKey === 'creationDate') {
+                 return sortDirection === 'asc' 
+                    ? new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime() 
+                    : new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime();
+            }
+
             if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
             if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
             return 0;
@@ -194,7 +201,7 @@ export default function RFQPage() {
                                 {sortedAndFilteredRfqs.map(rfq => (
                                     <TableRow key={rfq.id}>
                                         <TableCell className="font-medium">{rfq.id}</TableCell>
-                                        <TableCell>{new Date(rfq.creationDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{parseISO(rfq.creationDate).toLocaleDateString()}</TableCell>
                                         <TableCell><Badge variant={statusVariant[rfq.status]} className="capitalize">{rfq.status}</Badge></TableCell>
                                         <TableCell>{rfq.vendorIds.length}</TableCell>
                                         <TableCell>
@@ -321,5 +328,7 @@ export default function RFQPage() {
         </div>
     );
 }
+
+    
 
     

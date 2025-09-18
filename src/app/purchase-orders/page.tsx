@@ -5,9 +5,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from 'date-fns/format';
+import { format, parseISO } from 'date-fns';
 import { addDays } from 'date-fns/addDays';
-import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle } from "@/components/icons";
+import { MoreHorizontal, PlusCircle, Trash2, FileText, CheckCircle, ArrowUpDown } from "@/components/icons";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +42,7 @@ const poSchema = z.object({
 });
 
 type POFormData = z.infer<typeof poSchema>;
+type SortKey = 'id' | 'vendorName' | 'totalCost' | 'orderDate';
 
 const statusVariant: { [key in PurchaseOrder['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     pending: 'secondary',
@@ -68,6 +69,8 @@ export default function PurchaseOrdersPage() {
     const [poToApprove, setPoToApprove] = useState<PurchaseOrder | null>(null);
     const [poToView, setPoToView] = useState<PurchaseOrder | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('orderDate');
+    const [sortDirection, setSortDirection] = useState<'desc' | 'asc'>('desc');
 
     const form = useForm<POFormData>({
         resolver: zodResolver(poSchema),
@@ -95,13 +98,41 @@ export default function PurchaseOrdersPage() {
     const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
 
     const filteredPurchaseOrders = useMemo(() => {
-        if (!searchTerm) return purchaseOrders;
+        let sorted = [...purchaseOrders].sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+
+            if(aValue === undefined || aValue === null) return 1;
+            if(bValue === undefined || bValue === null) return -1;
+
+            if (sortKey === 'orderDate') {
+                return sortDirection === 'asc' 
+                    ? new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime() 
+                    : new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
+            }
+
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        if (!searchTerm) return sorted;
+        
         const lowercasedFilter = searchTerm.toLowerCase();
-        return purchaseOrders.filter(po => 
+        return sorted.filter(po => 
             po.id.toLowerCase().includes(lowercasedFilter) ||
             po.vendorName.toLowerCase().includes(lowercasedFilter)
         );
-    }, [purchaseOrders, searchTerm]);
+    }, [purchaseOrders, searchTerm, sortKey, sortDirection]);
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const availableProductsForPO = useMemo(() => {
         if (!watchedVendorId) {
@@ -275,37 +306,29 @@ export default function PurchaseOrdersPage() {
         <div className="flex flex-col h-full">
             <Header title="Purchase Orders" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search by PO ID or Vendor..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                    {canCreatePo && (
+                        <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                            <PlusCircle className="h-4 w-4" /> Create Purchase Order
+                        </Button>
+                    )}
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <CardTitle>Purchase Orders</CardTitle>
-                                <CardDescription>Create and manage purchase orders for your vendors.</CardDescription>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search by PO ID or Vendor..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                {canCreatePo && (
-                                    <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
-                                        <PlusCircle className="h-4 w-4" /> Create Purchase Order
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                          <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>PO ID</TableHead>
-                                    <TableHead>Vendor</TableHead>
-                                    <TableHead className="hidden md:table-cell">Total Cost</TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('id')}>PO ID <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('vendorName')}>Vendor <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead className="hidden md:table-cell text-right"><Button variant="ghost" onClick={() => handleSort('totalCost')}>Total Cost <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="hidden lg:table-cell">Order Date</TableHead>
+                                    <TableHead className="hidden lg:table-cell"><Button variant="ghost" onClick={() => handleSort('orderDate')}>Order Date <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -314,13 +337,13 @@ export default function PurchaseOrdersPage() {
                                     <TableRow key={po.id}>
                                         <TableCell className="font-medium">{po.id}</TableCell>
                                         <TableCell>{po.vendorName}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{currencySymbol} {po.totalCost.toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell text-right">{currencySymbol} {po.totalCost.toFixed(2)}</TableCell>
                                         <TableCell>
                                             <Badge variant={statusVariant[po.status]} className="capitalize">
                                                 {po.status.replace('-', ' ')}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="hidden lg:table-cell">{new Date(po.orderDate).toLocaleDateString()}</TableCell>
+                                        <TableCell className="hidden lg:table-cell">{parseISO(po.orderDate).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -477,5 +500,7 @@ export default function PurchaseOrdersPage() {
         </div>
     );
 }
+
+    
 
     
