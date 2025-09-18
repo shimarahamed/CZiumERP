@@ -5,6 +5,8 @@
 
 
 
+
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -220,6 +222,27 @@ export type Asset = {
   assignedTo?: string; // User ID
   storeId?: string;
 };
+
+export type ITAsset = {
+  id: string; // Asset ID / Tag Number
+  name: string; // Asset Name / Hostname
+  category: string; // e.g., laptop, server
+  status: AssetStatus;
+  manufacturer?: string;
+  model?: string;
+  serialNumber: string;
+  description?: string;
+  // Assignment
+  assignedTo?: string; // User ID
+  department?: string;
+  location?: string;
+  // Procurement
+  purchaseDate: string; // YYYY-MM-DD
+  purchaseCost: number;
+  vendorId?: string;
+  warrantyExpiration?: string; // YYYY-MM-DD
+};
+
 
 export type AttendanceStatus = 'present' | 'absent' | 'leave' | 'half-day';
 
@@ -479,5 +502,3 @@ export type Shipment = {
   estimatedDeliveryDate?: string; // ISO String
   actualDeliveryDate?: string; // ISO String
 };
-
-    

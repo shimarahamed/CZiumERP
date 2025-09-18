@@ -6,11 +6,12 @@
 
 
 
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings } from '@/types';
-import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, ITAsset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings } from '@/types';
+import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialItAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
 import { differenceInDays, parseISO } from 'date-fns';
 
 
@@ -73,6 +74,8 @@ interface AppContextType {
   setRfqs: React.Dispatch<React.SetStateAction<RFQ[]>>;
   assets: Asset[];
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
+  itAssets: ITAsset[];
+  setItAssets: React.Dispatch<React.SetStateAction<ITAsset[]>>;
   employees: Employee[];
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
   stores: Store[];
@@ -156,6 +159,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [_purchaseOrders, _setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
   const [_rfqs, _setRfqs] = useState<RFQ[]>(initialRfqs);
   const [_assets, _setAssets] = useState<Asset[]>(initialAssets);
+  const [_itAssets, _setItAssets] = useState<ITAsset[]>(initialItAssets);
   const [_users, _setUsers] = useState<User[]>(initialUsers);
   const [_employees, _setEmployees] = useState<Employee[]>(initialEmployees);
   const [_stores, _setStores] = useState<Store[]>(initialStores);
@@ -203,6 +207,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     _setPurchaseOrders(getStoredState('purchaseOrders', initialPurchaseOrders));
     _setRfqs(getStoredState('rfqs', initialRfqs));
     _setAssets(getStoredState('assets', initialAssets));
+    _setItAssets(getStoredState('itAssets', initialItAssets));
     _setUsers(getStoredState('users', initialUsers));
     _setEmployees(getStoredState('employees', initialEmployees));
     _setActivityLogs(getStoredState('activityLogs', []));
@@ -255,6 +260,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('purchaseOrders', JSON.stringify(_purchaseOrders)); }, [_purchaseOrders, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('rfqs', JSON.stringify(_rfqs)); }, [_rfqs, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('assets', JSON.stringify(_assets)); }, [_assets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('itAssets', JSON.stringify(_itAssets)); }, [_itAssets, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(_users)); }, [_users, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('employees', JSON.stringify(_employees)); }, [_employees, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('stores', JSON.stringify(_stores)); }, [_stores, isHydrated]);
@@ -344,6 +350,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const purchaseOrders = useMemo(() => filterByStore(_purchaseOrders), [_purchaseOrders, filterByStore]);
   const rfqs = useMemo(() => filterByStore(_rfqs), [_rfqs, filterByStore]);
   const assets = useMemo(() => filterByStore(_assets), [_assets, filterByStore]);
+  const itAssets = useMemo(() => filterByStore(_itAssets), [_itAssets, filterByStore]);
   const budgets = useMemo(() => filterByStore(_budgets), [_budgets, filterByStore]);
   const productionOrders = useMemo(() => filterByStore(_productionOrders), [_productionOrders, filterByStore]);
   const qualityChecks = useMemo(() => filterByStore(_qualityChecks), [_qualityChecks, filterByStore]);
@@ -409,43 +416,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setCurrentStore(null);
     // Clear all app data on logout
-    localStorage.removeItem('invoices');
-    localStorage.removeItem('customers');
-    localStorage.removeItem('products');
-    localStorage.removeItem('vendors');
-    localStorage.removeItem('activityLogs');
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
-    localStorage.removeItem('currentStoreId');
-    localStorage.removeItem('currency');
-    localStorage.removeItem('purchaseOrders');
-    localStorage.removeItem('users');
-    localStorage.removeItem('employees');
-    localStorage.removeItem('stores');
-    localStorage.removeItem('rfqs');
-    localStorage.removeItem('assets');
-    localStorage.removeItem('attendance');
-    localStorage.removeItem('leaveRequests');
-    localStorage.removeItem('ledgerEntries');
-    localStorage.removeItem('taxRates');
-    localStorage.removeItem('budgets');
-    localStorage.removeItem('candidates');
-    localStorage.removeItem('performanceReviews');
-    localStorage.removeItem('billsOfMaterials');
-    localStorage.removeItem('productionOrders');
-    localStorage.removeItem('qualityChecks');
-    localStorage.removeItem('leads');
-    localStorage.removeItem('campaigns');
-    localStorage.removeItem('projects');
-    localStorage.removeItem('tasks');
-    localStorage.removeItem('tickets');
-    localStorage.removeItem('jobRequisitions');
-    localStorage.removeItem('companyName');
-    localStorage.removeItem('companyAddress');
-    localStorage.removeItem('fiscalYearStartMonth');
-    localStorage.removeItem('notifications');
-    localStorage.removeItem('shipments');
-    localStorage.removeItem('themeSettings');
+    localStorage.clear();
   };
 
 
@@ -458,6 +429,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       purchaseOrders, setPurchaseOrders: _setPurchaseOrders,
       rfqs, setRfqs: _setRfqs,
       assets, setAssets: _setAssets,
+      itAssets, setItAssets: _setItAssets,
       employees, setEmployees: _setEmployees,
       stores: _stores,
       setStores: _setStores,

@@ -2,7 +2,12 @@
 
 
 
-import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment } from '@/types';
+
+
+
+
+
+import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, ITAsset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment } from '@/types';
 
 export const initialUsers: User[] = [
   { id: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', role: 'admin', password: 'password' },
@@ -122,12 +127,14 @@ export const initialRfqs: RFQ[] = [
 export const initialAssets: Asset[] = [
   { id: 'asset-1', name: 'Delivery Van 01', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'emp-6', storeId: 'store-1' },
   { id: 'asset-2', name: 'Head Office Printer', category: 'Office Equipment', serialNumber: 'PRINTER-XYZ', purchaseDate: '2023-05-20', purchaseCost: 800, status: 'in-use', location: 'Head Office', storeId: 'store-1' },
-  { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2025-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2', storeId: 'store-1' },
   { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2022-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2', storeId: 'store-2' },
   { id: 'asset-5', name: 'Delivery Van 02', category: 'Vehicle', serialNumber: 'VIN987654321', purchaseDate: '2024-08-01', purchaseCost: 28000, status: 'under-maintenance', location: 'store-2', storeId: 'store-2' },
-  { id: 'asset-6', name: 'Server Rack A', category: 'IT Equipment', serialNumber: 'SRV-RACK-01', purchaseDate: '2023-01-20', purchaseCost: 2500, status: 'in-use', location: 'Data Center', storeId: 'store-1' },
-  { id: 'asset-7', name: 'Conference Room Projector', category: 'IT Equipment', serialNumber: 'PROJ-CONF-01', purchaseDate: '2023-03-10', purchaseCost: 700, status: 'in-use', location: 'Head Office', storeId: 'store-1' },
+];
 
+export const initialItAssets: ITAsset[] = [
+    { id: 'itasset-1', name: 'Laptop - Manager 1', category: 'Laptop', serialNumber: 'LAPTOP-001', purchaseDate: '2025-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2', manufacturer: 'Dell', model: 'XPS 15' },
+    { id: 'itasset-2', name: 'Server Rack A', category: 'Server', serialNumber: 'SRV-RACK-01', purchaseDate: '2023-01-20', purchaseCost: 2500, status: 'in-use', location: 'Data Center', manufacturer: 'HPE', model: 'ProLiant DL380' },
+    { id: 'itasset-3', name: 'Conference Room Projector', category: 'Projector', serialNumber: 'PROJ-CONF-01', purchaseDate: '2023-03-10', purchaseCost: 700, status: 'in-use', location: 'Head Office', manufacturer: 'Epson', model: 'PowerLite 1781W' },
 ];
 
 export const initialAttendance: AttendanceEntry[] = [];
