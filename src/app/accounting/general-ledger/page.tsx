@@ -9,10 +9,25 @@ import { useAppContext } from "@/context/AppContext";
 import { format, parseISO } from 'date-fns';
 import type { LedgerEntry } from '@/types';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { ArrowUpDown } from '@/components/icons';
+
+type SortKey = 'date' | 'account' | 'debit' | 'credit';
 
 export default function GeneralLedgerPage() {
     const { ledgerEntries, currencySymbol } = useAppContext();
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('date');
+    const [sortDirection, setSortDirection] = useState<'desc' | 'asc'>('desc');
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const processedEntries = useMemo(() => {
         if (!Array.isArray(ledgerEntries)) return [];
@@ -29,12 +44,21 @@ export default function GeneralLedgerPage() {
         let balance = 0;
         // Sort entries by date to calculate running balance correctly
         return filtered
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .sort((a, b) => {
+                const aValue = a[sortKey];
+                const bValue = b[sortKey];
+
+                if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+                if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+                
+                // Secondary sort by original date to maintain chronological balance
+                return new Date(b.date).getTime() - new Date(a.date).getTime();
+            })
             .map(entry => {
                 balance += entry.debit - entry.credit;
                 return { ...entry, balance };
             });
-    }, [ledgerEntries, searchTerm]);
+    }, [ledgerEntries, searchTerm, sortKey, sortDirection]);
 
     return (
         <div className="flex flex-col h-full">
@@ -57,11 +81,11 @@ export default function GeneralLedgerPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Account</TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('date')}>Date <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('account')}>Account <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead>Description</TableHead>
-                                    <TableHead className="text-right">Debit</TableHead>
-                                    <TableHead className="text-right">Credit</TableHead>
+                                    <TableHead className="text-right"><Button variant="ghost" onClick={() => handleSort('debit')}>Debit <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead className="text-right"><Button variant="ghost" onClick={() => handleSort('credit')}>Credit <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead className="text-right">Balance</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -94,3 +118,5 @@ export default function GeneralLedgerPage() {
         </div>
     );
 }
+
+    

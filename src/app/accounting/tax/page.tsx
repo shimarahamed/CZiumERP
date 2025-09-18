@@ -18,7 +18,7 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { TaxRate } from '@/types';
-import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 
 const taxRateSchema = z.object({
@@ -29,6 +29,8 @@ const taxRateSchema = z.object({
 
 type TaxRateFormData = z.infer<typeof taxRateSchema>;
 
+type SortKey = 'name' | 'rate';
+
 export default function TaxManagementPage() {
     const { taxRates, setTaxRates, addActivityLog, user } = useAppContext();
     const { toast } = useToast();
@@ -36,6 +38,9 @@ export default function TaxManagementPage() {
     const [rateToEdit, setRateToEdit] = useState<TaxRate | null>(null);
     const [rateToDelete, setRateToDelete] = useState<TaxRate | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
 
     const form = useForm<TaxRateFormData>({
         resolver: zodResolver(taxRateSchema),
@@ -43,12 +48,21 @@ export default function TaxManagementPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
     
-    const filteredTaxRates = useMemo(() => {
-        if (!searchTerm) return taxRates;
-        return taxRates.filter(rate =>
+    const sortedAndFilteredTaxRates = useMemo(() => {
+        let filtered = taxRates.filter(rate =>
             rate.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [taxRates, searchTerm]);
+
+        filtered.sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        return filtered;
+    }, [taxRates, searchTerm, sortKey, sortDirection]);
 
     if (!canManage) {
         return (
@@ -61,6 +75,15 @@ export default function TaxManagementPage() {
             </div>
         );
     }
+    
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (rate: TaxRate | null = null) => {
         setRateToEdit(rate);
@@ -128,10 +151,15 @@ export default function TaxManagementPage() {
                     <CardContent>
                         <Table>
                             <TableHeader>
-                                <TableRow><TableHead>Name</TableHead><TableHead>Rate (%)</TableHead><TableHead>Default</TableHead><TableHead><span className="sr-only">Actions</span></TableHead></TableRow>
+                                <TableRow>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('name')}>Name <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('rate')}>Rate (%) <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead>Default</TableHead>
+                                    <TableHead><span className="sr-only">Actions</span></TableHead>
+                                </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredTaxRates.map(rate => (
+                                {sortedAndFilteredTaxRates.map(rate => (
                                     <TableRow key={rate.id}>
                                         <TableCell>{rate.name}</TableCell>
                                         <TableCell>{rate.rate}%</TableCell>
@@ -170,25 +198,21 @@ export default function TaxManagementPage() {
                                 </FormItem>
                             )} />
                             <DialogFooter>
-                                {rateToEdit ? (
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button type="button">Save Changes</Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
-                                                <AlertDialogDescription>Are you sure you want to save these changes?</AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                ) : (
-                                    <Button type="submit">Add Rate</Button>
-                                )}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button">{rateToEdit ? 'Save Changes' : 'Add Rate'}</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                                            <AlertDialogDescription>Are you sure you want to save these changes?</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -204,3 +228,5 @@ export default function TaxManagementPage() {
         </div>
     );
 }
+
+    

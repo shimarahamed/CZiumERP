@@ -55,6 +55,7 @@ export default function AssetsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortKey, setSortKey] = useState<SortKey>('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [statusFilter, setStatusFilter] = useState<AssetStatus | 'all'>('all');
 
     const form = useForm<AssetFormData>({
         resolver: zodResolver(assetSchema),
@@ -64,10 +65,11 @@ export default function AssetsPage() {
     
     const sortedAndFilteredAssets = useMemo(() => {
         let filtered = assets.filter(asset =>
-            asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             asset.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (asset.serialNumber && asset.serialNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            asset.location.toLowerCase().includes(searchTerm.toLowerCase())
+            asset.location.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (statusFilter === 'all' || asset.status === statusFilter)
         );
 
         filtered.sort((a, b) => {
@@ -80,7 +82,7 @@ export default function AssetsPage() {
         });
 
         return filtered;
-    }, [assets, searchTerm, sortKey, sortDirection]);
+    }, [assets, searchTerm, sortKey, sortDirection, statusFilter]);
 
     if (!canManage) {
         return (
@@ -177,8 +179,19 @@ export default function AssetsPage() {
                                     placeholder="Search assets..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                                    className="w-full md:w-auto md:min-w-[200px] bg-secondary"
                                 />
+                                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as AssetStatus | 'all')}>
+                                    <SelectTrigger className="w-full sm:w-auto">
+                                        <SelectValue placeholder="Filter by status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Statuses</SelectItem>
+                                        {Object.keys(statusVariant).map(status => (
+                                            <SelectItem key={status} value={status} className="capitalize">{status.replace('-', ' ')}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
                                     <PlusCircle className="h-4 w-4" />
                                     Add Asset
@@ -309,25 +322,21 @@ export default function AssetsPage() {
                             )} />
                             
                             <DialogFooter className="pt-4">
-                                 {assetToEdit ? (
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button type="button">Save Changes</Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>This will save the changes to the asset.</AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => form.handleSubmit(processSubmit)()}>Confirm</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                ) : (
-                                    <Button type="submit">Add Asset</Button>
-                                )}
+                                 <AlertDialog>
+                                     <AlertDialogTrigger asChild>
+                                        <Button type="button">{assetToEdit ? 'Save Changes' : 'Add Asset'}</Button>
+                                     </AlertDialogTrigger>
+                                     <AlertDialogContent>
+                                         <AlertDialogHeader>
+                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                             <AlertDialogDescription>This will save the changes to the asset.</AlertDialogDescription>
+                                         </AlertDialogHeader>
+                                         <AlertDialogFooter>
+                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                             <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
+                                         </AlertDialogFooter>
+                                     </AlertDialogContent>
+                                 </AlertDialog>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -349,5 +358,7 @@ export default function AssetsPage() {
         </div>
     );
 }
+
+    
 
     
