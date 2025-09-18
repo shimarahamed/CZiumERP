@@ -6,7 +6,7 @@ import AuthWrapper from '@/components/AuthWrapper';
 
 export const metadata: Metadata = {
   title: 'CZium ERP',
-  description: 'A modern ERP for your business',
+  description: 'A modern ERP for your business, built with Next.js and Firebase.',
   manifest: '/manifest.json',
 };
 

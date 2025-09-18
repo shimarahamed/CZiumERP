@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { Shipment } from '@/types';
 import { Printer, Store } from '@/components/icons';
 import { useAppContext } from '@/context/AppContext';
+import jsbarcode from 'jsbarcode';
 
 interface ShippingLabelProps {
     shipment: Shipment;
@@ -15,76 +16,51 @@ interface ShippingLabelProps {
 
 const ShippingLabel = ({ shipment }: ShippingLabelProps) => {
     const { companyName, companyAddress } = useAppContext();
+    const barcodeRef = React.useRef<SVGSVGElement>(null);
+
+    React.useEffect(() => {
+        if (barcodeRef.current && shipment.trackingNumber) {
+            jsbarcode(barcodeRef.current, shipment.trackingNumber, {
+                format: 'CODE128',
+                displayValue: true,
+                fontSize: 14,
+                margin: 10,
+                height: 50,
+            });
+        }
+    }, [shipment.trackingNumber]);
     
     const handlePrint = () => {
         window.print();
     };
 
     return (
-        <DialogContent className="sm:max-w-4xl p-0 printable-area-container">
+        <DialogContent className="sm:max-w-xl p-0 printable-area-container">
             <DialogHeader className="sr-only">
-              <DialogTitle>Packing Slip for {shipment.id}</DialogTitle>
+              <DialogTitle>Shipping Label for {shipment.id}</DialogTitle>
             </DialogHeader>
-            <div className="printable-area bg-white text-black p-8 font-sans">
-                {/* Shipping Label Section */}
-                <div className="border-b-2 border-dashed border-gray-400 pb-8 mb-8">
-                    <div className="flex justify-between items-start">
-                        <div className="w-3/5">
-                            <p className="text-sm font-bold uppercase">Ship To:</p>
-                            <p className="text-lg font-bold">{shipment.customerName}</p>
-                            <p className="text-base">{shipment.shippingAddress}</p>
-                        </div>
-                        <div className="w-2/5 text-right text-xs">
-                            <p className="font-bold">{companyName}</p>
-                            <p>{companyAddress}</p>
-                        </div>
+            <div className="printable-area bg-white text-black p-6 font-sans" style={{ width: '4in', height: '6in' }}>
+                 <div className="flex flex-col h-full">
+                    <div className="border-b border-black pb-2">
+                        <p className="text-xs font-bold">FROM: {companyName}</p>
+                        <p className="text-xs">{companyAddress}</p>
                     </div>
-                </div>
 
-                {/* Vendor/Company Info & Order Details */}
-                <div className="flex justify-between items-start mb-8">
-                    <div className="flex items-center gap-4">
-                        <Store className="h-16 w-16 text-gray-700" />
-                        <div>
-                            <p className="font-bold text-xl">{companyName}</p>
-                            <p className="text-sm">{companyAddress}</p>
-                        </div>
+                    <div className="flex-grow py-4 pl-8">
+                        <p className="text-sm font-bold">SHIP TO:</p>
+                        <p className="text-2xl font-bold">{shipment.customerName}</p>
+                        <p className="text-lg">{shipment.shippingAddress}</p>
                     </div>
-                    <div className="text-right text-sm">
-                        <p><span className="font-bold">Order Number:</span> {shipment.id}</p>
-                        <p><span className="font-bold">Order Date:</span> {new Date(shipment.dispatchDate).toLocaleDateString()}</p>
-                    </div>
-                </div>
 
-                {/* Customer Info */}
-                <div className="mb-8">
-                    <p className="font-bold uppercase text-sm">Billed To:</p>
-                    <p>{shipment.customerName}</p>
-                    <p>{shipment.shippingAddress}</p>
+                    <div className="border-t border-black pt-2 flex flex-col items-center justify-center">
+                        <svg ref={barcodeRef} className="w-full"></svg>
+                    </div>
                 </div>
-                
-                {/* Picking List */}
-                <Table id="picking-list">
-                    <TableHeader className="bg-gray-800 text-white">
-                        <TableRow>
-                            <TableHead className="text-white">Product</TableHead>
-                            <TableHead className="text-white text-center w-[20%]">Quantity</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {shipment.items.map((item) => (
-                            <TableRow key={item.productId}>
-                                <TableCell className="font-medium">{item.productName}</TableCell>
-                                <TableCell className="text-center">{item.quantity}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
             </div>
             <DialogFooter className="non-printable p-4 border-t flex justify-center">
                 <Button onClick={handlePrint} variant="outline" className="w-full sm:w-auto">
                     <Printer className="mr-2 h-4 w-4" />
-                    Print Packing Slip
+                    Print Label
                 </Button>
             </DialogFooter>
         </DialogContent>
