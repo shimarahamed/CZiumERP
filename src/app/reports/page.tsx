@@ -205,7 +205,7 @@ export default function ReportsPage() {
     const SalesReportContent = () => (
          <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <ReportKPI title="Total Revenue" value={`${currencySymbol}${salesReportData.totalRevenue.toFixed(2)}`} icon={DollarSign} />
+                <ReportKPI title="Total Revenue" value={`${currencySymbol} ${salesReportData.totalRevenue.toFixed(2)}`} icon={DollarSign} />
                 <ReportKPI title="Invoices" value={`${salesReportData.totalInvoices}`} icon={FileText} />
                 <ReportKPI title="Items Sold" value={`${salesReportData.totalItemsSold}`} icon={ShoppingBag} />
                 <ReportKPI title="Customers" value={`${salesReportData.uniqueCustomers}`} icon={Users} />
@@ -213,11 +213,11 @@ export default function ReportsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card><CardHeader><CardTitle>Sales by Product</CardTitle></CardHeader><CardContent>
                     <Table><TableHeader><TableRow><TableHead>Product</TableHead><TableHead className="text-right">Qty</TableHead><TableHead className="text-right">Revenue</TableHead></TableRow></TableHeader>
-                    <TableBody>{salesReportData.productSales.map(p => (<TableRow key={p.name}><TableCell>{p.name}</TableCell><TableCell className="text-right">{p.quantity}</TableCell><TableCell className="text-right">{currencySymbol}{p.revenue.toFixed(2)}</TableCell></TableRow>))}</TableBody></Table>
+                    <TableBody>{salesReportData.productSales.map(p => (<TableRow key={p.name}><TableCell>{p.name}</TableCell><TableCell className="text-right">{p.quantity}</TableCell><TableCell className="text-right">{currencySymbol} {p.revenue.toFixed(2)}</TableCell></TableRow>))}</TableBody></Table>
                 </CardContent></Card>
                 <Card><CardHeader><CardTitle>Sales by User</CardTitle></CardHeader><CardContent>
                     <Table><TableHeader><TableRow><TableHead>User</TableHead><TableHead className="text-right">Invoices</TableHead><TableHead className="text-right">Revenue</TableHead></TableRow></TableHeader>
-                    <TableBody>{salesReportData.userSales.map(u => (<TableRow key={u.name}><TableCell>{u.name}</TableCell><TableCell className="text-right">{u.invoices}</TableCell><TableCell className="text-right">{currencySymbol}{u.revenue.toFixed(2)}</TableCell></TableRow>))}</TableBody></Table>
+                    <TableBody>{salesReportData.userSales.map(u => (<TableRow key={u.name}><TableCell>{u.name}</TableCell><TableCell className="text-right">{u.invoices}</TableCell><TableCell className="text-right">{currencySymbol} {u.revenue.toFixed(2)}</TableCell></TableRow>))}</TableBody></Table>
                 </CardContent></Card>
             </div>
             <Card>
@@ -248,7 +248,7 @@ export default function ReportsPage() {
         <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <ReportKPI title="Total SKUs" value={`${inventoryReportData.totalItems}`} icon={Package} />
-                <ReportKPI title="Total Stock Value (Cost)" value={`${currencySymbol}${inventoryReportData.totalStockValue.toFixed(2)}`} icon={DollarSign} />
+                <ReportKPI title="Total Stock Value (Cost)" value={`${currencySymbol} ${inventoryReportData.totalStockValue.toFixed(2)}`} icon={DollarSign} />
                 <ReportKPI title="Low Stock Items" value={`${inventoryReportData.lowStockItems.length}`} icon={TrendingUp} />
             </div>
             <Card>
@@ -260,8 +260,8 @@ export default function ReportsPage() {
                             <TableCell>{p.name}</TableCell>
                             <TableCell>{p.sku || 'N/A'}</TableCell>
                             <TableCell className="text-right">{p.stock}</TableCell>
-                            <TableCell className="text-right">{currencySymbol}{p.cost.toFixed(2)}</TableCell>
-                            <TableCell className="text-right">{currencySymbol}{(p.stock * p.cost).toFixed(2)}</TableCell>
+                            <TableCell className="text-right">{currencySymbol} {p.cost.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">{currencySymbol} {(p.stock * p.cost).toFixed(2)}</TableCell>
                         </TableRow>
                     ))}</TableBody></Table>
                 </CardContent>
@@ -277,15 +277,15 @@ export default function ReportsPage() {
                     <div className="max-w-md mx-auto space-y-4">
                         <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                             <span className="font-medium">Total Revenue</span>
-                            <span className="font-bold text-lg">{currencySymbol}{financialReportData.totalRevenue.toFixed(2)}</span>
+                            <span className="font-bold text-lg">{currencySymbol} {financialReportData.totalRevenue.toFixed(2)}</span>
                         </div>
                          <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
                             <span className="font-medium text-destructive">Cost of Goods Sold (COGS)</span>
-                            <span className="font-bold text-lg text-destructive">-{currencySymbol}{financialReportData.costOfGoodsSold.toFixed(2)}</span>
+                            <span className="font-bold text-lg text-destructive">-{currencySymbol} {financialReportData.costOfGoodsSold.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center p-4 bg-primary/10 rounded-lg border border-primary/20">
                             <span className="font-semibold text-primary">Gross Profit</span>
-                            <span className="font-bold text-xl text-primary">{currencySymbol}{financialReportData.grossProfit.toFixed(2)}</span>
+                            <span className="font-bold text-xl text-primary">{currencySymbol} {financialReportData.grossProfit.toFixed(2)}</span>
                         </div>
                         <div className="text-center pt-2">
                             <p className="text-sm text-muted-foreground">Profit Margin: <span className="font-bold">{financialReportData.profitMargin.toFixed(2)}%</span></p>

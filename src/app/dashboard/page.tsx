@@ -350,7 +350,7 @@ export default function DashboardPage() {
                     <TableCell>
                       <Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">{currencySymbol}{invoice.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

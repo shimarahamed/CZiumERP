@@ -136,11 +136,11 @@ export default function BudgetingPage() {
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-muted-foreground">Actual Spent</span>
-                                            <span>{currencySymbol}{budget.actualAmount.toFixed(2)}</span>
+                                            <span>{currencySymbol} {budget.actualAmount.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm font-medium">
                                             <span className="text-muted-foreground">Budgeted</span>
-                                            <span>{currencySymbol}{budget.budgetedAmount.toFixed(2)}</span>
+                                            <span>{currencySymbol} {budget.budgetedAmount.toFixed(2)}</span>
                                         </div>
                                         <Progress value={percentage} className={cn(percentage > 100 && "[&>div]:bg-destructive")} />
                                     </div>
@@ -148,7 +148,7 @@ export default function BudgetingPage() {
                                 <CardFooter>
                                     <p className={cn("text-xs", percentage > 100 ? "text-destructive" : "text-muted-foreground")}>
                                         {percentage.toFixed(1)}% of budget used.
-                                        {percentage > 100 && ` ${currencySymbol}${(budget.actualAmount - budget.budgetedAmount).toFixed(2)} over budget.`}
+                                        {percentage > 100 && ` ${currencySymbol} ${(budget.actualAmount - budget.budgetedAmount).toFixed(2)} over budget.`}
                                     </p>
                                 </CardFooter>
                             </Card>

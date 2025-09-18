@@ -97,12 +97,12 @@ export default function GeneralLedgerPage() {
                                             <TableCell>{entry.account}</TableCell>
                                             <TableCell>{entry.description}</TableCell>
                                             <TableCell className="text-right font-mono">
-                                                {entry.debit > 0 ? `${currencySymbol}${entry.debit.toFixed(2)}` : '-'}
+                                                {entry.debit > 0 ? `${currencySymbol} ${entry.debit.toFixed(2)}` : '-'}
                                             </TableCell>
                                             <TableCell className="text-right font-mono">
-                                                {entry.credit > 0 ? `${currencySymbol}${entry.credit.toFixed(2)}` : '-'}
+                                                {entry.credit > 0 ? `${currencySymbol} ${entry.credit.toFixed(2)}` : '-'}
                                             </TableCell>
-                                            <TableCell className="text-right font-mono">{currencySymbol}{entry.balance.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right font-mono">{currencySymbol} {entry.balance.toFixed(2)}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
