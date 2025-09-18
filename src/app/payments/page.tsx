@@ -133,7 +133,7 @@ export default function PaymentsPage() {
                   <Label htmlFor="amount">Amount</Label>
                   <div className="relative">
                     <span className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">{currencySymbol}</span>
-                    <Input id="amount" type="number" placeholder="0.00" className="pl-8" value={amount} onChange={(e) => setAmount(e.target.value)} readOnly/>
+                    <Input id="amount" type="number" placeholder="0.00" className="pl-8" value={amount} onChange={(e) => setAmount(e.target.value)} />
                   </div>
                 </div>
                 <div className="grid gap-3">
