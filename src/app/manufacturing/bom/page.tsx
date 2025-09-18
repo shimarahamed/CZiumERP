@@ -265,7 +265,7 @@ export default function BillOfMaterialsPage() {
             <AlertDialog open={!!bomToDelete} onOpenChange={(open) => !open && setBomToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>This will permanently delete the Bill of Materials for {bomToDelete?.productName}. This action cannot be undone.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

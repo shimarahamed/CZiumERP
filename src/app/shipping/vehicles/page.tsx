@@ -127,28 +127,20 @@ export default function VehiclesPage() {
         <div className="flex flex-col h-full">
             <Header title="Fleet Management" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search by name or license..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                    <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                        <PlusCircle className="h-4 w-4" />
+                        Add Vehicle
+                    </Button>
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <CardTitle>Vehicle Fleet</CardTitle>
-                                <CardDescription>Track and manage all company vehicles.</CardDescription>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search by name or license..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" />
-                                    Add Vehicle
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -231,3 +223,4 @@ export default function VehiclesPage() {
         </div>
     );
 }
+
