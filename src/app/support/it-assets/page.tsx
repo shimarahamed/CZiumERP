@@ -57,7 +57,6 @@ type SortKey = keyof ITAsset | 'assignedUserName';
 type Filters = {
     status: AssetStatus | 'all';
     location: string;
-    assignedTo: string;
 };
 
 const statusVariant: { [key in AssetStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
@@ -78,11 +77,11 @@ export default function ITAssetsPage() {
     const [sortKey, setSortKey] = useState<SortKey>('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [searchTerm, setSearchTerm] = useState('');
+    const [comboboxSearch, setComboboxSearch] = useState('');
     
     const [filters, setFilters] = useState<Filters>({
         status: 'all',
         location: '',
-        assignedTo: '',
     });
 
     const form = useForm<ITAssetFormData>({
@@ -94,6 +93,10 @@ export default function ITAssetsPage() {
     const employeeOptions = useMemo(() => 
         [{ label: 'Unassigned', value: 'unassigned' }, ...employees.map(e => ({ label: e.name, value: e.id }))]
     , [employees]);
+
+    const filteredEmployeeOptions = useMemo(() => 
+        employeeOptions.filter(e => e.label.toLowerCase().includes(comboboxSearch.toLowerCase()))
+    , [employeeOptions, comboboxSearch]);
 
     const sortedAndFilteredAssets = useMemo(() => {
         let filtered = [...itAssets].map(asset => {
@@ -112,8 +115,7 @@ export default function ITAssetsPage() {
 
             const matchesFilters = (
                 (filters.status === 'all' || asset.status === filters.status) &&
-                (filters.location ? asset.location?.toLowerCase().includes(filters.location.toLowerCase()) : true) &&
-                (filters.assignedTo ? asset.assignedUserName.toLowerCase().includes(filters.assignedTo.toLowerCase()) : true)
+                (filters.location ? asset.location?.toLowerCase().includes(filters.location.toLowerCase()) : true)
             );
 
             return matchesSearch && matchesFilters;
@@ -214,9 +216,13 @@ export default function ITAssetsPage() {
         setAssetToDelete(null);
     };
     
-    const handleFilterChange = (field: keyof Filters, value: string) => {
+    const handleFilterChange = (field: keyof Omit<Filters, 'assignedTo'>, value: string) => {
         setFilters(prev => ({ ...prev, [field]: value }));
     };
+
+    const handleUpdateAssetFromDetail = (updatedAsset: ITAsset) => {
+        setItAssets(prev => prev.map(a => a.id === updatedAsset.id ? updatedAsset : a));
+    }
 
     return (
         <div className="flex flex-col h-full">
@@ -257,7 +263,6 @@ export default function ITAssetsPage() {
                                                     </Select>
                                                 </div>
                                                 <div className="grid grid-cols-3 items-center gap-4"><Label htmlFor="filter-location">Location</Label><Input id="filter-location" value={filters.location} onChange={(e) => handleFilterChange('location', e.target.value)} className="col-span-2 h-8" /></div>
-                                                <div className="grid grid-cols-3 items-center gap-4"><Label htmlFor="filter-assignedTo">Assigned To</Label><Input id="filter-assignedTo" value={filters.assignedTo} onChange={(e) => handleFilterChange('assignedTo', e.target.value)} className="col-span-2 h-8" /></div>
                                             </div>
                                         </div>
                                     </PopoverContent>
@@ -338,9 +343,13 @@ export default function ITAssetsPage() {
                                             <FormItem className="flex flex-col">
                                                 <FormLabel>Assigned To / User</FormLabel>
                                                 <Combobox
-                                                    options={employeeOptions}
+                                                    options={filteredEmployeeOptions}
                                                     value={field.value}
-                                                    onValueChange={field.onChange}
+                                                    onValueChange={(value) => {
+                                                        field.onChange(value);
+                                                        setComboboxSearch("");
+                                                    }}
+                                                    onSearchChange={setComboboxSearch}
                                                     placeholder="Select an employee..."
                                                     searchPlaceholder="Search employees..."
                                                     emptyText="No employee found."
@@ -389,8 +398,8 @@ export default function ITAssetsPage() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={!!assetToView} onOpenChange={(open) => !open && setAssetToView(null)}>
-                {assetToView && <ITAssetDetail asset={assetToView} />}
+            <Dialog open={!!assetToView} onOpenChange={(open) => { if (!open) setAssetToView(null); }}>
+                {assetToView && <ITAssetDetail asset={assetToView} onUpdate={handleUpdateAssetFromDetail} />}
             </Dialog>
 
             <AlertDialog open={!!assetToDelete} onOpenChange={(open) => !open && setAssetToDelete(null)}>

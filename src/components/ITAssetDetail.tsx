@@ -1,15 +1,19 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import type { ITAsset } from '@/types';
+import type { ITAsset, AssetStatus } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
+import { Combobox } from './ui/combobox';
+import { useToast } from '@/hooks/use-toast';
 
 interface ITAssetDetailProps {
     asset: ITAsset;
+    onUpdate: (asset: ITAsset) => void;
 }
 
 const DetailItem = ({ label, value }: { label: string, value: React.ReactNode }) => (
@@ -19,10 +23,41 @@ const DetailItem = ({ label, value }: { label: string, value: React.ReactNode })
     </div>
 );
 
-const ITAssetDetail = ({ asset }: ITAssetDetailProps) => {
-    const { currencySymbol, vendors, employees } = useAppContext();
+const ITAssetDetail = ({ asset, onUpdate }: ITAssetDetailProps) => {
+    const { currencySymbol, vendors, employees, addActivityLog } = useAppContext();
+    const { toast } = useToast();
+    const [currentStatus, setCurrentStatus] = useState<AssetStatus>(asset.status);
+    const [assignedUserId, setAssignedUserId] = useState(asset.assignedTo);
+
     const assignedUser = employees.find(e => e.id === asset.assignedTo);
     const vendor = vendors.find(v => v.id === asset.vendorId);
+    
+    const employeeOptions = useMemo(() => employees.map(e => ({ label: e.name, value: e.id })), [employees]);
+
+    const handleStatusChange = (newStatus: AssetStatus) => {
+        setCurrentStatus(newStatus);
+        const updatedAsset: ITAsset = { ...asset, status: newStatus };
+
+        // If status is not 'in-use', unassign the user
+        if (newStatus !== 'in-use' && updatedAsset.assignedTo) {
+            updatedAsset.assignedTo = undefined;
+            setAssignedUserId(undefined);
+            addActivityLog('IT Asset Unassigned', `Asset ${asset.name} unassigned due to status change to ${newStatus}.`);
+        }
+        
+        onUpdate(updatedAsset);
+        addActivityLog('IT Asset Status Updated', `Asset ${asset.name} status changed to ${newStatus}.`);
+        toast({ title: "Status Updated" });
+    };
+
+    const handleAssignmentChange = (userId: string) => {
+        const newAssignedUserId = userId === 'unassigned' ? undefined : userId;
+        setAssignedUserId(newAssignedUserId);
+        const updatedAsset: ITAsset = { ...asset, assignedTo: newAssignedUserId };
+        onUpdate(updatedAsset);
+        addActivityLog('IT Asset Assignment Updated', `Asset ${asset.name} assigned to ${employees.find(e => e.id === userId)?.name || 'Unassigned'}.`);
+        toast({ title: "Assignment Updated" });
+    }
 
     return (
         <DialogContent className="sm:max-w-3xl">
@@ -33,6 +68,48 @@ const ITAssetDetail = ({ asset }: ITAssetDetailProps) => {
                 </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-6 max-h-[70vh] overflow-y-auto px-1">
+                 <div>
+                    <h3 className="text-lg font-semibold mb-2">Assignment & Status</h3>
+                    <Card>
+                        <CardContent className="p-4">
+                            <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-6">
+                                <div className="col-span-1">
+                                    <dt className="text-sm font-medium text-muted-foreground">Status</dt>
+                                    <dd>
+                                        <Select value={currentStatus} onValueChange={handleStatusChange}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="in-use">In Use</SelectItem>
+                                                <SelectItem value="in-storage">In Storage</SelectItem>
+                                                <SelectItem value="under-maintenance">Under Maintenance</SelectItem>
+                                                <SelectItem value="retired">Retired</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </dd>
+                                </div>
+                                {currentStatus === 'in-use' && (
+                                     <div className="col-span-2">
+                                        <dt className="text-sm font-medium text-muted-foreground">Assigned To</dt>
+                                        <dd>
+                                            <Combobox
+                                                options={employeeOptions}
+                                                value={assignedUserId}
+                                                onValueChange={handleAssignmentChange}
+                                                placeholder="Select an employee..."
+                                                searchPlaceholder='Search employees...'
+                                                emptyText='No employee found.'
+                                            />
+                                        </dd>
+                                    </div>
+                                )}
+                                <DetailItem label="Department" value={asset.department} />
+                                <DetailItem label="Location" value={asset.location} />
+                            </dl>
+                        </CardContent>
+                    </Card>
+                </div>
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Core Information</h3>
                     <Card>
@@ -42,19 +119,6 @@ const ITAssetDetail = ({ asset }: ITAssetDetailProps) => {
                                 <DetailItem label="Model" value={asset.model} />
                                 <DetailItem label="Serial Number" value={asset.serialNumber} />
                                 <DetailItem label="Description" value={<p className="col-span-full">{asset.description}</p>} />
-                            </dl>
-                        </CardContent>
-                    </Card>
-                </div>
-                
-                 <div>
-                    <h3 className="text-lg font-semibold mb-2">Assignment</h3>
-                    <Card>
-                        <CardContent className="p-4">
-                            <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-6">
-                                <DetailItem label="Assigned To" value={assignedUser?.name} />
-                                <DetailItem label="Department" value={asset.department} />
-                                <DetailItem label="Location" value={asset.location} />
                             </dl>
                         </CardContent>
                     </Card>
