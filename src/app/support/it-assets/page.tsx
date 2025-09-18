@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import ITAssetDetail from '@/components/ITAssetDetail';
 import { Combobox } from '@/components/ui/combobox';
+import { cn } from '@/lib/utils';
 
 const itAssetSchema = z.object({
   // Core
@@ -286,26 +287,36 @@ export default function ITAssetsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {sortedAndFilteredAssets.map(asset => (
-                                    <TableRow key={asset.id} className="cursor-pointer" onClick={() => setAssetToView(asset)}>
-                                        <TableCell className="font-medium">{asset.name}<div className="text-sm text-muted-foreground md:hidden">{asset.category}</div></TableCell>
-                                        <TableCell className="hidden md:table-cell">{asset.category}</TableCell>
-                                        <TableCell><Badge variant={statusVariant[asset.status]} className="capitalize">{asset.status.replace('-', ' ')}</Badge></TableCell>
-                                        <TableCell className="hidden md:table-cell">{asset.location}</TableCell>
-                                        <TableCell className="hidden md:table-cell">{asset.assignedUserName}</TableCell>
-                                        <TableCell onClick={(e) => e.stopPropagation()}>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild><Button aria-haspopup="true" size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Toggle menu</span></Button></DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => setAssetToView(asset)}>View Details</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleOpenForm(asset)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => setAssetToDelete(asset)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {sortedAndFilteredAssets.map(asset => {
+                                    const isMaintenance = asset.status === 'under-maintenance';
+                                    return (
+                                        <TableRow key={asset.id} className="cursor-pointer" onClick={() => setAssetToView(asset)}>
+                                            <TableCell className="font-medium">{asset.name}<div className="text-sm text-muted-foreground md:hidden">{asset.category}</div></TableCell>
+                                            <TableCell className="hidden md:table-cell">{asset.category}</TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant={isMaintenance ? 'outline' : statusVariant[asset.status]}
+                                                    className={cn("capitalize", isMaintenance && "bg-yellow-100 text-yellow-800 border-yellow-200")}
+                                                >
+                                                    {asset.status.replace('-', ' ')}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">{asset.location}</TableCell>
+                                            <TableCell className="hidden md:table-cell">{asset.assignedUserName}</TableCell>
+                                            <TableCell onClick={(e) => e.stopPropagation()}>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild><Button aria-haspopup="true" size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Toggle menu</span></Button></DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => setAssetToView(asset)}>View Details</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenForm(asset)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive" onClick={() => setAssetToDelete(asset)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
                             </TableBody>
                         </Table>
                     </CardContent>
@@ -411,3 +422,5 @@ export default function ITAssetsPage() {
         </div>
     );
 }
+
+    
