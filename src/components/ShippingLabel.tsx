@@ -1,11 +1,11 @@
+
 'use client';
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import type { Shipment } from '@/types';
-import { Printer, Barcode, Package } from '@/components/icons';
+import { Printer, Barcode } from '@/components/icons';
 import { useAppContext } from '@/context/AppContext';
 
 interface ShippingLabelProps {
@@ -20,14 +20,14 @@ const ShippingLabel = ({ shipment }: ShippingLabelProps) => {
     };
 
     return (
-        <DialogContent className="sm:max-w-lg p-0 printable-area-container">
+        <DialogContent className="sm:max-w-md p-0 printable-area-container">
             <DialogHeader className="sr-only">
               <DialogTitle>Shipping Label for {shipment.id}</DialogTitle>
             </DialogHeader>
-            <div className="printable-area bg-white text-black p-4 flex flex-col aspect-[4/6] text-xs">
+            <div className="printable-area receipt bg-white text-black p-2 flex flex-col text-[10px] leading-tight aspect-[4/6]">
                 <header className="grid grid-cols-2 gap-4 pb-2 border-b-2 border-black">
                     <div>
-                        <p className="text-xs font-semibold">FROM:</p>
+                        <p className="font-semibold">FROM:</p>
                         <p className="font-bold">{companyName}</p>
                         <p>{companyAddress}</p>
                     </div>
@@ -39,16 +39,16 @@ const ShippingLabel = ({ shipment }: ShippingLabelProps) => {
                 </header>
                 
                 <section className="py-4 flex-grow">
-                    <p className="text-xs font-semibold">SHIP TO:</p>
+                    <p className="text-[9px] font-semibold">SHIP TO:</p>
                     <div className="pl-4">
-                        <p className="font-bold text-base">{shipment.customerName}</p>
-                        <p className="text-base">{shipment.shippingAddress}</p>
+                        <p className="font-bold text-sm">{shipment.customerName}</p>
+                        <p className="text-sm">{shipment.shippingAddress}</p>
                     </div>
                 </section>
                 
                 <section className="py-2 border-y-2 border-black">
                      <h4 className="font-semibold text-center mb-1">CONTENTS</h4>
-                     <div className="text-xs space-y-0.5 max-h-24 overflow-y-auto px-1">
+                     <div className="space-y-0.5 max-h-20 overflow-y-auto px-1">
                         {shipment.items.map(item => (
                             <div key={item.productId} className="flex justify-between">
                                 <span className="truncate pr-2">{item.productName}</span>
@@ -59,8 +59,8 @@ const ShippingLabel = ({ shipment }: ShippingLabelProps) => {
                 </section>
 
                 <footer className="pt-2 text-center">
-                    <Barcode className="h-20 w-full" />
-                    <p className="font-mono tracking-widest text-base">{shipment.trackingNumber || shipment.id}</p>
+                    <Barcode className="h-16 w-full" />
+                    <p className="font-mono tracking-widest">{shipment.trackingNumber || shipment.id}</p>
                 </footer>
             </div>
             <DialogFooter className="non-printable p-4 border-t flex justify-center">
