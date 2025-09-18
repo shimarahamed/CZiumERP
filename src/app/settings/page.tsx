@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { hexToHsl, hslToHex } from '@/lib/color-utils';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const months = [
     { value: 1, label: 'January' }, { value: 2, label: 'February' },
@@ -137,20 +138,43 @@ export default function SettingsPage() {
                     </TabsContent>
                     <TabsContent value="financial-regional">
                         <Card>
-                            <CardHeader><CardTitle>Financial & Regional Settings</CardTitle><CardDescription>Manage currency and fiscal year settings.</CardDescription></CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid w-full max-w-sm items-center gap-2">
-                                    <Label htmlFor="fiscal-year">Fiscal Year Start</Label>
-                                    <Select value={String(localFiscalYearStart)} onValueChange={(val) => setLocalFiscalYearStart(Number(val))}><SelectTrigger id="fiscal-year"><SelectValue /></SelectTrigger>
-                                        <SelectContent>{months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}</SelectContent>
-                                    </Select>
+                            <CardHeader><CardTitle>Financial & Regional Settings</CardTitle><CardDescription>Manage currency, fiscal year, and other financial settings.</CardDescription></CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="fiscal-year">Fiscal Year Start</Label>
+                                        <Select value={String(localFiscalYearStart)} onValueChange={(val) => setLocalFiscalYearStart(Number(val))}><SelectTrigger id="fiscal-year"><SelectValue /></SelectTrigger>
+                                            <SelectContent>{months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}</SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="currency">Currency</Label>
+                                        <Select value={localCurrency} onValueChange={(value) => setLocalCurrency(value as Currency)}><SelectTrigger id="currency"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                                            <SelectContent>{Object.keys(currencySymbols).map(key => <SelectItem key={key} value={key}>{key} ({currencySymbols[key as Currency]})</SelectItem>)}</SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
-                                <div className="grid w-full max-w-sm items-center gap-2">
-                                    <Label htmlFor="currency">Currency</Label>
-                                    <Select value={localCurrency} onValueChange={(value) => setLocalCurrency(value as Currency)}><SelectTrigger id="currency"><SelectValue placeholder="Select currency" /></SelectTrigger>
-                                        <SelectContent>{Object.keys(currencySymbols).map(key => <SelectItem key={key} value={key}>{key} ({currencySymbols[key as Currency]})</SelectItem>)}</SelectContent>
-                                    </Select>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                     <div className="space-y-2">
+                                        <Label htmlFor="invoice-prefix">Invoice Prefix</Label>
+                                        <Input id="invoice-prefix" value={localThemeSettings.invoicePrefix || ''} onChange={(e) => setLocalThemeSettings(prev => ({...prev, invoicePrefix: e.target.value}))} placeholder="e.g., INV-"/>
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor="po-prefix">Purchase Order Prefix</Label>
+                                        <Input id="po-prefix" value={localThemeSettings.purchaseOrderPrefix || ''} onChange={(e) => setLocalThemeSettings(prev => ({...prev, purchaseOrderPrefix: e.target.value}))} placeholder="e.g., PO-"/>
+                                    </div>
                                 </div>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">Tax Settings</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <CardDescription>Define tax rates for your business based on your region.</CardDescription>
+                                        <Button asChild variant="outline" className="mt-4">
+                                            <Link href="/accounting/tax">Manage Tax Rates</Link>
+                                        </Button>
+                                    </CardContent>
+                                </Card>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -162,3 +186,5 @@ export default function SettingsPage() {
         </div>
     );
 }
+
+    

@@ -56,7 +56,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol, user } = useAppContext();
+    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol, user, themeSettings } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
@@ -287,8 +287,9 @@ export default function InvoicesPage() {
             toast({ title: "Invoice Updated" });
             addActivityLog('Invoice Updated', `Updated invoice #${invoiceToEdit.id}. New total: ${currencySymbol} ${totalAmount.toFixed(2)}`);
         } else {
+            const invoicePrefix = themeSettings.invoicePrefix || 'INV-';
             const newInvoice: Invoice = {
-                id: `INV-${String(invoices.length + 1).padStart(3, '0')}`,
+                id: `${invoicePrefix}${String(invoices.length + 1).padStart(3, '0')}`,
                 storeId: currentStore?.id,
                 customerId: data.customerId === 'none' ? undefined : data.customerId,
                 customerName: data.customerId === 'none' ? undefined : customer?.name,
@@ -561,3 +562,5 @@ export default function InvoicesPage() {
         </div>
     );
 }
+
+    

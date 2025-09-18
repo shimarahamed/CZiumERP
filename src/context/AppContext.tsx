@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -41,6 +42,8 @@ const defaultThemeSettings: ThemeSettings = {
     primaryColor: '231 48% 48%',
     backgroundColor: '220 17% 95%',
     accentColor: '187 100% 15%',
+    invoicePrefix: 'INV-',
+    purchaseOrderPrefix: 'PO-',
 };
 
 interface AppContextType {
@@ -467,3 +470,5 @@ export const useAppContext = () => {
   }
   return context;
 };
+
+    

@@ -1,5 +1,6 @@
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -172,6 +173,8 @@ export type ThemeSettings = {
     primaryColor: string;
     backgroundColor: string;
     accentColor: string;
+    invoicePrefix?: string;
+    purchaseOrderPrefix?: string;
 };
 
 export type AssetStatus = 'in-use' | 'in-storage' | 'under-maintenance' | 'retired';
@@ -437,3 +440,5 @@ export type Shipment = {
   estimatedDeliveryDate?: string; // ISO String
   actualDeliveryDate?: string; // ISO String
 };
+
+    

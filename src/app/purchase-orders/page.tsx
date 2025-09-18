@@ -55,7 +55,8 @@ export default function PurchaseOrdersPage() {
     const { 
         purchaseOrders, setPurchaseOrders, 
         vendors, products, setProducts, 
-        addActivityLog, currentStore, currencySymbol, user
+        addActivityLog, currentStore, currencySymbol, user,
+        themeSettings
     } = useAppContext();
     const { toast } = useToast();
     const searchParams = useSearchParams();
@@ -207,8 +208,9 @@ export default function PurchaseOrdersPage() {
             toast({ title: "Purchase Order Updated" });
             addActivityLog('Purchase Order Updated', `Updated PO #${poToEdit.id}.`);
         } else {
+            const poPrefix = themeSettings.purchaseOrderPrefix || 'PO-';
             const newPO: PurchaseOrder = {
-                id: `PO-${String(purchaseOrders.length + 1).padStart(3, '0')}`,
+                id: `${poPrefix}${String(purchaseOrders.length + 1).padStart(3, '0')}`,
                 storeId: currentStore?.id,
                 vendorId: data.vendorId,
                 vendorName: vendor.name,
@@ -475,3 +477,5 @@ export default function PurchaseOrdersPage() {
         </div>
     );
 }
+
+    
