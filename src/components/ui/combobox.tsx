@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -43,7 +44,15 @@ export function Combobox({
     emptyText,
     className
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
+  const [localSearch, setLocalSearch] = React.useState("");
+
+  const filteredOptions = React.useMemo(() => {
+    if (!localSearch) return options;
+    return options.filter(option => 
+      option.label.toLowerCase().includes(localSearch.toLowerCase())
+    );
+  }, [options, localSearch]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,17 +73,22 @@ export function Combobox({
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
-          <CommandInput placeholder={searchPlaceholder || "Search..."} />
+          <CommandInput 
+            placeholder={searchPlaceholder || "Search..."} 
+            value={localSearch}
+            onValueChange={setLocalSearch}
+          />
           <CommandList>
             <CommandEmpty>{emptyText || "No results found."}</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
+              {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}
                   onSelect={(currentValue) => {
                     onValueChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
+                    setLocalSearch("");
                   }}
                 >
                   <Check
