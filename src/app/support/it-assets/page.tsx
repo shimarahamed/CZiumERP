@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,6 +26,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import ITAssetDetail from '@/components/ITAssetDetail';
 
 const itAssetSchema = z.object({
   // Core
@@ -69,11 +70,12 @@ const statusVariant: { [key in AssetStatus]: 'default' | 'secondary' | 'destruct
 
 
 export default function ITAssetsPage() {
-    const { itAssets, setItAssets, users, vendors, addActivityLog, currencySymbol, user: currentUser } = useAppContext();
+    const { itAssets, setItAssets, employees, vendors, addActivityLog, currencySymbol, user: currentUser } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [assetToEdit, setAssetToEdit] = useState<ITAsset | null>(null);
     const [assetToDelete, setAssetToDelete] = useState<ITAsset | null>(null);
+    const [assetToView, setAssetToView] = useState<ITAsset | null>(null);
     const [sortKey, setSortKey] = useState<SortKey>('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     
@@ -93,7 +95,7 @@ export default function ITAssetsPage() {
 
     const sortedAndFilteredAssets = useMemo(() => {
         let filtered = [...itAssets].map(asset => {
-            const assignedUser = users.find(u => u.id === asset.assignedTo);
+            const assignedUser = employees.find(u => u.id === asset.assignedTo);
             return { ...asset, assignedUserName: assignedUser?.name || 'Unassigned' };
         });
 
@@ -126,7 +128,7 @@ export default function ITAssetsPage() {
         });
 
         return filtered;
-    }, [itAssets, users, filters, sortKey, sortDirection]);
+    }, [itAssets, employees, filters, sortKey, sortDirection]);
 
     if (!canManage) {
         return (
@@ -262,17 +264,18 @@ export default function ITAssetsPage() {
                             </TableHeader>
                             <TableBody>
                                 {sortedAndFilteredAssets.map(asset => (
-                                    <TableRow key={asset.id}>
+                                    <TableRow key={asset.id} className="cursor-pointer" onClick={() => setAssetToView(asset)}>
                                         <TableCell className="font-medium">{asset.name}<div className="text-sm text-muted-foreground md:hidden">{asset.category}</div></TableCell>
                                         <TableCell className="hidden md:table-cell">{asset.category}</TableCell>
                                         <TableCell><Badge variant={statusVariant[asset.status]} className="capitalize">{asset.status.replace('-', ' ')}</Badge></TableCell>
                                         <TableCell className="hidden md:table-cell">{asset.location}</TableCell>
                                         <TableCell className="hidden md:table-cell">{asset.assignedUserName}</TableCell>
-                                        <TableCell>
+                                        <TableCell onClick={(e) => e.stopPropagation()}>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild><Button aria-haspopup="true" size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Toggle menu</span></Button></DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => setAssetToView(asset)}>View Details</DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => handleOpenForm(asset)}>Edit</DropdownMenuItem>
                                                     <DropdownMenuItem className="text-destructive" onClick={() => setAssetToDelete(asset)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -315,8 +318,8 @@ export default function ITAssetsPage() {
                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                          <FormField control={form.control} name="assignedTo" render={({ field }) => (
                                             <FormItem><FormLabel>Assigned To / User</FormLabel>
-                                                <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a user" /></SelectTrigger></FormControl>
-                                                    <SelectContent><SelectItem value="unassigned">Unassigned</SelectItem>{users.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}</SelectContent>
+                                                <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select an employee" /></SelectTrigger></FormControl>
+                                                    <SelectContent><SelectItem value="unassigned">Unassigned</SelectItem>{employees.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
                                                 </Select><FormMessage />
                                             </FormItem>
                                         )} />
@@ -361,6 +364,10 @@ export default function ITAssetsPage() {
                 </DialogContent>
             </Dialog>
 
+            <Dialog open={!!assetToView} onOpenChange={(open) => !open && setAssetToView(null)}>
+                {assetToView && <ITAssetDetail asset={assetToView} />}
+            </Dialog>
+
             <AlertDialog open={!!assetToDelete} onOpenChange={(open) => !open && setAssetToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader><AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently delete the asset record.</AlertDialogDescription></AlertDialogHeader>
@@ -370,5 +377,3 @@ export default function ITAssetsPage() {
         </div>
     );
 }
-
-    
