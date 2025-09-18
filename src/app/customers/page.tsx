@@ -6,11 +6,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
@@ -147,26 +147,24 @@ export default function CustomersPage() {
         <div className="flex flex-col h-full">
             <Header title="Customers" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                 <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                        <Input
+                            placeholder="Search customers..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                        />
+                        {canManage && (
+                            <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
+                                <PlusCircle className="h-4 w-4" />
+                                Add Customer
+                            </Button>
+                        )}
+                    </div>
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-end md:items-center gap-4">
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search customers..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                {canManage && (
-                                    <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
-                                        <PlusCircle className="h-4 w-4" />
-                                        Add Customer
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -332,6 +330,3 @@ export default function CustomersPage() {
         </div>
     );
 }
-
-
-    
