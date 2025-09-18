@@ -4,7 +4,6 @@
 import React from 'react';
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import type { ITAsset } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { format, parseISO } from 'date-fns';
