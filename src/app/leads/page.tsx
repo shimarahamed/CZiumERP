@@ -14,7 +14,7 @@ import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
 import type { Lead, LeadStatus, Customer } from '@/types';
-import { MoreHorizontal, PlusCircle, Mail, Phone, Briefcase, DollarSign } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, Mail, Phone, Briefcase, DollarSign, ArrowUpDown } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -31,6 +31,8 @@ const leadSchema = z.object({
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
+
+type SortKey = 'name' | 'createdAt';
 
 const statusColumns: { status: LeadStatus; title: string; color: string }[] = [
     { status: 'new', title: 'New', color: 'bg-blue-500' },
@@ -52,6 +54,8 @@ export default function LeadsPage() {
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('createdAt');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const form = useForm<LeadFormData>({
         resolver: zodResolver(leadSchema),
@@ -70,15 +74,26 @@ export default function LeadsPage() {
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
 
-    const filteredLeads = useMemo(() => {
-        if (!searchTerm) return leads;
+    const sortedLeads = useMemo(() => {
+        let sorted = [...leads].sort((a, b) => {
+            if (sortKey === 'createdAt') {
+                return sortDirection === 'asc'
+                    ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                    : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            }
+            if (a.name < b.name) return sortDirection === 'asc' ? -1 : 1;
+            if (a.name > b.name) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        if (!searchTerm) return sorted;
         const lowercasedFilter = searchTerm.toLowerCase();
-        return leads.filter(lead =>
+        return sorted.filter(lead =>
             lead.name.toLowerCase().includes(lowercasedFilter) ||
             lead.email.toLowerCase().includes(lowercasedFilter) ||
             (lead.company && lead.company.toLowerCase().includes(lowercasedFilter))
         );
-    }, [leads, searchTerm]);
+    }, [leads, searchTerm, sortKey, sortDirection]);
 
     if (!canManage) {
         return (
@@ -163,6 +178,15 @@ export default function LeadsPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full md:w-auto md:min-w-[250px] bg-secondary"
                         />
+                         <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
+                            <SelectTrigger className="w-full sm:w-auto">
+                                <SelectValue placeholder="Sort by" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="createdAt">Creation Date</SelectItem>
+                                <SelectItem value="name">Lead Name</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
                             <PlusCircle className="h-4 w-4" /> Add Lead
                         </Button>
@@ -175,10 +199,10 @@ export default function LeadsPage() {
                             <div className="flex items-center gap-2 px-2">
                                 <span className={cn("h-2 w-2 rounded-full", column.color)} />
                                 <h2 className="font-semibold text-lg">{column.title}</h2>
-                                <span className="text-sm text-muted-foreground">({filteredLeads.filter(c => c.status === column.status).length})</span>
+                                <span className="text-sm text-muted-foreground">({sortedLeads.filter(c => c.status === column.status).length})</span>
                             </div>
                             <div className="flex-1 flex flex-col gap-4 bg-muted/50 p-4 rounded-lg min-h-[200px]">
-                                {filteredLeads.filter(c => c.status === column.status).map(lead => (
+                                {sortedLeads.filter(c => c.status === column.status).map(lead => (
                                     <Card key={lead.id}>
                                         <CardHeader className="p-4">
                                             <div className="flex justify-between items-start">
@@ -256,7 +280,22 @@ export default function LeadsPage() {
                                     <FormMessage />
                                 </FormItem>
                             )}/>
-                            <DialogFooter><Button type="submit">Add Lead</Button></DialogFooter>
+                            <DialogFooter>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button">Add Lead</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>Confirm</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </DialogFooter>
                         </form>
                     </Form>
                 </DialogContent>
@@ -264,3 +303,4 @@ export default function LeadsPage() {
         </div>
     );
 }
+

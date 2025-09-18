@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,7 +19,7 @@ import type { Customer, Invoice, CustomerTier } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from '@/components/icons';
 import { Textarea } from '@/components/ui/textarea';
 
 const customerSchema = z.object({
@@ -31,6 +31,8 @@ const customerSchema = z.object({
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;
+
+type SortKey = 'name' | 'tier' | 'loyaltyPoints';
 
 const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' } = {
     paid: 'default',
@@ -54,6 +56,8 @@ export default function CustomersPage() {
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
     
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
 
     const form = useForm<CustomerFormData>({
@@ -61,6 +65,15 @@ export default function CustomersPage() {
     });
 
     const canManage = user?.role === 'admin' || user?.role === 'manager';
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (customer: Customer | null = null) => {
         setCustomerToEdit(customer);
@@ -104,10 +117,29 @@ export default function CustomersPage() {
         setCustomerToDelete(null);
     };
 
-    const filteredCustomers = customers.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredCustomers = useMemo(() => {
+        let filtered = customers.filter(customer =>
+            customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        filtered.sort((a, b) => {
+            let aValue: string | number = a[sortKey] || 0;
+            let bValue: string | number = b[sortKey] || 0;
+
+            if (sortKey === 'tier') {
+                const tierOrder = { 'Gold': 3, 'Silver': 2, 'Bronze': 1 };
+                aValue = tierOrder[a.tier || 'Bronze'];
+                bValue = tierOrder[b.tier || 'Bronze'];
+            }
+
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [customers, searchTerm, sortKey, sortDirection]);
 
     const customerInvoices = historyCustomer ? invoices.filter(invoice => invoice.customerId === historyCustomer.id) : [];
 
@@ -142,9 +174,9 @@ export default function CustomersPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead>Tier</TableHead>
-                                    <TableHead className="hidden sm:table-cell">Loyalty Points</TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('name')}>Customer <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead><Button variant="ghost" onClick={() => handleSort('tier')}>Tier <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                                    <TableHead className="hidden sm:table-cell"><Button variant="ghost" onClick={() => handleSort('loyaltyPoints')}>Loyalty Points <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                                     <TableHead className="hidden md:table-cell">Email</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
@@ -229,7 +261,20 @@ export default function CustomersPage() {
                                 <FormItem><FormLabel>Shipping Address</FormLabel><FormControl><Textarea placeholder="Enter shipping address" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                             <DialogFooter className="pt-4">
-                                <Button type="submit">{customerToEdit ? 'Save Changes' : 'Add Customer'}</Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button">{customerToEdit ? 'Save Changes' : 'Add Customer'}</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>Confirm</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DialogFooter>
                         </form>
                     </Form>

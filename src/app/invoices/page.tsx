@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,7 @@ import type { Invoice, InvoiceItem, CustomerTier } from "@/types";
 import { Combobox } from "@/components/ui/combobox";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, ScanLine, Mail, ScrollText, FileText, Info, ArrowUpDown } from "lucide-react";
 
 const invoiceItemSchema = z.object({
   productId: z.string().min(1, "Please select a product."),
@@ -46,6 +46,8 @@ const invoiceSchema = z.object({
 });
 
 type InvoiceFormData = z.infer<typeof invoiceSchema>;
+
+type SortKey = 'id' | 'customerName' | 'amount' | 'date';
 
 const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     paid: 'default',
@@ -69,6 +71,8 @@ export default function InvoicesPage() {
     const searchParams = useSearchParams();
     const isInitialRender = useRef(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('date');
+    const [sortDirection, setSortDirection] = useState<'desc' | 'asc'>('desc');
 
 
     const form = useForm<InvoiceFormData>({
@@ -95,14 +99,41 @@ export default function InvoicesPage() {
         return invoices.filter(i => i.storeId === currentStore?.id);
     }, [invoices, currentStore]);
 
-    const filteredStoreInvoices = useMemo(() => {
-        if (!searchTerm) return storeInvoices;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return storeInvoices.filter(invoice => 
-            invoice.id.toLowerCase().includes(lowercasedFilter) ||
-            (invoice.customerName && invoice.customerName.toLowerCase().includes(lowercasedFilter))
+    const getSortedAndFilteredInvoices = useCallback((invoicesToFilter: Invoice[]) => {
+        let filtered = invoicesToFilter.filter(invoice => 
+            invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (invoice.customerName && invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()))
         );
-    }, [storeInvoices, searchTerm]);
+
+        filtered.sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+
+            if(aValue === undefined || aValue === null) return 1;
+            if(bValue === undefined || bValue === null) return -1;
+
+            if (sortKey === 'date') {
+                return sortDirection === 'asc' 
+                    ? new Date(a.date).getTime() - new Date(b.date).getTime() 
+                    : new Date(b.date).getTime() - new Date(a.date).getTime();
+            }
+
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [searchTerm, sortKey, sortDirection]);
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const watchedItems = useWatch({ control: form.control, name: 'items' });
     const watchedDiscount = useWatch({ control: form.control, name: 'discount' }) || 0;
@@ -330,11 +361,11 @@ export default function InvoicesPage() {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead className="w-[100px]">Invoice ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead className="hidden md:table-cell">Amount</TableHead>
+                    <TableHead className="w-[100px]"><Button variant="ghost" onClick={() => handleSort('id')}>Invoice ID <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                    <TableHead><Button variant="ghost" onClick={() => handleSort('customerName')}>Customer <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
+                    <TableHead className="hidden md:table-cell"><Button variant="ghost" onClick={() => handleSort('amount')}>Amount <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                     <TableHead className="hidden md:table-cell">Status</TableHead>
-                    <TableHead className="hidden lg:table-cell">Date</TableHead>
+                    <TableHead className="hidden lg:table-cell"><Button variant="ghost" onClick={() => handleSort('date')}>Date <ArrowUpDown className="ml-2 h-4 w-4" /></Button></TableHead>
                     <TableHead className="text-right w-[140px]">Actions</TableHead>
                 </TableRow>
             </TableHeader>
@@ -350,7 +381,7 @@ export default function InvoicesPage() {
                         </TableCell>
                         <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer">{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
                         <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge></TableCell>
-                        <TableCell onClick={() => onView(invoice)} className="hidden lg:table-cell cursor-pointer">{new Date(invoice.date).toLocaleDateString()}</TableCell>
+                        <TableCell onClick={() => onView(invoice)} className="hidden lg:table-cell cursor-pointer">{format(parseISO(invoice.date), 'yyyy-MM-dd')}</TableCell>
                         <TableCell className="text-right">
                            <TooltipProvider>
                                 <div className="flex items-center justify-end gap-1">
@@ -429,11 +460,11 @@ export default function InvoicesPage() {
                                 <TabsTrigger value="overdue">Overdue</TabsTrigger>
                                 <TabsTrigger value="refunded">Refunded</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="all"><InvoiceTable invoices={filteredStoreInvoices} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="paid"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'paid')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="pending"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'pending')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="overdue"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'overdue')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
-                            <TabsContent value="refunded"><InvoiceTable invoices={filteredStoreInvoices.filter(i => i.status === 'refunded' || i.status === 'partially-refunded')} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="all"><InvoiceTable invoices={getSortedAndFilteredInvoices(storeInvoices)} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="paid"><InvoiceTable invoices={getSortedAndFilteredInvoices(storeInvoices.filter(i => i.status === 'paid'))} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="pending"><InvoiceTable invoices={getSortedAndFilteredInvoices(storeInvoices.filter(i => i.status === 'pending'))} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="overdue"><InvoiceTable invoices={getSortedAndFilteredInvoices(storeInvoices.filter(i => i.status === 'overdue'))} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
+                            <TabsContent value="refunded"><InvoiceTable invoices={getSortedAndFilteredInvoices(storeInvoices.filter(i => i.status === 'refunded' || i.status === 'partially-refunded'))} onView={setViewingInvoice} onEdit={handleOpenForm} onDelete={setInvoiceToDelete} onViewFull={setViewingFullInvoice} /></TabsContent>
                         </Tabs>
                     </CardContent>
                 </Card>
@@ -536,7 +567,20 @@ export default function InvoicesPage() {
                             </Card>
 
                             <DialogFooter>
-                                <Button type="submit">{invoiceToEdit ? 'Save Changes' : 'Create Invoice'}</Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button">{invoiceToEdit ? 'Save Changes' : 'Create Invoice'}</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>Confirm</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DialogFooter>
                         </form>
                     </Form>
