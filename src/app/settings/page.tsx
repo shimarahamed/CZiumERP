@@ -30,6 +30,7 @@ const months = [
 ];
 
 const modules: { id: Module, label: string, description: string }[] = [
+    { id: 'General', label: 'General', description: 'Includes Dashboard and Reports.' },
     { id: 'Sales & Customers', label: 'Sales & Customers', description: 'Includes invoices, payments, customers, and upselling tools.' },
     { id: 'Supply Chain', label: 'Supply Chain', description: 'Manages vendors, purchase orders, and inventory.' },
     { id: 'Shipping & Logistics', label: 'Shipping & Logistics', description: 'Handles shipments, fleet, and route planning.' },
@@ -115,11 +116,11 @@ export default function SettingsPage() {
         setLocalThemeSettings(prev => ({
             ...prev,
             loyaltySettings: {
-                ...prev.loyaltySettings,
+                ...(prev.loyaltySettings || { tiers: { Silver: { points: 0, discount: 0 }, Gold: { points: 0, discount: 0 } } }),
                 tiers: {
                     ...prev.loyaltySettings?.tiers,
                     [tier]: {
-                        ...prev.loyaltySettings?.tiers?.[tier],
+                        ...(prev.loyaltySettings?.tiers?.[tier]),
                         [field]: numericValue
                     }
                 }
@@ -248,11 +249,11 @@ export default function SettingsPage() {
                                         <div className="flex-1 grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <Label>Points to Reach Tier</Label>
-                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Silver.points || ''} onChange={(e) => handleTierSettingChange('Silver', 'points', e.target.value)} />
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers?.Silver?.points || ''} onChange={(e) => handleTierSettingChange('Silver', 'points', e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>Discount Percentage</Label>
-                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Silver.discount || ''} onChange={(e) => handleTierSettingChange('Silver', 'discount', e.target.value)} />
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers?.Silver?.discount || ''} onChange={(e) => handleTierSettingChange('Silver', 'discount', e.target.value)} />
                                             </div>
                                         </div>
                                     </div>
@@ -263,11 +264,11 @@ export default function SettingsPage() {
                                         <div className="flex-1 grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <Label>Points to Reach Tier</Label>
-                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Gold.points || ''} onChange={(e) => handleTierSettingChange('Gold', 'points', e.target.value)} />
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers?.Gold?.points || ''} onChange={(e) => handleTierSettingChange('Gold', 'points', e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>Discount Percentage</Label>
-                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers.Gold.discount || ''} onChange={(e) => handleTierSettingChange('Gold', 'discount', e.target.value)} />
+                                                <Input type="number" value={localThemeSettings.loyaltySettings?.tiers?.Gold?.discount || ''} onChange={(e) => handleTierSettingChange('Gold', 'discount', e.target.value)} />
                                             </div>
                                         </div>
                                     </div>
