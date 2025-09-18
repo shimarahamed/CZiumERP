@@ -83,6 +83,7 @@ import { Users } from 'lucide-react';
 import { UserX } from 'lucide-react';
 import { Video } from 'lucide-react';
 import { VideoOff } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 import { X } from 'lucide-react';
 
 export {
@@ -170,6 +171,7 @@ export {
   UserX,
   Video,
   VideoOff,
+  Wrench,
   X,
 };
 
