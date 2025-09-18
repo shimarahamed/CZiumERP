@@ -1,6 +1,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -167,6 +168,18 @@ export type CurrencySymbols = {
   [key in Currency]: string;
 };
 
+export type Module = 
+  | 'General'
+  | 'Sales & Customers'
+  | 'Supply Chain'
+  | 'Shipping & Logistics'
+  | 'Manufacturing'
+  | 'Project Management'
+  | 'Finance'
+  | 'Human Resources'
+  | 'Service Desk'
+  | 'System';
+
 export type ThemeSettings = {
     appName: string;
     logoUrl: string;
@@ -175,6 +188,7 @@ export type ThemeSettings = {
     accentColor: string;
     invoicePrefix?: string;
     purchaseOrderPrefix?: string;
+    disabledModules?: Module[];
 };
 
 export type AssetStatus = 'in-use' | 'in-storage' | 'under-maintenance' | 'retired';

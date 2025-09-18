@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { Currency, ThemeSettings } from "@/types";
+import type { Currency, Module, ThemeSettings } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { hexToHsl, hslToHex } from '@/lib/color-utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Switch } from '@/components/ui/switch';
 
 const months = [
     { value: 1, label: 'January' }, { value: 2, label: 'February' },
@@ -23,7 +25,19 @@ const months = [
     { value: 5, label: 'May' }, { value: 6, label: 'June' },
     { value: 7, label: 'July' }, { value: 8, label: 'August' },
     { value: 9, label: 'September' }, { value: 10, label: 'October' },
-    { value: 11, label: 'November' }, { value: 12, label: 'December' }
+    { value: 11, 'label': 'November' }, { value: 12, 'label': 'December' }
+];
+
+const modules: { id: Module, label: string, description: string }[] = [
+    { id: 'Sales & Customers', label: 'Sales & Customers', description: 'Includes invoices, payments, customers, and upselling tools.' },
+    { id: 'Supply Chain', label: 'Supply Chain', description: 'Manages vendors, purchase orders, and inventory.' },
+    { id: 'Shipping & Logistics', label: 'Shipping & Logistics', description: 'Handles shipments, fleet, and route planning.' },
+    { id: 'Manufacturing', label: 'Manufacturing', description: 'BOM, production orders, and quality control.' },
+    { id: 'Project Management', label: 'Project Management', description: 'Manage projects, tasks, and team collaboration.' },
+    { id: 'Finance', label: 'Finance', description: 'General ledger, budgeting, tax, and asset management.' },
+    { id: 'Human Resources', label: 'Human Resources', description: 'Employee directory, recruitment, leave, and performance.' },
+    { id: 'Service Desk', label: 'Service Desk', description: 'Manages support tickets and customer service.' },
+    { id: 'System', label: 'System', description: 'User accounts, stores, and system-wide settings. Cannot be disabled.' },
 ];
 
 export default function SettingsPage() {
@@ -79,6 +93,19 @@ export default function SettingsPage() {
             reader.readAsDataURL(file);
         }
     };
+    
+    const handleModuleToggle = (moduleId: Module, checked: boolean) => {
+        setLocalThemeSettings(prev => {
+            const disabledModules = prev.disabledModules || [];
+            if (!checked) {
+                // Add to disabled list if it's not already there
+                return { ...prev, disabledModules: [...new Set([...disabledModules, moduleId])] };
+            } else {
+                // Remove from disabled list
+                return { ...prev, disabledModules: disabledModules.filter(id => id !== moduleId) };
+            }
+        });
+    }
 
     if (!canManage) {
         return (
@@ -105,9 +132,10 @@ export default function SettingsPage() {
             <Header title="Settings" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Tabs defaultValue="company-branding" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
+                    <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="company-branding">Company & Branding</TabsTrigger>
                         <TabsTrigger value="financial-regional">Financial & Regional</TabsTrigger>
+                        <TabsTrigger value="modules">Modules</TabsTrigger>
                     </TabsList>
                     <TabsContent value="company-branding">
                         <Card>
@@ -178,6 +206,29 @@ export default function SettingsPage() {
                             </CardContent>
                         </Card>
                     </TabsContent>
+                    <TabsContent value="modules">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Module Management</CardTitle>
+                                <CardDescription>Enable or disable major features across the application.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {modules.map(module => (
+                                    <div key={module.id} className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-base">{module.label}</Label>
+                                            <p className="text-sm text-muted-foreground">{module.description}</p>
+                                        </div>
+                                        <Switch
+                                            checked={!localThemeSettings.disabledModules?.includes(module.id)}
+                                            onCheckedChange={(checked) => handleModuleToggle(module.id, checked)}
+                                            disabled={module.id === 'System'}
+                                        />
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
                 </Tabs>
                 <div className="flex justify-end mt-6">
                     <Button onClick={handleSaveChanges}>Save All Settings</Button>
@@ -186,5 +237,3 @@ export default function SettingsPage() {
         </div>
     );
 }
-
-    

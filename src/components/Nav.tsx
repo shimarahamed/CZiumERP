@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, useSidebar } from '@/components/ui/sidebar';
 import { 
@@ -12,7 +13,7 @@ import {
 } from '@/components/icons';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
-import type { Role } from '@/types';
+import type { Role, Module } from '@/types';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +24,7 @@ type NavLink = {
 };
 
 type NavCategory = {
-  label: string;
+  label: Module;
   icon: LucideIcon;
   links: NavLink[];
 };
@@ -140,7 +141,7 @@ const categories: NavCategory[] = [
 
 export default function Nav() {
   const pathname = usePathname();
-  const { user } = useAppContext();
+  const { user, themeSettings } = useAppContext();
   const { state, setOpen } = useSidebar();
 
   // Determine initially open categories based on the active link
@@ -168,10 +169,13 @@ export default function Nav() {
   if (!user) return null;
 
   const allowedLinks = navLinksConfig[user.role] || [];
+  const disabledModules = themeSettings.disabledModules || [];
 
   return (
     <SidebarMenu className="p-2 space-y-1">
-      {categories.map((category) => {
+      {categories
+        .filter(category => !disabledModules.includes(category.label))
+        .map((category) => {
         const visibleLinks = category.links.filter(link => allowedLinks.includes(link.label));
         if (visibleLinks.length === 0) {
           return null;
