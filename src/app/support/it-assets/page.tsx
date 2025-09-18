@@ -22,7 +22,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { ITAsset, AssetStatus } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO, isValid } from 'date-fns';
-import { MoreHorizontal, PlusCircle, ArrowUpDown, Filter } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Filter, Search } from '@/components/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,8 +56,6 @@ type ITAssetFormData = z.infer<typeof itAssetSchema>;
 type SortKey = keyof ITAsset | 'assignedUserName';
 
 type Filters = {
-    name: string;
-    category: string;
     status: AssetStatus | 'all';
     location: string;
     assignedTo: string;
@@ -80,10 +78,9 @@ export default function ITAssetsPage() {
     const [assetToView, setAssetToView] = useState<ITAsset | null>(null);
     const [sortKey, setSortKey] = useState<SortKey>('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [searchTerm, setSearchTerm] = useState('');
     
     const [filters, setFilters] = useState<Filters>({
-        name: '',
-        category: '',
         status: 'all',
         location: '',
         assignedTo: '',
@@ -105,14 +102,22 @@ export default function ITAssetsPage() {
             return { ...asset, assignedUserName: assignedUser?.name || 'Unassigned' };
         });
 
+        const lowercasedSearchTerm = searchTerm.toLowerCase();
+        
         filtered = filtered.filter(asset => {
-            return (
-                (filters.name ? asset.name.toLowerCase().includes(filters.name.toLowerCase()) : true) &&
-                (filters.category ? asset.category.toLowerCase().includes(filters.category.toLowerCase()) : true) &&
+            const matchesSearch = searchTerm ? (
+                asset.name.toLowerCase().includes(lowercasedSearchTerm) ||
+                asset.serialNumber.toLowerCase().includes(lowercasedSearchTerm) ||
+                asset.category.toLowerCase().includes(lowercasedSearchTerm)
+            ) : true;
+
+            const matchesFilters = (
                 (filters.status === 'all' || asset.status === filters.status) &&
                 (filters.location ? asset.location?.toLowerCase().includes(filters.location.toLowerCase()) : true) &&
                 (filters.assignedTo ? asset.assignedUserName.toLowerCase().includes(filters.assignedTo.toLowerCase()) : true)
             );
+
+            return matchesSearch && matchesFilters;
         });
 
         filtered.sort((a, b) => {
@@ -134,7 +139,7 @@ export default function ITAssetsPage() {
         });
 
         return filtered;
-    }, [itAssets, employees, filters, sortKey, sortDirection]);
+    }, [itAssets, employees, filters, sortKey, sortDirection, searchTerm]);
 
     if (!canManage) {
         return (
@@ -226,6 +231,16 @@ export default function ITAssetsPage() {
                                 <CardDescription>A centralized inventory of all IT hardware and equipment.</CardDescription>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <div className="relative flex-grow">
+                                    <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                        type="search" 
+                                        placeholder="Search by name, S/N, category..." 
+                                        className="pl-8 sm:w-[300px]"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button variant="outline" className="gap-2">
@@ -234,10 +249,8 @@ export default function ITAssetsPage() {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-80">
                                         <div className="grid gap-4">
-                                            <div className="space-y-2"><h4 className="font-medium leading-none">Filters</h4><p className="text-sm text-muted-foreground">Set filters for the asset list.</p></div>
+                                            <div className="space-y-2"><h4 className="font-medium leading-none">Filters</h4><p className="text-sm text-muted-foreground">Set additional filters for the asset list.</p></div>
                                             <div className="grid gap-2">
-                                                <div className="grid grid-cols-3 items-center gap-4"><Label htmlFor="filter-name">Name</Label><Input id="filter-name" value={filters.name} onChange={(e) => handleFilterChange('name', e.target.value)} className="col-span-2 h-8" /></div>
-                                                <div className="grid grid-cols-3 items-center gap-4"><Label htmlFor="filter-category">Category</Label><Input id="filter-category" value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)} className="col-span-2 h-8" /></div>
                                                 <div className="grid grid-cols-3 items-center gap-4"><Label htmlFor="filter-status">Status</Label>
                                                     <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value as AssetStatus | 'all')}>
                                                         <SelectTrigger className="col-span-2 h-8"><SelectValue /></SelectTrigger>
