@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -68,7 +68,7 @@ export default function TaxManagementPage() {
         setIsFormOpen(true);
     };
 
-    const onSubmit = (data: TaxRateFormData) => {
+    const processSubmit = (data: TaxRateFormData) => {
         setTaxRates(prev => {
             let newRates = [...prev];
             // If setting a new default, unset the old one
@@ -156,7 +156,7 @@ export default function TaxManagementPage() {
                 <DialogContent>
                     <DialogHeader><DialogTitle>{rateToEdit ? 'Edit Tax Rate' : 'Add New Tax Rate'}</DialogTitle></DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                        <form onSubmit={form.handleSubmit(processSubmit)} className="space-y-4 py-4">
                             <FormField control={form.control} name="name" render={({ field }) => (
                                 <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
@@ -169,7 +169,27 @@ export default function TaxManagementPage() {
                                 <div className="space-y-1 leading-none"><FormLabel>Set as default tax rate</FormLabel></div>
                                 </FormItem>
                             )} />
-                            <DialogFooter><Button type="submit">{rateToEdit ? 'Save Changes' : 'Add Rate'}</Button></DialogFooter>
+                            <DialogFooter>
+                                {rateToEdit ? (
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button type="button">Save Changes</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                                                <AlertDialogDescription>Are you sure you want to save these changes?</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                ) : (
+                                    <Button type="submit">Add Rate</Button>
+                                )}
+                            </DialogFooter>
                         </form>
                     </Form>
                 </DialogContent>

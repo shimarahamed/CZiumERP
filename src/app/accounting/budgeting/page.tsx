@@ -8,7 +8,7 @@ import * as z from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -68,7 +68,7 @@ export default function BudgetingPage() {
         setIsFormOpen(true);
     };
 
-    const onSubmit = (data: BudgetFormData) => {
+    const processSubmit = (data: BudgetFormData) => {
         if (budgetToEdit) {
             setBudgets(budgets.map(b => b.id === budgetToEdit.id ? { ...b, ...data } : b));
             toast({ title: "Budget Updated" });
@@ -161,7 +161,7 @@ export default function BudgetingPage() {
                 <DialogContent>
                     <DialogHeader><DialogTitle>{budgetToEdit ? 'Edit Budget' : 'Add New Budget'}</DialogTitle></DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                        <form onSubmit={form.handleSubmit(processSubmit)} className="space-y-4 py-4">
                             <FormField control={form.control} name="category" render={({ field }) => (
                                 <FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
@@ -180,7 +180,27 @@ export default function BudgetingPage() {
                                     <FormItem><FormLabel>Actual Amount</FormLabel><FormControl><Input type="number" step="100" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                             </div>
-                            <DialogFooter><Button type="submit">{budgetToEdit ? 'Save Changes' : 'Add Budget'}</Button></DialogFooter>
+                            <DialogFooter>
+                                {budgetToEdit ? (
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button type="button">Save Changes</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                                                <AlertDialogDescription>Are you sure you want to save these changes?</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                ) : (
+                                    <Button type="submit">Add Budget</Button>
+                                )}
+                            </DialogFooter>
                         </form>
                     </Form>
                 </DialogContent>
