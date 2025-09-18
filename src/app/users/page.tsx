@@ -156,40 +156,32 @@ export default function UsersPage() {
         <div className="flex flex-col h-full">
             <Header title="User Account Management" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                 <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search by name or email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                     <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as Role | 'all')}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Filter by role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Roles</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="manager">Manager</SelectItem>
+                            <SelectItem value="cashier">Cashier</SelectItem>
+                            <SelectItem value="inventory-staff">Inventory Staff</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                        <PlusCircle className="h-4 w-4" />
+                        Add User
+                    </Button>
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <CardTitle>User Accounts</CardTitle>
-                                <CardDescription>Manage system users and their access roles.</CardDescription>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search by name or email..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                 <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as Role | 'all')}>
-                                    <SelectTrigger className="w-full sm:w-[180px]">
-                                        <SelectValue placeholder="Filter by role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Roles</SelectItem>
-                                        <SelectItem value="admin">Admin</SelectItem>
-                                        <SelectItem value="manager">Manager</SelectItem>
-                                        <SelectItem value="cashier">Cashier</SelectItem>
-                                        <SelectItem value="inventory-staff">Inventory Staff</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" />
-                                    Add User
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -275,18 +267,7 @@ export default function UsersPage() {
                             )} />
                             
                             <DialogFooter>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button type="button">{userToEdit ? 'Save Changes' : 'Add User'}</Button>
-                                    </AlertDialogTrigger>
-                                     <AlertDialogContent>
-                                         <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
-                                         <AlertDialogFooter>
-                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                             <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>Confirm</AlertDialogAction>
-                                         </AlertDialogFooter>
-                                     </AlertDialogContent>
-                                </AlertDialog>
+                                <Button type="submit">{userToEdit ? 'Save Changes' : 'Add User'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -308,3 +289,5 @@ export default function UsersPage() {
         </div>
     );
 }
+
+    

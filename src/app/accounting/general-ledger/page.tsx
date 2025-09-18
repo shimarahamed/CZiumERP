@@ -64,18 +64,16 @@ export default function GeneralLedgerPage() {
         <div className="flex flex-col h-full">
             <Header title="General Ledger" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                <div className="flex justify-end mb-4">
+                     <Input
+                        placeholder="Search by account or description..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="max-w-full md:max-w-sm bg-secondary"
+                    />
+                </div>
                 <Card>
-                    <CardHeader>
-                         <div className="mt-4">
-                            <Input
-                                placeholder="Search by account or description..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-full md:max-w-sm bg-secondary"
-                            />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -116,6 +114,8 @@ export default function GeneralLedgerPage() {
         </div>
     );
 }
+
+    
 
     
 

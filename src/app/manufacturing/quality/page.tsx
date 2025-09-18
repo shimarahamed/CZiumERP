@@ -79,21 +79,15 @@ export default function QualityControlPage() {
         <div className="flex flex-col h-full">
             <Header title="Quality Control" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                <div className="flex justify-end mb-4">
+                    {canManage && (
+                        <Button size="sm" onClick={() => setIsFormOpen(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> New Quality Check
+                        </Button>
+                    )}
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <CardTitle>Quality Checks</CardTitle>
-                                <CardDescription>Log and review quality control checks for completed production orders.</CardDescription>
-                            </div>
-                            {canManage && (
-                                <Button size="sm" onClick={() => setIsFormOpen(true)}>
-                                    <PlusCircle className="mr-2 h-4 w-4" /> New Quality Check
-                                </Button>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -190,3 +184,5 @@ export default function QualityControlPage() {
         </div>
     );
 }
+
+    

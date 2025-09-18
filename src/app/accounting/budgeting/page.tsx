@@ -94,18 +94,16 @@ export default function BudgetingPage() {
         <div className="flex flex-col h-full">
             <Header title="Budgeting & Reporting" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-6">
-                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                        <Input
-                            placeholder="Search by category..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                        />
-                        <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
-                            <PlusCircle className="h-4 w-4" /> New Budget
-                        </Button>
-                    </div>
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search by category..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                        <PlusCircle className="h-4 w-4" /> New Budget
+                    </Button>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -177,25 +175,7 @@ export default function BudgetingPage() {
                                 )}/>
                             </div>
                             <DialogFooter>
-                                {budgetToEdit ? (
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button type="button">Save Changes</Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
-                                                <AlertDialogDescription>Are you sure you want to save these changes?</AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                ) : (
-                                    <Button type="submit">Add Budget</Button>
-                                )}
+                                <Button type="submit">{budgetToEdit ? 'Save Changes' : 'Add Budget'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -211,5 +191,7 @@ export default function BudgetingPage() {
         </div>
     );
 }
+
+    
 
     

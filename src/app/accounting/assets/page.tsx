@@ -204,65 +204,61 @@ export default function AssetsPage() {
         <div className="flex flex-col h-full">
             <Header title="Asset Management" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-end md:items-center gap-4">
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" className="gap-2">
-                                            <Filter className="h-4 w-4" /> Filter
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80">
-                                        <div className="grid gap-4">
-                                            <div className="space-y-2">
-                                                <h4 className="font-medium leading-none">Filters</h4>
-                                                <p className="text-sm text-muted-foreground">Set filters for the asset list.</p>
-                                            </div>
-                                            <div className="grid gap-2">
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-name">Name</Label>
-                                                    <Input id="filter-name" value={filters.name} onChange={(e) => handleFilterChange('name', e.target.value)} className="col-span-2 h-8" />
-                                                </div>
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-category">Category</Label>
-                                                    <Input id="filter-category" value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)} className="col-span-2 h-8" />
-                                                </div>
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-status">Status</Label>
-                                                    <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value as AssetStatus | 'all')}>
-                                                        <SelectTrigger className="col-span-2 h-8">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="all">All</SelectItem>
-                                                            {Object.keys(statusVariant).map(status => (
-                                                                <SelectItem key={status} value={status} className="capitalize">{status.replace('-', ' ')}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-location">Location</Label>
-                                                    <Input id="filter-location" value={filters.location} onChange={(e) => handleFilterChange('location', e.target.value)} className="col-span-2 h-8" />
-                                                </div>
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="filter-assignedTo">Assigned To</Label>
-                                                    <Input id="filter-assignedTo" value={filters.assignedTo} onChange={(e) => handleFilterChange('assignedTo', e.target.value)} className="col-span-2 h-8" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                                <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" />
-                                    Add Asset
-                                </Button>
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" className="gap-2">
+                                <Filter className="h-4 w-4" /> Filter
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <div className="grid gap-4">
+                                <div className="space-y-2">
+                                    <h4 className="font-medium leading-none">Filters</h4>
+                                    <p className="text-sm text-muted-foreground">Set filters for the asset list.</p>
+                                </div>
+                                <div className="grid gap-2">
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="filter-name">Name</Label>
+                                        <Input id="filter-name" value={filters.name} onChange={(e) => handleFilterChange('name', e.target.value)} className="col-span-2 h-8" />
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="filter-category">Category</Label>
+                                        <Input id="filter-category" value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)} className="col-span-2 h-8" />
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="filter-status">Status</Label>
+                                        <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value as AssetStatus | 'all')}>
+                                            <SelectTrigger className="col-span-2 h-8">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All</SelectItem>
+                                                {Object.keys(statusVariant).map(status => (
+                                                    <SelectItem key={status} value={status} className="capitalize">{status.replace('-', ' ')}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="filter-location">Location</Label>
+                                        <Input id="filter-location" value={filters.location} onChange={(e) => handleFilterChange('location', e.target.value)} className="col-span-2 h-8" />
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="filter-assignedTo">Assigned To</Label>
+                                        <Input id="filter-assignedTo" value={filters.assignedTo} onChange={(e) => handleFilterChange('assignedTo', e.target.value)} className="col-span-2 h-8" />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                        </PopoverContent>
+                    </Popover>
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                        <PlusCircle className="h-4 w-4" />
+                        Add Asset
+                    </Button>
+                </div>
+                <Card>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -388,21 +384,7 @@ export default function AssetsPage() {
                             )} />
                             
                             <DialogFooter className="pt-4">
-                                 <AlertDialog>
-                                     <AlertDialogTrigger asChild>
-                                        <Button type="button">{assetToEdit ? 'Save Changes' : 'Add Asset'}</Button>
-                                     </AlertDialogTrigger>
-                                     <AlertDialogContent>
-                                         <AlertDialogHeader>
-                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                             <AlertDialogDescription>This will save the changes to the asset.</AlertDialogDescription>
-                                         </AlertDialogHeader>
-                                         <AlertDialogFooter>
-                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                             <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
-                                         </AlertDialogFooter>
-                                     </AlertDialogContent>
-                                 </AlertDialog>
+                                <Button type="button" onClick={form.handleSubmit(processSubmit)}>{assetToEdit ? 'Save Changes' : 'Add Asset'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -424,5 +406,7 @@ export default function AssetsPage() {
         </div>
     );
 }
+
+    
 
     

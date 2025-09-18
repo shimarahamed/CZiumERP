@@ -159,28 +159,20 @@ export default function StoresPage() {
         <div className="flex flex-col h-full">
             <Header title="Store Management" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search by name or address..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                        <PlusCircle className="h-4 w-4" />
+                        Add Store
+                    </Button>
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <CardTitle>Stores</CardTitle>
-                                <CardDescription>Select a store to manage its session, or use the actions to edit/delete.</CardDescription>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search by name or address..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" />
-                                    Add Store
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <div className="rounded-md border">
                             <Table>
                                 <TableHeader>
@@ -289,3 +281,5 @@ export default function StoresPage() {
         </div>
     );
 }
+
+    

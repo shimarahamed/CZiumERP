@@ -1,20 +1,33 @@
 
 'use client';
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
-import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart, Hourglass } from "@/components/icons";
+import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart, Hourglass, FileText } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 import { format, differenceInDays, parseISO } from 'date-fns';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import type { Invoice } from "@/types";
+
+const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
+    paid: 'default',
+    pending: 'secondary',
+    overdue: 'destructive',
+    refunded: 'outline',
+    'partially-refunded': 'outline',
+};
 
 export default function DashboardPage() {
   const { invoices, currentStore, currencySymbol, products, user, stores } = useAppContext();
+  const [drilldownData, setDrilldownData] = useState<{ month: string, invoices: Invoice[] } | null>(null);
   
   const storeInvoices = useMemo(() => {
     if (currentStore?.id === 'all') {
@@ -23,8 +36,8 @@ export default function DashboardPage() {
     return invoices.filter(i => i.storeId === currentStore?.id);
   }, [invoices, currentStore]);
   
-  const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
-  const pendingInvoices = storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue');
+  const paidInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'paid'), [storeInvoices]);
+  const pendingInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue'), [storeInvoices]);
 
 
   const chartConfig = {
@@ -34,22 +47,22 @@ export default function DashboardPage() {
     },
   };
 
-  const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+  const totalRevenue = useMemo(() => paidInvoices.reduce((sum, inv) => sum + inv.amount, 0), [paidInvoices]);
 
-  const totalCost = paidInvoices.reduce((total, invoice) => {
+  const totalCost = useMemo(() => paidInvoices.reduce((total, invoice) => {
     return total + invoice.items.reduce((invoiceTotalCost, item) => {
       return invoiceTotalCost + (item.cost * item.quantity);
     }, 0);
-  }, 0);
+  }, 0), [paidInvoices]);
 
-  const totalProfit = totalRevenue - totalCost;
-  const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+  const totalProfit = useMemo(() => totalRevenue - totalCost, [totalRevenue, totalCost]);
+  const profitMargin = useMemo(() => totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0, [totalProfit, totalRevenue]);
   
-  const averageSaleValue = paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0;
-  const totalItemsSold = paidInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
-  const activeCustomers = new Set(paidInvoices.map(inv => inv.customerId).filter(Boolean)).size;
+  const averageSaleValue = useMemo(() => paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0, [totalRevenue, paidInvoices.length]);
+  const totalItemsSold = useMemo(() => paidInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0), [paidInvoices]);
+  const activeCustomers = useMemo(() => new Set(paidInvoices.map(inv => inv.customerId).filter(Boolean)).size, [paidInvoices]);
 
-  const totalPendingAmount = pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+  const totalPendingAmount = useMemo(() => pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0), [pendingInvoices]);
 
   const topPerformingStore = useMemo(() => {
     if (currentStore?.id !== 'all' || paidInvoices.length === 0) {
@@ -76,37 +89,51 @@ export default function DashboardPage() {
   }, [currentStore?.id, paidInvoices, stores]);
 
 
-  const lowStockItems = products.filter(p => 
+  const lowStockItems = useMemo(() => products.filter(p => 
     typeof p.reorderThreshold !== 'undefined' && p.stock <= p.reorderThreshold
-  );
+  ), [products]);
 
-  const expiringItems = products
+  const expiringItems = useMemo(() => products
     .filter(p => {
       if (!p.expiryDate) return false;
       const expiry = parseISO(p.expiryDate);
       const daysUntilExpiry = differenceInDays(expiry, new Date());
       return daysUntilExpiry >= 0 && daysUntilExpiry <= 30;
     })
-    .sort((a, b) => new Date(a.expiryDate!).getTime() - new Date(b.expiryDate!).getTime());
+    .sort((a, b) => new Date(a.expiryDate!).getTime() - new Date(b.expiryDate!).getTime()), [products]);
 
-  const productSales = new Map<string, { name: string, quantity: number }>();
-  paidInvoices.forEach(invoice => {
-    invoice.items.forEach(item => {
-      const existing = productSales.get(item.productId);
-      if (existing) {
-        existing.quantity += item.quantity;
-      } else {
-        productSales.set(item.productId, { name: item.productName, quantity: item.quantity });
-      }
+  const topProducts = useMemo(() => {
+    const productSales = new Map<string, { name: string, quantity: number }>();
+    paidInvoices.forEach(invoice => {
+      invoice.items.forEach(item => {
+        const existing = productSales.get(item.productId);
+        if (existing) {
+          existing.quantity += item.quantity;
+        } else {
+          productSales.set(item.productId, { name: item.productName, quantity: item.quantity });
+        }
+      });
     });
-  });
 
-  const topProducts = Array.from(productSales.values())
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 5);
+    return Array.from(productSales.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+  }, [paidInvoices]);
 
   const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
   const kpiSubtitle = currentStore?.id === 'all' ? "Across all stores" : "For this store's paid invoices";
+
+  const handleBarClick = (data: any) => {
+    if (!data || !data.activePayload) return;
+    const monthIndex = data.activeTooltipIndex;
+    const monthName = salesData[monthIndex].month;
+
+    const relevantInvoices = storeInvoices.filter(
+      (invoice) => format(parseISO(invoice.date), 'MMM') === monthName
+    );
+
+    setDrilldownData({ month: monthName, invoices: relevantInvoices });
+  };
 
 
   return (
@@ -213,13 +240,13 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="pl-2">
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart data={salesData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
+                <BarChart data={salesData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }} onClick={handleBarClick}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                   <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currencySymbol} ${value / 1000}k`} />
                   <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                   <Legend content={<ChartLegendContent />} />
-                  <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
+                  <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} className="cursor-pointer"/>
                 </BarChart>
               </ChartContainer>
             </CardContent>
@@ -297,6 +324,44 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+      <Dialog open={!!drilldownData} onOpenChange={() => setDrilldownData(null)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Sales for {drilldownData?.month}</DialogTitle>
+            <DialogDescription>
+              Showing all invoices recorded in {drilldownData?.month}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Invoice ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {drilldownData?.invoices.map(invoice => (
+                  <TableRow key={invoice.id}>
+                    <TableCell className="font-medium">{invoice.id}</TableCell>
+                    <TableCell>{invoice.customerName || "N/A"}</TableCell>
+                    <TableCell>{format(parseISO(invoice.date), 'yyyy-MM-dd')}</TableCell>
+                    <TableCell>
+                      <Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+    

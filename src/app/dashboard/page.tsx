@@ -36,8 +36,8 @@ export default function DashboardPage() {
     return invoices.filter(i => i.storeId === currentStore?.id);
   }, [invoices, currentStore]);
   
-  const paidInvoices = storeInvoices.filter(i => i.status === 'paid');
-  const pendingInvoices = storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue');
+  const paidInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'paid'), [storeInvoices]);
+  const pendingInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue'), [storeInvoices]);
 
 
   const chartConfig = {
@@ -47,22 +47,22 @@ export default function DashboardPage() {
     },
   };
 
-  const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+  const totalRevenue = useMemo(() => paidInvoices.reduce((sum, inv) => sum + inv.amount, 0), [paidInvoices]);
 
-  const totalCost = paidInvoices.reduce((total, invoice) => {
+  const totalCost = useMemo(() => paidInvoices.reduce((total, invoice) => {
     return total + invoice.items.reduce((invoiceTotalCost, item) => {
       return invoiceTotalCost + (item.cost * item.quantity);
     }, 0);
-  }, 0);
+  }, 0), [paidInvoices]);
 
-  const totalProfit = totalRevenue - totalCost;
-  const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+  const totalProfit = useMemo(() => totalRevenue - totalCost, [totalRevenue, totalCost]);
+  const profitMargin = useMemo(() => totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0, [totalProfit, totalRevenue]);
   
-  const averageSaleValue = paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0;
-  const totalItemsSold = paidInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
-  const activeCustomers = new Set(paidInvoices.map(inv => inv.customerId).filter(Boolean)).size;
+  const averageSaleValue = useMemo(() => paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0, [totalRevenue, paidInvoices.length]);
+  const totalItemsSold = useMemo(() => paidInvoices.reduce((sum, inv) => sum + inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0), [paidInvoices]);
+  const activeCustomers = useMemo(() => new Set(paidInvoices.map(inv => inv.customerId).filter(Boolean)).size, [paidInvoices]);
 
-  const totalPendingAmount = pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+  const totalPendingAmount = useMemo(() => pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0), [pendingInvoices]);
 
   const topPerformingStore = useMemo(() => {
     if (currentStore?.id !== 'all' || paidInvoices.length === 0) {
@@ -89,34 +89,36 @@ export default function DashboardPage() {
   }, [currentStore?.id, paidInvoices, stores]);
 
 
-  const lowStockItems = products.filter(p => 
+  const lowStockItems = useMemo(() => products.filter(p => 
     typeof p.reorderThreshold !== 'undefined' && p.stock <= p.reorderThreshold
-  );
+  ), [products]);
 
-  const expiringItems = products
+  const expiringItems = useMemo(() => products
     .filter(p => {
       if (!p.expiryDate) return false;
       const expiry = parseISO(p.expiryDate);
       const daysUntilExpiry = differenceInDays(expiry, new Date());
       return daysUntilExpiry >= 0 && daysUntilExpiry <= 30;
     })
-    .sort((a, b) => new Date(a.expiryDate!).getTime() - new Date(b.expiryDate!).getTime());
+    .sort((a, b) => new Date(a.expiryDate!).getTime() - new Date(b.expiryDate!).getTime()), [products]);
 
-  const productSales = new Map<string, { name: string, quantity: number }>();
-  paidInvoices.forEach(invoice => {
-    invoice.items.forEach(item => {
-      const existing = productSales.get(item.productId);
-      if (existing) {
-        existing.quantity += item.quantity;
-      } else {
-        productSales.set(item.productId, { name: item.productName, quantity: item.quantity });
-      }
+  const topProducts = useMemo(() => {
+    const productSales = new Map<string, { name: string, quantity: number }>();
+    paidInvoices.forEach(invoice => {
+      invoice.items.forEach(item => {
+        const existing = productSales.get(item.productId);
+        if (existing) {
+          existing.quantity += item.quantity;
+        } else {
+          productSales.set(item.productId, { name: item.productName, quantity: item.quantity });
+        }
+      });
     });
-  });
 
-  const topProducts = Array.from(productSales.values())
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 5);
+    return Array.from(productSales.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+  }, [paidInvoices]);
 
   const canCreatePo = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'inventory-staff';
   const kpiSubtitle = currentStore?.id === 'all' ? "Across all stores" : "For this store's paid invoices";
@@ -361,3 +363,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

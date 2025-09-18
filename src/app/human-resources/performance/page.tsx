@@ -97,27 +97,19 @@ export default function PerformancePage() {
         <div className="flex flex-col h-full">
             <Header title="Performance Reviews" />
             <main className="flex-1 p-4 md:p-6">
+                 <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search reviews..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                    <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
+                        <PlusCircle className="h-4 w-4" /> Add Review
+                    </Button>
+                </div>
                 <Card>
-                     <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <CardTitle>Performance Reviews</CardTitle>
-                                <CardDescription>Track and manage employee performance evaluations.</CardDescription>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search reviews..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                <Button size="sm" className="gap-1" onClick={() => setIsFormOpen(true)}>
-                                    <PlusCircle className="h-4 w-4" /> Add Review
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -192,3 +184,5 @@ export default function PerformancePage() {
         </div>
     );
 }
+
+    

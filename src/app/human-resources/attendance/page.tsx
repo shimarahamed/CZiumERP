@@ -95,16 +95,11 @@ export default function AttendancePage() {
             <AttendanceSummaryCard title="On Leave" value={summary.leave} icon={<Plane className="h-4 w-4 text-blue-500" />} />
             <AttendanceSummaryCard title="Half-day" value={summary['half-day']} icon={<Clock className="h-4 w-4 text-yellow-500" />} />
         </div>
-
+        <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+             <DatePicker date={selectedDate} setDate={setSelectedDate} />
+        </div>
         <Card>
-            <CardHeader className="flex flex-col md:flex-row justify-between md:items-center">
-                <div>
-                    <CardTitle>Mark Employee Attendance</CardTitle>
-                    <CardDescription>Select a date and mark the status for each employee.</CardDescription>
-                </div>
-                <DatePicker date={selectedDate} setDate={setSelectedDate} />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -157,3 +152,5 @@ export default function AttendancePage() {
     </div>
   );
 }
+
+    

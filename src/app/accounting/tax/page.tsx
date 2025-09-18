@@ -128,23 +128,19 @@ export default function TaxManagementPage() {
         <div className="flex flex-col h-full">
             <Header title="Tax Management" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
+                 <div className="flex flex-col md:flex-row justify-end md:items-center gap-4 mb-4">
+                    <Input
+                        placeholder="Search by name..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-auto md:min-w-[250px] bg-secondary"
+                    />
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
+                        <PlusCircle className="h-4 w-4" /> Add Tax Rate
+                    </Button>
+                </div>
                 <Card>
-                    <CardHeader>
-                        <div className="flex flex-col md:flex-row justify-end md:items-center gap-4">
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Input
-                                    placeholder="Search by name..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-auto md:min-w-[250px] bg-secondary"
-                                />
-                                <Button size="sm" className="gap-1" onClick={() => handleOpenForm()}>
-                                    <PlusCircle className="h-4 w-4" /> Add Tax Rate
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -194,21 +190,7 @@ export default function TaxManagementPage() {
                                 </FormItem>
                             )} />
                             <DialogFooter>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button type="button">{rateToEdit ? 'Save Changes' : 'Add Rate'}</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
-                                            <AlertDialogDescription>Are you sure you want to save these changes?</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={form.handleSubmit(processSubmit)}>Confirm</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                                <Button type="submit">{rateToEdit ? 'Save Changes' : 'Add Rate'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
@@ -224,5 +206,7 @@ export default function TaxManagementPage() {
         </div>
     );
 }
+
+    
 
     
