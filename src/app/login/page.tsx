@@ -10,11 +10,12 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAppContext } from '@/context/AppContext';
 import { Store } from '@/components/icons';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, user } = useAppContext();
+  const { login, themeSettings } = useAppContext();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -42,10 +43,14 @@ export default function LoginPage() {
         <CardHeader className="text-center">
             <div className="flex justify-center items-center mb-4">
                 <div className="p-3 bg-primary/20 rounded-lg">
-                    <Store className="w-8 h-8 text-primary" />
+                    {themeSettings.logoUrl ? (
+                        <Image src={themeSettings.logoUrl} alt={themeSettings.appName} width={32} height={32} />
+                    ) : (
+                        <Store className="w-8 h-8 text-primary" />
+                    )}
                 </div>
             </div>
-          <CardTitle className="text-2xl">CZium ERP Login</CardTitle>
+          <CardTitle className="text-2xl">{themeSettings.appName} Login</CardTitle>
           <CardDescription>Enter your credentials to access your dashboard. <br/> (Hint: password is "password")</CardDescription>
         </CardHeader>
         <CardContent>

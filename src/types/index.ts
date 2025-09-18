@@ -166,6 +166,14 @@ export type CurrencySymbols = {
   [key in Currency]: string;
 };
 
+export type ThemeSettings = {
+    appName: string;
+    logoUrl: string;
+    primaryColor: string;
+    backgroundColor: string;
+    accentColor: string;
+};
+
 export type AssetStatus = 'in-use' | 'in-storage' | 'under-maintenance' | 'retired';
 
 export type Asset = {

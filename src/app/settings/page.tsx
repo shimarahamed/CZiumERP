@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { Currency } from "@/types";
+import { Separator } from '@/components/ui/separator';
 
 const months = [
     { value: 1, label: 'January' }, { value: 2, label: 'February' },
@@ -27,21 +29,26 @@ export default function SettingsPage() {
         companyName, setCompanyName,
         companyAddress, setCompanyAddress,
         fiscalYearStartMonth, setFiscalYearStartMonth,
+        themeSettings, setThemeSettings,
         user, addActivityLog
     } = useAppContext();
     const { toast } = useToast();
 
+    // Local states for form inputs
     const [localCurrency, setLocalCurrency] = useState(currency);
     const [localCompanyName, setLocalCompanyName] = useState(companyName);
     const [localCompanyAddress, setLocalCompanyAddress] = useState(companyAddress);
     const [localFiscalYearStart, setLocalFiscalYearStart] = useState(fiscalYearStartMonth);
+    const [localThemeSettings, setLocalThemeSettings] = useState(themeSettings);
+
 
     useEffect(() => {
         setLocalCurrency(currency);
         setLocalCompanyName(companyName);
         setLocalCompanyAddress(companyAddress);
         setLocalFiscalYearStart(fiscalYearStartMonth);
-    }, [currency, companyName, companyAddress, fiscalYearStartMonth]);
+        setLocalThemeSettings(themeSettings);
+    }, [currency, companyName, companyAddress, fiscalYearStartMonth, themeSettings]);
 
     const canManage = user?.role === 'admin';
 
@@ -54,6 +61,7 @@ export default function SettingsPage() {
         setCompanyAddress(localCompanyAddress);
         setFiscalYearStartMonth(localFiscalYearStart);
         setCurrency(localCurrency);
+        setThemeSettings(localThemeSettings);
 
         addActivityLog('Settings Updated', 'Company details and preferences were updated.');
         toast({ title: 'Settings Saved', description: 'Your changes have been saved successfully.' });
@@ -113,15 +121,7 @@ export default function SettingsPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Preferences</CardTitle>
-                            <CardDescription>Manage your application settings.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid w-full max-w-sm items-center gap-2">
+                             <div className="grid w-full max-w-sm items-center gap-2">
                                 <Label htmlFor="currency">Currency</Label>
                                 <Select value={localCurrency} onValueChange={(value) => setLocalCurrency(value as Currency)}>
                                     <SelectTrigger id="currency">
@@ -138,8 +138,63 @@ export default function SettingsPage() {
                             </div>
                         </CardContent>
                     </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Theme & Branding</CardTitle>
+                            <CardDescription>Customize the look and feel of the application.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                             <div className="grid w-full max-w-md items-center gap-2">
+                                <Label htmlFor="app-name">Application Name</Label>
+                                <Input
+                                    id="app-name"
+                                    value={localThemeSettings.appName}
+                                    onChange={(e) => setLocalThemeSettings(prev => ({...prev, appName: e.target.value}))}
+                                />
+                            </div>
+                            <div className="grid w-full max-w-md items-center gap-2">
+                                <Label htmlFor="logo-url">Logo URL</Label>
+                                <Input
+                                    id="logo-url"
+                                    placeholder="https://example.com/logo.png"
+                                    value={localThemeSettings.logoUrl}
+                                    onChange={(e) => setLocalThemeSettings(prev => ({...prev, logoUrl: e.target.value}))}
+                                />
+                            </div>
+                            <Separator />
+                            <p className="text-sm text-muted-foreground">Enter colors as HSL values without the 'hsl()' wrapper (e.g., '231 48% 48%').</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid w-full items-center gap-2">
+                                    <Label htmlFor="primary-color">Primary Color</Label>
+                                    <Input
+                                        id="primary-color"
+                                        value={localThemeSettings.primaryColor}
+                                        onChange={(e) => setLocalThemeSettings(prev => ({...prev, primaryColor: e.target.value}))}
+                                    />
+                                </div>
+                                <div className="grid w-full items-center gap-2">
+                                    <Label htmlFor="background-color">Background Color</Label>
+                                    <Input
+                                        id="background-color"
+                                        value={localThemeSettings.backgroundColor}
+                                        onChange={(e) => setLocalThemeSettings(prev => ({...prev, backgroundColor: e.target.value}))}
+                                    />
+                                </div>
+                                <div className="grid w-full items-center gap-2">
+                                    <Label htmlFor="accent-color">Accent Color</Label>
+                                    <Input
+                                        id="accent-color"
+                                        value={localThemeSettings.accentColor}
+                                        onChange={(e) => setLocalThemeSettings(prev => ({...prev, accentColor: e.target.value}))}
+                                    />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     <div className="flex justify-end">
-                        <Button onClick={handleSaveChanges}>Save Changes</Button>
+                        <Button onClick={handleSaveChanges}>Save All Settings</Button>
                     </div>
                 </div>
             </main>

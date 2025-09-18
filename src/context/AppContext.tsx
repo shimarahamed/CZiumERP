@@ -3,7 +3,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment } from '@/types';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment, ThemeSettings } from '@/types';
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
 import { differenceInDays, parseISO } from 'date-fns';
 
@@ -33,6 +33,14 @@ const currencySymbols: CurrencySymbols = {
   GBP: '£',
   AED: 'AED',
   LKR: 'LKR',
+};
+
+const defaultThemeSettings: ThemeSettings = {
+    appName: 'CZium ERP',
+    logoUrl: '',
+    primaryColor: '231 48% 48%',
+    backgroundColor: '220 17% 95%',
+    accentColor: '187 100% 15%',
 };
 
 interface AppContextType {
@@ -74,6 +82,8 @@ interface AppContextType {
   setCompanyAddress: React.Dispatch<React.SetStateAction<string>>;
   fiscalYearStartMonth: number;
   setFiscalYearStartMonth: React.Dispatch<React.SetStateAction<number>>;
+  themeSettings: ThemeSettings;
+  setThemeSettings: React.Dispatch<React.SetStateAction<ThemeSettings>>;
   isHydrated: boolean;
   attendance: AttendanceEntry[];
   setAttendance: React.Dispatch<React.SetStateAction<AttendanceEntry[]>>;
@@ -161,6 +171,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [companyName, setCompanyName] = useState<string>('CZium ERP');
   const [companyAddress, setCompanyAddress] = useState<string>('123 Innovation Drive, Tech City, 12345');
   const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState<number>(1);
+  const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const [isHydrated, setIsHydrated] = useState(false);
@@ -216,6 +227,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCompanyName(getStoredState('companyName', 'CZium ERP'));
     setCompanyAddress(getStoredState('companyAddress', '123 Innovation Drive, Tech City, 12345'));
     setFiscalYearStartMonth(getStoredState('fiscalYearStartMonth', 1));
+    setThemeSettings(getStoredState('themeSettings', defaultThemeSettings));
     
     setIsHydrated(true);
   }, []);
@@ -258,6 +270,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('companyName', JSON.stringify(companyName)); }, [companyName, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('companyAddress', JSON.stringify(companyAddress)); }, [companyAddress, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('fiscalYearStartMonth', JSON.stringify(fiscalYearStartMonth)); }, [fiscalYearStartMonth, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('themeSettings', JSON.stringify(themeSettings)); }, [themeSettings, isHydrated]);
 
 
   // Effect to update currency symbol when currency changes
@@ -394,6 +407,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('fiscalYearStartMonth');
     localStorage.removeItem('notifications');
     localStorage.removeItem('shipments');
+    localStorage.removeItem('themeSettings');
   };
 
 
@@ -420,6 +434,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       companyName, setCompanyName,
       companyAddress, setCompanyAddress,
       fiscalYearStartMonth, setFiscalYearStartMonth,
+      themeSettings, setThemeSettings,
       isHydrated,
       attendance, setAttendance,
       leaveRequests, setLeaveRequests,

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -15,14 +16,21 @@ import Nav from '@/components/Nav';
 import { Button } from '@/components/ui/button';
 import { LifeBuoy, Store } from '@/components/icons';
 import UserNav from './UserNav';
+import Image from 'next/image';
 
 const UNAUTH_ROUTES = ['/login'];
 const AUTH_NO_STORE_ROUTES = ['/login', '/select-store'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, currentStore, isHydrated } = useAppContext();
+  const { isAuthenticated, currentStore, isHydrated, themeSettings } = useAppContext();
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (isHydrated) {
+        document.title = themeSettings.appName;
+    }
+  }, [isHydrated, themeSettings.appName]);
 
   useEffect(() => {
     if (!isHydrated) return; // Wait for rehydration before running effects
@@ -68,10 +76,14 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
       <Sidebar collapsible="icon">
         <div className="flex flex-col h-full">
           <SidebarHeader className="p-4 flex items-center gap-3">
-             <div className="p-2 bg-primary/20 rounded-lg">
-                <Store className="w-6 h-6 text-primary-foreground" />
+             <div className="p-2 bg-primary/20 rounded-lg flex items-center justify-center h-10 w-10">
+                {themeSettings.logoUrl ? (
+                    <Image src={themeSettings.logoUrl} alt={themeSettings.appName} width={24} height={24} className="object-contain" />
+                ) : (
+                    <Store className="w-6 h-6 text-primary-foreground" />
+                )}
              </div>
-             <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">CZium ERP</h1>
+             <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">{themeSettings.appName}</h1>
           </SidebarHeader>
           <SidebarContent>
             <Nav />

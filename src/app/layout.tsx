@@ -1,14 +1,38 @@
+
+'use client';
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import { AppProvider } from '@/context/AppContext';
+import { AppProvider, useAppContext } from '@/context/AppContext';
 import AuthWrapper from '@/components/AuthWrapper';
 
-export const metadata: Metadata = {
-  title: 'CZium ERP',
-  description: 'A modern ERP for your business, built with Next.js and Firebase.',
-  manifest: '/manifest.json',
-};
+// Since the layout is now a client component to access context, we define metadata this way.
+// Note: This is a simplified approach. For fully dynamic metadata, more advanced Next.js patterns would be needed.
+// export const metadata: Metadata = {
+//   title: 'CZium ERP',
+//   description: 'A modern ERP for your business, built with Next.js and Firebase.',
+//   manifest: '/manifest.json',
+// };
+
+function DynamicStyles() {
+    const { themeSettings } = useAppContext();
+    
+    // Convert HSL strings to CSS variables format
+    const styles = `
+      :root {
+        ${themeSettings.primaryColor ? `--primary: ${themeSettings.primaryColor};` : ''}
+        ${themeSettings.backgroundColor ? `--background: ${themeSettings.backgroundColor};` : ''}
+        ${themeSettings.accentColor ? `--accent: ${themeSettings.accentColor};` : ''}
+      }
+      .dark {
+        ${themeSettings.primaryColor ? `--primary: ${themeSettings.primaryColor};` : ''}
+        ${themeSettings.backgroundColor ? `--background: ${themeSettings.backgroundColor};` : ''}
+        ${themeSettings.accentColor ? `--accent: ${themeSettings.accentColor};` : ''}
+      }
+    `;
+    return <style>{styles}</style>;
+}
+
 
 export default function RootLayout({
   children,
@@ -25,10 +49,11 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProvider>
-          <AuthWrapper>
-            {children}
-          </AuthWrapper>
-          <Toaster />
+            <DynamicStyles />
+            <AuthWrapper>
+                {children}
+            </AuthWrapper>
+            <Toaster />
         </AppProvider>
       </body>
     </html>

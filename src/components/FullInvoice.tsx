@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -10,13 +11,14 @@ import { Printer, Mail } from '@/components/icons';
 import { useAppContext } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
 import { Store as StoreIcon } from '@/components/icons';
+import Image from 'next/image';
 
 interface FullInvoiceProps {
     invoice: Invoice;
 }
 
 const FullInvoice = ({ invoice }: FullInvoiceProps) => {
-    const { currentStore, currencySymbol, customers, companyName, companyAddress } = useAppContext();
+    const { currencySymbol, customers, companyName, companyAddress, themeSettings } = useAppContext();
     const { toast } = useToast();
     
     const handlePrint = () => {
@@ -74,7 +76,11 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                 <header className="flex justify-between items-start mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <StoreIcon className="h-8 w-8 text-primary" />
+                             {themeSettings.logoUrl ? (
+                                <Image src={themeSettings.logoUrl} alt={themeSettings.appName} width={32} height={32} />
+                            ) : (
+                                <StoreIcon className="h-8 w-8 text-primary" />
+                            )}
                             <h1 className="text-2xl font-bold">{companyName}</h1>
                         </div>
                         <p className="text-muted-foreground">{companyAddress}</p>
