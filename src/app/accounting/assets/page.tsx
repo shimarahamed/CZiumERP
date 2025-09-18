@@ -21,7 +21,7 @@ import { useAppContext } from '@/context/AppContext';
 import type { Asset, AssetStatus } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { MoreHorizontal, PlusCircle } from '@/components/icons';
+import { MoreHorizontal, PlusCircle, ArrowUpDown } from '@/components/icons';
 
 const assetSchema = z.object({
   name: z.string().min(1, "Asset name is required."),
@@ -35,6 +35,8 @@ const assetSchema = z.object({
 });
 
 type AssetFormData = z.infer<typeof assetSchema>;
+
+type SortKey = 'name' | 'category' | 'status' | 'location';
 
 const statusVariant: { [key in AssetStatus]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     'in-use': 'default',
@@ -51,6 +53,8 @@ export default function AssetsPage() {
     const [assetToEdit, setAssetToEdit] = useState<Asset | null>(null);
     const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortKey, setSortKey] = useState<SortKey>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
     const form = useForm<AssetFormData>({
         resolver: zodResolver(assetSchema),
@@ -58,16 +62,25 @@ export default function AssetsPage() {
 
     const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
     
-    const filteredAssets = useMemo(() => {
-        if (!searchTerm) return assets;
-        const lowercasedFilter = searchTerm.toLowerCase();
-        return assets.filter(asset =>
-            asset.name.toLowerCase().includes(lowercasedFilter) ||
-            asset.category.toLowerCase().includes(lowercasedFilter) ||
-            (asset.serialNumber && asset.serialNumber.toLowerCase().includes(lowercasedFilter)) ||
-            asset.location.toLowerCase().includes(lowercasedFilter)
+    const sortedAndFilteredAssets = useMemo(() => {
+        let filtered = assets.filter(asset =>
+            asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            asset.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (asset.serialNumber && asset.serialNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            asset.location.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [assets, searchTerm]);
+
+        filtered.sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [assets, searchTerm, sortKey, sortDirection]);
 
     if (!canManage) {
         return (
@@ -82,6 +95,15 @@ export default function AssetsPage() {
             </div>
         );
     }
+    
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
+    };
 
     const handleOpenForm = (asset: Asset | null = null) => {
         setAssetToEdit(asset);
@@ -168,16 +190,32 @@ export default function AssetsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Asset Name</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="hidden md:table-cell">Location</TableHead>
+                                    <TableHead>
+                                        <Button variant="ghost" onClick={() => handleSort('name')}>
+                                            Asset Name <ArrowUpDown className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead>
+                                         <Button variant="ghost" onClick={() => handleSort('category')}>
+                                            Category <ArrowUpDown className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead>
+                                         <Button variant="ghost" onClick={() => handleSort('status')}>
+                                            Status <ArrowUpDown className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead className="hidden md:table-cell">
+                                        <Button variant="ghost" onClick={() => handleSort('location')}>
+                                            Location <ArrowUpDown className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </TableHead>
                                     <TableHead className="hidden md:table-cell">Assigned To</TableHead>
                                     <TableHead><span className="sr-only">Actions</span></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredAssets.map(asset => {
+                                {sortedAndFilteredAssets.map(asset => {
                                     const assignedUser = users.find(u => u.id === asset.assignedTo);
                                     const locationName = stores.find(s => s.id === asset.location)?.name || asset.location;
                                     return (
@@ -311,3 +349,5 @@ export default function AssetsPage() {
         </div>
     );
 }
+
+    

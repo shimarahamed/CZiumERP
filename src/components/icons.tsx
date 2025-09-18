@@ -5,6 +5,7 @@ import { AreaChart } from 'lucide-react';
 import { Archive } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import { ArrowRight } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { Banknote } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
 import { Barcode } from 'lucide-react';
@@ -91,6 +92,7 @@ export {
   Archive,
   ArrowLeft,
   ArrowRight,
+  ArrowUpDown,
   Banknote,
   BarChart3,
   Barcode,
@@ -170,3 +172,5 @@ export {
   VideoOff,
   X,
 };
+
+    
