@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import { useState, useMemo } from 'react';
@@ -27,6 +28,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import ITAssetDetail from '@/components/ITAssetDetail';
+import { Combobox } from '@/components/ui/combobox';
 
 const itAssetSchema = z.object({
   // Core
@@ -92,6 +94,10 @@ export default function ITAssetsPage() {
     });
     
     const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+
+    const employeeOptions = useMemo(() => 
+        [{ label: 'Unassigned', value: 'unassigned' }, ...employees.map(e => ({ label: e.name, value: e.id }))]
+    , [employees]);
 
     const sortedAndFilteredAssets = useMemo(() => {
         let filtered = [...itAssets].map(asset => {
@@ -317,10 +323,17 @@ export default function ITAssetsPage() {
                                 <div className="space-y-4 pt-2">
                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                          <FormField control={form.control} name="assignedTo" render={({ field }) => (
-                                            <FormItem><FormLabel>Assigned To / User</FormLabel>
-                                                <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select an employee" /></SelectTrigger></FormControl>
-                                                    <SelectContent><SelectItem value="unassigned">Unassigned</SelectItem>{employees.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
-                                                </Select><FormMessage />
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel>Assigned To / User</FormLabel>
+                                                <Combobox
+                                                    options={employeeOptions}
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                    placeholder="Select an employee..."
+                                                    searchPlaceholder="Search employees..."
+                                                    emptyText="No employee found."
+                                                />
+                                                <FormMessage />
                                             </FormItem>
                                         )} />
                                         <FormField control={form.control} name="department" render={({ field }) => (<FormItem><FormLabel>Department / Business Unit</FormLabel><FormControl><Input placeholder="e.g., Engineering" {...field} /></FormControl><FormMessage /></FormItem>)} />
