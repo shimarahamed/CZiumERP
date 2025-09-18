@@ -1,5 +1,6 @@
 
 
+
 import type { Customer, Invoice, Sale, Product, Vendor, Store, User, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment } from '@/types';
 
 export const initialUsers: User[] = [
@@ -10,12 +11,12 @@ export const initialUsers: User[] = [
 ];
 
 export const initialEmployees: Employee[] = [
-  { id: 'emp-1', userId: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'System Administrator', department: 'IT', dateOfJoining: '2022-01-01', salary: 120000, annualLeaveAllowance: 25, leaveTaken: 5 },
-  { id: 'emp-2', userId: 'user-2', name: 'Manager Mike', email: 'manager@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Store Manager', department: 'Operations', dateOfJoining: '2023-03-15', salary: 85000, annualLeaveAllowance: 25, leaveTaken: 10 },
-  { id: 'emp-3', userId: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Cashier', department: 'Sales', dateOfJoining: '2024-06-01', salary: 45000, annualLeaveAllowance: 20, leaveTaken: 2 },
-  { id: 'emp-4', userId: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Inventory Specialist', department: 'Logistics', dateOfJoining: '2024-09-20', salary: 55000, annualLeaveAllowance: 20, leaveTaken: 0 },
-  { id: 'emp-5', name: 'Warehouse William', email: 'william@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Warehouse Associate', department: 'Logistics', dateOfJoining: '2025-01-10', salary: 42000, annualLeaveAllowance: 18, leaveTaken: 3 },
-  { id: 'emp-6', name: 'Driver Dan', email: 'dan@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Delivery Driver', department: 'Logistics', dateOfJoining: '2024-02-20', salary: 48000, annualLeaveAllowance: 20, leaveTaken: 8 },
+  { id: 'emp-1', userId: 'user-1', name: 'Admin User', email: 'admin@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'System Administrator', department: 'IT', dateOfJoining: '2022-01-01', salary: 120000, annualLeaveAllowance: 25, leaveTaken: 5, storeId: 'store-1' },
+  { id: 'emp-2', userId: 'user-2', name: 'Manager Mike', email: 'manager@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Store Manager', department: 'Operations', dateOfJoining: '2023-03-15', salary: 85000, annualLeaveAllowance: 25, leaveTaken: 10, storeId: 'store-1' },
+  { id: 'emp-3', userId: 'user-3', name: 'Cashier Chloe', email: 'cashier@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Cashier', department: 'Sales', dateOfJoining: '2024-06-01', salary: 45000, annualLeaveAllowance: 20, leaveTaken: 2, storeId: 'store-2' },
+  { id: 'emp-4', userId: 'user-4', name: 'Inventory Ian', email: 'inventory@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Inventory Specialist', department: 'Logistics', dateOfJoining: '2024-09-20', salary: 55000, annualLeaveAllowance: 20, leaveTaken: 0, storeId: 'store-2' },
+  { id: 'emp-5', name: 'Warehouse William', email: 'william@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Warehouse Associate', department: 'Logistics', dateOfJoining: '2025-01-10', salary: 42000, annualLeaveAllowance: 18, leaveTaken: 3, storeId: 'store-3' },
+  { id: 'emp-6', name: 'Driver Dan', email: 'dan@czium.com', avatar: 'https://placehold.co/40x40', jobTitle: 'Delivery Driver', department: 'Logistics', dateOfJoining: '2024-02-20', salary: 48000, annualLeaveAllowance: 20, leaveTaken: 8, storeId: 'store-3' },
 ];
 
 export const initialStores: Store[] = [
@@ -25,39 +26,39 @@ export const initialStores: Store[] = [
 ];
 
 export const customers: Customer[] = [
-  { id: 'cust-1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', billingAddress: '123 Billing Rd, Anytown, USA', shippingAddress: '123 Shipping Rd, Anytown, USA', loyaltyPoints: 525, tier: 'Silver' },
-  { id: 'cust-2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', billingAddress: '456 Billing Ave, Anytown, USA', shippingAddress: '456 Shipping Ave, Anytown, USA', loyaltyPoints: 80, tier: 'Bronze' },
-  { id: 'cust-3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', billingAddress: '789 Billing Ln, Anytown, USA', shippingAddress: '789 Shipping Ln, Anytown, USA', loyaltyPoints: 130, tier: 'Bronze' },
-  { id: 'cust-4', name: 'Alice Johnson', email: 'alice@example.com', phone: '456-789-0123', avatar: 'https://placehold.co/40x40', billingAddress: '101 Billing Blvd, Anytown, USA', shippingAddress: '101 Shipping Blvd, Anytown, USA', loyaltyPoints: 2150, tier: 'Gold' },
-  { id: 'cust-5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40', billingAddress: '212 Billing Ct, Anytown, USA', shippingAddress: '212 Shipping Ct, Anytown, USA', loyaltyPoints: 0, tier: 'Bronze' },
-  { id: 'cust-6', name: 'Emily White', email: 'emily@example.com', phone: '678-901-2345', avatar: 'https://placehold.co/40x40', billingAddress: '333 Billing Dr, Anytown, USA', shippingAddress: '333 Shipping Dr, Anytown, USA', loyaltyPoints: 1200, tier: 'Silver' },
-  { id: 'cust-7', name: 'Michael Green', email: 'michael@example.com', phone: '789-012-3456', avatar: 'https://placehold.co/40x40', billingAddress: '444 Billing Pl, Anytown, USA', shippingAddress: '444 Shipping Pl, Anytown, USA', loyaltyPoints: 340, tier: 'Bronze' },
-  { id: 'cust-8', name: 'Sarah Black', email: 'sarah@example.com', phone: '890-123-4567', avatar: 'https://placehold.co/40x40', billingAddress: '555 Billing Way, Anytown, USA', shippingAddress: '555 Shipping Way, Anytown, USA', loyaltyPoints: 450, tier: 'Bronze' },
+  { id: 'cust-1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', billingAddress: '123 Billing Rd, Anytown, USA', shippingAddress: '123 Shipping Rd, Anytown, USA', loyaltyPoints: 525, tier: 'Silver', storeId: 'store-1' },
+  { id: 'cust-2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', billingAddress: '456 Billing Ave, Anytown, USA', shippingAddress: '456 Shipping Ave, Anytown, USA', loyaltyPoints: 80, tier: 'Bronze', storeId: 'store-2' },
+  { id: 'cust-3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', billingAddress: '789 Billing Ln, Anytown, USA', shippingAddress: '789 Shipping Ln, Anytown, USA', loyaltyPoints: 130, tier: 'Bronze', storeId: 'store-1' },
+  { id: 'cust-4', name: 'Alice Johnson', email: 'alice@example.com', phone: '456-789-0123', avatar: 'https://placehold.co/40x40', billingAddress: '101 Billing Blvd, Anytown, USA', shippingAddress: '101 Shipping Blvd, Anytown, USA', loyaltyPoints: 2150, tier: 'Gold', storeId: 'store-3' },
+  { id: 'cust-5', name: 'Bob Brown', email: 'bob@example.com', phone: '567-890-1234', avatar: 'https://placehold.co/40x40', billingAddress: '212 Billing Ct, Anytown, USA', shippingAddress: '212 Shipping Ct, Anytown, USA', loyaltyPoints: 0, tier: 'Bronze', storeId: 'store-2' },
+  { id: 'cust-6', name: 'Emily White', email: 'emily@example.com', phone: '678-901-2345', avatar: 'https://placehold.co/40x40', billingAddress: '333 Billing Dr, Anytown, USA', shippingAddress: '333 Shipping Dr, Anytown, USA', loyaltyPoints: 1200, tier: 'Silver', storeId: 'store-1' },
+  { id: 'cust-7', name: 'Michael Green', email: 'michael@example.com', phone: '789-012-3456', avatar: 'https://placehold.co/40x40', billingAddress: '444 Billing Pl, Anytown, USA', shippingAddress: '444 Shipping Pl, Anytown, USA', loyaltyPoints: 340, tier: 'Bronze', storeId: 'store-3' },
+  { id: 'cust-8', name: 'Sarah Black', email: 'sarah@example.com', phone: '890-123-4567', avatar: 'https://placehold.co/40x40', billingAddress: '555 Billing Way, Anytown, USA', shippingAddress: '555 Shipping Way, Anytown, USA', loyaltyPoints: 450, tier: 'Bronze', storeId: 'store-2' },
 ];
 
 export const initialProducts: Product[] = [
-  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 5, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.', reorderThreshold: 5, warrantyDate: '2027-05-20T00:00:00.000Z', productType: 'manufactured' },
-  { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, cost: 80.00, stock: 30, sku: 'CG-129', category: 'Appliances', description: 'A conical burr grinder for a consistent grind.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'standard' },
-  { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, cost: 12.00, stock: 25, sku: 'CB-1KG', category: 'Consumables', description: 'Single-origin beans from Ethiopia.', reorderThreshold: 20, expiryDate: '2025-06-15T00:00:00.000Z', vendorId: 'vend-1', productType: 'standard' },
-  { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.', reorderThreshold: 15, vendorId: 'vend-2', productType: 'standard' },
-  { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.', reorderThreshold: 20, vendorId: 'vend-2', productType: 'standard' },
-  { id: 'prod-6', name: 'Almond Milk (1L)', price: 4.50, cost: 2.50, stock: 50, sku: 'AM-1L', category: 'Consumables', description: 'Unsweetened almond milk.', reorderThreshold: 20, expiryDate: '2025-08-20T00:00:00.000Z', vendorId: 'vend-1', productType: 'standard' },
-  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: '2025-04-10T00:00:00.000Z', vendorId: 'vend-1', productType: 'standard' },
-  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 8, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: '2025-05-22T00:00:00.000Z', productType: 'standard' },
-  { id: 'prod-9', name: 'Cleaning Tablets', price: 15.00, cost: 8.00, stock: 80, sku: 'CL-TAB', category: 'Maintenance', description: 'Tablets for cleaning espresso machines.', reorderThreshold: 15, productType: 'standard' },
-  { id: 'prod-10', name: 'Digital Scale', price: 35.00, cost: 20.00, stock: 0, sku: 'SCL-DGTL', category: 'Accessories', description: 'Precision digital scale for coffee weighing.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard' }, // Out of Stock
-  { id: 'prod-11', name: 'Gooseneck Kettle', price: 89.99, cost: 60.00, stock: 9, sku: 'KT-GNK', category: 'Appliances', description: 'Electric gooseneck kettle for pour-over coffee.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'standard' }, // Low Stock
-  { id: 'prod-12', name: 'Travel Mug', price: 25.00, cost: 15.00, stock: 100, sku: 'TM-16OZ', category: 'Accessories', description: '16oz insulated travel mug.', reorderThreshold: 30, vendorId: 'vend-2', productType: 'standard' },
-  { id: 'prod-13', name: 'Barista Apron', price: 30.00, cost: 18.00, stock: 40, sku: 'APRN-BRST', category: 'Apparel', description: 'Canvas barista apron with leather straps.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard' },
-  { id: 'prod-14', name: 'Syrup Variety Pack', price: 18.00, cost: 10.00, stock: 60, sku: 'SYRP-PCK', category: 'Consumables', description: 'Pack of 3 flavored syrups.', reorderThreshold: 25, vendorId: 'vend-1', expiryDate: '2025-11-20T00:00:00.000Z', productType: 'standard' },
-  { id: 'prod-15', name: 'Casing Unit', price: 0, cost: 150.00, stock: 200, sku: 'CS-UNIT', category: 'Components', description: 'Outer casing for Espresso Machine.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'component' },
-  { id: 'prod-16', name: 'Internal Pump Assembly', price: 0, cost: 200.00, stock: 200, sku: 'PMP-ASSY', category: 'Components', description: 'Pump and boiler assembly for Espresso Machine.', reorderThreshold: 5, vendorId: 'vend-3', productType: 'component' },
+  { id: 'prod-1', name: 'Espresso Machine', price: 499.99, cost: 350.00, stock: 5, sku: 'EM-499', category: 'Appliances', description: 'A high-quality espresso machine for home baristas.', reorderThreshold: 5, warrantyDate: '2027-05-20T00:00:00.000Z', productType: 'manufactured', storeId: 'store-1' },
+  { id: 'prod-2', name: 'Coffee Grinder', price: 129.50, cost: 80.00, stock: 30, sku: 'CG-129', category: 'Appliances', description: 'A conical burr grinder for a consistent grind.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'standard', storeId: 'store-1' },
+  { id: 'prod-3', name: 'Bag of Premium Coffee Beans (1kg)', price: 22.00, cost: 12.00, stock: 25, sku: 'CB-1KG', category: 'Consumables', description: 'Single-origin beans from Ethiopia.', reorderThreshold: 20, expiryDate: '2025-06-15T00:00:00.000Z', vendorId: 'vend-1', productType: 'standard', storeId: 'store-2' },
+  { id: 'prod-4', name: 'Milk Frother', price: 75.00, cost: 45.00, stock: 45, sku: 'MF-075', category: 'Accessories', description: 'Automatic milk frother for lattes and cappuccinos.', reorderThreshold: 15, vendorId: 'vend-2', productType: 'standard', storeId: 'store-2' },
+  { id: 'prod-5', name: 'Set of 4 Ceramic Mugs', price: 40.00, cost: 20.00, stock: 60, sku: 'CM-SET4', category: 'Accessories', description: 'Durable and stylish ceramic mugs.', reorderThreshold: 20, vendorId: 'vend-2', productType: 'standard', storeId: 'store-3' },
+  { id: 'prod-6', name: 'Almond Milk (1L)', price: 4.50, cost: 2.50, stock: 50, sku: 'AM-1L', category: 'Consumables', description: 'Unsweetened almond milk.', reorderThreshold: 20, expiryDate: '2025-08-20T00:00:00.000Z', vendorId: 'vend-1', productType: 'standard', storeId: 'store-1' },
+  { id: 'prod-7', name: 'Oat Milk (1L)', price: 4.75, cost: 2.75, stock: 40, sku: 'OM-1L', category: 'Consumables', description: 'Unsweetened oat milk.', reorderThreshold: 20, expiryDate: '2025-04-10T00:00:00.000Z', vendorId: 'vend-1', productType: 'standard', storeId: 'store-2' },
+  { id: 'prod-8', name: 'Assorted Pastries', price: 3.50, cost: 1.50, stock: 8, sku: 'PST-ASST', category: 'Consumables', description: 'Freshly baked pastries.', reorderThreshold: 10, expiryDate: '2025-05-22T00:00:00.000Z', productType: 'standard', storeId: 'store-3' },
+  { id: 'prod-9', name: 'Cleaning Tablets', price: 15.00, cost: 8.00, stock: 80, sku: 'CL-TAB', category: 'Maintenance', description: 'Tablets for cleaning espresso machines.', reorderThreshold: 15, productType: 'standard', storeId: 'store-1' },
+  { id: 'prod-10', name: 'Digital Scale', price: 35.00, cost: 20.00, stock: 0, sku: 'SCL-DGTL', category: 'Accessories', description: 'Precision digital scale for coffee weighing.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard', storeId: 'store-2' }, // Out of Stock
+  { id: 'prod-11', name: 'Gooseneck Kettle', price: 89.99, cost: 60.00, stock: 9, sku: 'KT-GNK', category: 'Appliances', description: 'Electric gooseneck kettle for pour-over coffee.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'standard', storeId: 'store-3' }, // Low Stock
+  { id: 'prod-12', name: 'Travel Mug', price: 25.00, cost: 15.00, stock: 100, sku: 'TM-16OZ', category: 'Accessories', description: '16oz insulated travel mug.', reorderThreshold: 30, vendorId: 'vend-2', productType: 'standard', storeId: 'store-1' },
+  { id: 'prod-13', name: 'Barista Apron', price: 30.00, cost: 18.00, stock: 40, sku: 'APRN-BRST', category: 'Apparel', description: 'Canvas barista apron with leather straps.', reorderThreshold: 10, vendorId: 'vend-2', productType: 'standard', storeId: 'store-2' },
+  { id: 'prod-14', name: 'Syrup Variety Pack', price: 18.00, cost: 10.00, stock: 60, sku: 'SYRP-PCK', category: 'Consumables', description: 'Pack of 3 flavored syrups.', reorderThreshold: 25, vendorId: 'vend-1', expiryDate: '2025-11-20T00:00:00.000Z', productType: 'standard', storeId: 'store-3' },
+  { id: 'prod-15', name: 'Casing Unit', price: 0, cost: 150.00, stock: 200, sku: 'CS-UNIT', category: 'Components', description: 'Outer casing for Espresso Machine.', reorderThreshold: 10, vendorId: 'vend-3', productType: 'component', storeId: 'store-1' },
+  { id: 'prod-16', name: 'Internal Pump Assembly', price: 0, cost: 200.00, stock: 200, sku: 'PMP-ASSY', category: 'Components', description: 'Pump and boiler assembly for Espresso Machine.', reorderThreshold: 5, vendorId: 'vend-3', productType: 'component', storeId: 'store-1' },
 ];
 
 export const initialVendors: Vendor[] = [
-  { id: 'vend-1', name: 'Beans & Co.', contactPerson: 'Mark R.', email: 'mark@beans.co', phone: '987-654-3210', leadTimeDays: 7 },
-  { id: 'vend-2', name: 'Cup Supplies Inc.', contactPerson: 'Susan B.', email: 'susan@cups.inc', phone: '876-543-2109', leadTimeDays: 5 },
-  { id: 'vend-3', name: 'Machinery Masters', contactPerson: 'Leo P.', email: 'leo@machinery.com', phone: '765-432-1098', leadTimeDays: 14 },
+  { id: 'vend-1', name: 'Beans & Co.', contactPerson: 'Mark R.', email: 'mark@beans.co', phone: '987-654-3210', leadTimeDays: 7, storeId: 'store-1' },
+  { id: 'vend-2', name: 'Cup Supplies Inc.', contactPerson: 'Susan B.', email: 'susan@cups.inc', phone: '876-543-2109', leadTimeDays: 5, storeId: 'store-2' },
+  { id: 'vend-3', name: 'Machinery Masters', contactPerson: 'Leo P.', email: 'leo@machinery.com', phone: '765-432-1098', leadTimeDays: 14, storeId: 'store-1' },
 ];
 
 export const initialInvoices: Invoice[] = [
@@ -118,11 +119,11 @@ export const initialRfqs: RFQ[] = [
 ];
 
 export const initialAssets: Asset[] = [
-  { id: 'asset-1', name: 'Delivery Van 01', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'emp-6' },
-  { id: 'asset-2', name: 'Head Office Printer', category: 'Office Equipment', serialNumber: 'PRINTER-XYZ', purchaseDate: '2023-05-20', purchaseCost: 800, status: 'in-use', location: 'Head Office' },
-  { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2025-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2' },
-  { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2022-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2' },
-  { id: 'asset-5', name: 'Delivery Van 02', category: 'Vehicle', serialNumber: 'VIN987654321', purchaseDate: '2024-08-01', purchaseCost: 28000, status: 'under-maintenance', location: 'store-2' },
+  { id: 'asset-1', name: 'Delivery Van 01', category: 'Vehicle', serialNumber: 'VIN123456789', purchaseDate: '2024-01-15', purchaseCost: 25000, status: 'in-use', location: 'store-1', assignedTo: 'emp-6', storeId: 'store-1' },
+  { id: 'asset-2', name: 'Head Office Printer', category: 'Office Equipment', serialNumber: 'PRINTER-XYZ', purchaseDate: '2023-05-20', purchaseCost: 800, status: 'in-use', location: 'Head Office', storeId: 'store-1' },
+  { id: 'asset-3', name: 'Laptop - Manager 1', category: 'IT Equipment', serialNumber: 'LAPTOP-001', purchaseDate: '2025-02-10', purchaseCost: 1500, status: 'in-use', location: 'store-1', assignedTo: 'user-2', storeId: 'store-1' },
+  { id: 'asset-4', name: 'Reserve Cash Register', category: 'Point of Sale', serialNumber: 'POS-005-RESERVE', purchaseDate: '2022-11-30', purchaseCost: 1200, status: 'in-storage', location: 'store-2', storeId: 'store-2' },
+  { id: 'asset-5', name: 'Delivery Van 02', category: 'Vehicle', serialNumber: 'VIN987654321', purchaseDate: '2024-08-01', purchaseCost: 28000, status: 'under-maintenance', location: 'store-2', storeId: 'store-2' },
 ];
 
 export const initialAttendance: AttendanceEntry[] = [];
@@ -142,14 +143,14 @@ export const salesData: Sale[] = [
 ];
 
 export const initialLedgerEntries: LedgerEntry[] = [
-  { id: 'gl-1', date: '2025-10-01', account: 'Accounts Receivable', description: 'Invoice INV-001', debit: 524.99, credit: 0 },
-  { id: 'gl-2', date: '2025-10-01', account: 'Sales Revenue', description: 'Invoice INV-001', debit: 0, credit: 524.99 },
-  { id: 'gl-3', date: '2025-10-02', account: 'Cash', description: 'Payment for INV-001', debit: 524.99, credit: 0 },
-  { id: 'gl-4', date: '2025-10-02', account: 'Accounts Receivable', description: 'Payment for INV-001', debit: 0, credit: 524.99 },
-  { id: 'gl-5', date: '2025-10-15', account: 'Inventory', description: 'PO-002 Received', debit: 1700, credit: 0 },
-  { id: 'gl-6', date: '2025-10-15', account: 'Accounts Payable', description: 'PO-002', debit: 0, credit: 1700 },
-  { id: 'gl-7', date: '2025-10-20', account: 'Rent Expense', description: 'October Rent Payment', debit: 5000, credit: 0 },
-  { id: 'gl-8', date: '2025-10-20', account: 'Cash', description: 'October Rent', debit: 0, credit: 5000 },
+  { id: 'gl-1', date: '2025-10-01', account: 'Accounts Receivable', description: 'Invoice INV-001', debit: 524.99, credit: 0, storeId: 'store-1' },
+  { id: 'gl-2', date: '2025-10-01', account: 'Sales Revenue', description: 'Invoice INV-001', debit: 0, credit: 524.99, storeId: 'store-1' },
+  { id: 'gl-3', date: '2025-10-02', account: 'Cash', description: 'Payment for INV-001', debit: 524.99, credit: 0, storeId: 'store-1' },
+  { id: 'gl-4', date: '2025-10-02', account: 'Accounts Receivable', description: 'Payment for INV-001', debit: 0, credit: 524.99, storeId: 'store-1' },
+  { id: 'gl-5', date: '2025-10-15', account: 'Inventory', description: 'PO-002 Received', debit: 1700, credit: 0, storeId: 'store-2' },
+  { id: 'gl-6', date: '2025-10-15', account: 'Accounts Payable', description: 'PO-002', debit: 0, credit: 1700, storeId: 'store-2' },
+  { id: 'gl-7', date: '2025-10-20', account: 'Rent Expense', description: 'October Rent Payment', debit: 5000, credit: 0, storeId: 'store-1' },
+  { id: 'gl-8', date: '2025-10-20', account: 'Cash', description: 'October Rent', debit: 0, credit: 5000, storeId: 'store-1' },
 ];
 
 export const initialTaxRates: TaxRate[] = [
@@ -159,11 +160,11 @@ export const initialTaxRates: TaxRate[] = [
 ];
 
 export const initialBudgets: Budget[] = [
-  { id: 'bud-1', category: 'Marketing & Advertising', period: 'Monthly', budgetedAmount: 2000, actualAmount: 1570.50 },
-  { id: 'bud-2', category: 'Operations & Utilities', period: 'Monthly', budgetedAmount: 10000, actualAmount: 9542.75 },
-  { id: 'bud-3', category: 'Employee Payroll', period: 'Monthly', budgetedAmount: 25000, actualAmount: 24800 },
-  { id: 'bud-4', category: 'IT & Software', period: 'Quarterly', budgetedAmount: 5000, actualAmount: 5250 },
-  { id: 'bud-5', category: 'Capital Expenditures', period: 'Yearly', budgetedAmount: 50000, actualAmount: 25000 },
+  { id: 'bud-1', category: 'Marketing & Advertising', period: 'Monthly', budgetedAmount: 2000, actualAmount: 1570.50, storeId: 'store-1' },
+  { id: 'bud-2', category: 'Operations & Utilities', period: 'Monthly', budgetedAmount: 10000, actualAmount: 9542.75, storeId: 'store-2' },
+  { id: 'bud-3', category: 'Employee Payroll', period: 'Monthly', budgetedAmount: 25000, actualAmount: 24800, storeId: 'store-1' },
+  { id: 'bud-4', category: 'IT & Software', period: 'Quarterly', budgetedAmount: 5000, actualAmount: 5250, storeId: 'store-1' },
+  { id: 'bud-5', category: 'Capital Expenditures', period: 'Yearly', budgetedAmount: 50000, actualAmount: 25000, storeId: 'store-3' },
 ];
 
 export const initialPerformanceReviews: PerformanceReview[] = [
@@ -247,6 +248,7 @@ export const initialBillsOfMaterials: BillOfMaterials[] = [
       { componentId: 'prod-16', componentName: 'Internal Pump Assembly', quantity: 1 },
     ],
     createdAt: '2025-01-01',
+    storeId: 'store-1',
   }
 ];
 
@@ -260,6 +262,7 @@ export const initialProductionOrders: ProductionOrder[] = [
     status: 'planned',
     scheduledStartDate: '2025-05-20',
     scheduledEndDate: '2025-05-27',
+    storeId: 'store-1',
   },
   {
     id: 'prod-ord-2',
@@ -271,17 +274,18 @@ export const initialProductionOrders: ProductionOrder[] = [
     scheduledStartDate: '2025-05-15',
     scheduledEndDate: '2025-05-22',
     actualStartDate: '2025-05-15',
+    storeId: 'store-1',
   }
 ];
 
 export const initialQualityChecks: QualityCheck[] = [];
 
 export const initialLeads: Lead[] = [
-    { id: 'lead-1', name: 'Laura Williams', company: 'Innovate Corp', email: 'laura@innovate.com', phone: '123-111-2222', avatar: 'https://placehold.co/40x40', status: 'new', value: 5000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: '2025-05-10T00:00:00.000Z' },
-    { id: 'lead-2', name: 'Tom Harris', company: 'Data Solutions', email: 'tom@data.com', phone: '123-222-3333', avatar: 'https://placehold.co/40x40', status: 'contacted', value: 12000, source: 'Referral', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: '2025-05-12T00:00:00.000Z' },
-    { id: 'lead-3', name: 'Grace Lee', company: 'Quantum Tech', email: 'grace@quantum.com', phone: '123-333-4444', avatar: 'https://placehold.co/40x40', status: 'qualified', value: 8500, source: 'Cold Call', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: '2025-05-14T00:00:00.000Z' },
-    { id: 'lead-4', name: 'Peter Jones', company: 'Global Exports', email: 'peter@global.com', phone: '123-444-5555', avatar: 'https://placehold.co/40x40', status: 'proposal-won', value: 25000, source: 'Trade Show', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: '2025-05-01T00:00:00.000Z' },
-    { id: 'lead-5', name: 'Olivia Martinez', company: 'Healthful Goods', email: 'olivia@health.com', phone: '123-555-6666', avatar: 'https://placehold.co/40x40', status: 'proposal-lost', value: 3000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: '2025-05-05T00:00:00.000Z' },
+    { id: 'lead-1', name: 'Laura Williams', company: 'Innovate Corp', email: 'laura@innovate.com', phone: '123-111-2222', avatar: 'https://placehold.co/40x40', status: 'new', value: 5000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: '2025-05-10T00:00:00.000Z', storeId: 'store-1' },
+    { id: 'lead-2', name: 'Tom Harris', company: 'Data Solutions', email: 'tom@data.com', phone: '123-222-3333', avatar: 'https://placehold.co/40x40', status: 'contacted', value: 12000, source: 'Referral', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: '2025-05-12T00:00:00.000Z', storeId: 'store-2' },
+    { id: 'lead-3', name: 'Grace Lee', company: 'Quantum Tech', email: 'grace@quantum.com', phone: '123-333-4444', avatar: 'https://placehold.co/40x40', status: 'qualified', value: 8500, source: 'Cold Call', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: '2025-05-14T00:00:00.000Z', storeId: 'store-1' },
+    { id: 'lead-4', name: 'Peter Jones', company: 'Global Exports', email: 'peter@global.com', phone: '123-444-5555', avatar: 'https://placehold.co/40x40', status: 'proposal-won', value: 25000, source: 'Trade Show', assignedToId: 'user-1', assignedToName: 'Admin User', createdAt: '2025-05-01T00:00:00.000Z', storeId: 'store-3' },
+    { id: 'lead-5', name: 'Olivia Martinez', company: 'Healthful Goods', email: 'olivia@health.com', phone: '123-555-6666', avatar: 'https://placehold.co/40x40', status: 'proposal-lost', value: 3000, source: 'Website', assignedToId: 'user-2', assignedToName: 'Manager Mike', createdAt: '2025-05-05T00:00:00.000Z', storeId: 'store-2' },
 ];
 
 export const initialCampaigns: Campaign[] = [
@@ -295,6 +299,7 @@ export const initialCampaigns: Campaign[] = [
     budget: 500,
     startDate: '2025-09-01',
     endDate: '2025-10-31',
+    storeId: 'store-1',
   },
   {
     id: 'camp-2',
@@ -306,6 +311,7 @@ export const initialCampaigns: Campaign[] = [
     budget: 1500,
     startDate: '2025-11-15',
     endDate: '2025-12-31',
+    storeId: 'store-2',
   },
   {
     id: 'camp-3',
@@ -317,6 +323,7 @@ export const initialCampaigns: Campaign[] = [
     budget: 2000,
     startDate: '2025-06-01',
     endDate: '2025-07-31',
+    storeId: 'store-1',
   },
 ];
 
@@ -332,6 +339,7 @@ export const initialProjects: Project[] = [
     endDate: '2025-12-20',
     budget: 25000,
     client: 'Marketing Department',
+    storeId: 'store-1',
   },
   {
     id: 'proj-2',
@@ -344,6 +352,7 @@ export const initialProjects: Project[] = [
     endDate: '2026-05-15',
     budget: 150000,
     client: 'Executive Board',
+    storeId: 'store-3',
   },
   {
     id: 'proj-3',
@@ -356,6 +365,7 @@ export const initialProjects: Project[] = [
     endDate: '2025-09-15',
     budget: 5000,
     client: 'Finance Department',
+    storeId: 'store-2',
   },
   {
     id: 'proj-4',
@@ -368,6 +378,7 @@ export const initialProjects: Project[] = [
     endDate: '2025-11-30',
     budget: 15000,
     client: 'Sales Department',
+    storeId: 'store-1',
   },
   {
     id: 'proj-5',
@@ -380,6 +391,7 @@ export const initialProjects: Project[] = [
     endDate: '2026-01-15',
     budget: 2000,
     client: 'Procurement',
+    storeId: 'store-1',
   },
   {
     id: 'proj-6',
@@ -392,6 +404,7 @@ export const initialProjects: Project[] = [
     endDate: '2025-09-01',
     budget: 50000,
     client: 'IT Department',
+    storeId: 'store-1',
   }
 ];
 
@@ -439,6 +452,7 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-3',
     reporterName: 'Cashier Chloe',
     createdAt: '2025-05-18T10:00:00.000Z',
+    storeId: 'store-2',
     comments: [
       {
         id: 'comment-1',
@@ -462,6 +476,7 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-3',
     reporterName: 'Cashier Chloe',
     createdAt: '2025-05-17T14:30:00.000Z',
+    storeId: 'store-1',
     comments: [],
   },
   {
@@ -475,6 +490,7 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-2',
     reporterName: 'Manager Mike',
     createdAt: '2025-05-16T11:00:00.000Z',
+    storeId: 'store-1',
     comments: [],
   },
     {
@@ -490,6 +506,7 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-2',
     reporterName: 'Manager Mike',
     createdAt: '2025-05-15T13:00:00.000Z',
+    storeId: 'store-2',
     comments: [],
   },
   {
@@ -505,6 +522,7 @@ export const initialTickets: Ticket[] = [
     reporterId: 'user-1',
     reporterName: 'Admin User',
     createdAt: '2025-05-10T09:00:00.000Z',
+    storeId: 'store-1',
     comments: [],
   },
 ];

@@ -3,9 +3,10 @@
 
 
 
+
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings } from '@/types';
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
 import { differenceInDays, parseISO } from 'date-fns';
@@ -145,35 +146,36 @@ const allStoresView: Store = { id: 'all', name: 'All Stores', address: 'Global A
 let notificationIdCounter = 0;
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize with server-safe defaults
-  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
-  const [rfqs, setRfqs] = useState<RFQ[]>(initialRfqs);
-  const [assets, setAssets] = useState<Asset[]>(initialAssets);
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
-  const [stores, setStores] = useState<Store[]>(initialStores);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [attendance, setAttendance] = useState<AttendanceEntry[]>(initialAttendance);
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
-  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>(initialLedgerEntries);
-  const [taxRates, setTaxRates] = useState<TaxRate[]>(initialTaxRates);
-  const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
-  const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
-  const [performanceReviews, setPerformanceReviews] = useState<PerformanceReview[]>(initialPerformanceReviews);
-  const [billsOfMaterials, setBillsOfMaterials] = useState<BillOfMaterials[]>(initialBillsOfMaterials);
-  const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>(initialProductionOrders);
-  const [qualityChecks, setQualityChecks] = useState<QualityCheck[]>(initialQualityChecks);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
-  const [jobRequisitions, setJobRequisitions] = useState<JobRequisition[]>(initialJobRequisitions);
-  const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
+  // Raw, unfiltered data states
+  const [_invoices, _setInvoices] = useState<Invoice[]>(initialInvoices);
+  const [_customers, _setCustomers] = useState<Customer[]>(initialCustomers);
+  const [_products, _setProducts] = useState<Product[]>(initialProducts);
+  const [_vendors, _setVendors] = useState<Vendor[]>(initialVendors);
+  const [_purchaseOrders, _setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
+  const [_rfqs, _setRfqs] = useState<RFQ[]>(initialRfqs);
+  const [_assets, _setAssets] = useState<Asset[]>(initialAssets);
+  const [_users, _setUsers] = useState<User[]>(initialUsers);
+  const [_employees, _setEmployees] = useState<Employee[]>(initialEmployees);
+  const [_stores, _setStores] = useState<Store[]>(initialStores);
+  const [_activityLogs, _setActivityLogs] = useState<ActivityLog[]>([]);
+  const [_attendance, _setAttendance] = useState<AttendanceEntry[]>(initialAttendance);
+  const [_leaveRequests, _setLeaveRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
+  const [_ledgerEntries, _setLedgerEntries] = useState<LedgerEntry[]>(initialLedgerEntries);
+  const [_taxRates, _setTaxRates] = useState<TaxRate[]>(initialTaxRates);
+  const [_budgets, _setBudgets] = useState<Budget[]>(initialBudgets);
+  const [_candidates, _setCandidates] = useState<Candidate[]>(initialCandidates);
+  const [_performanceReviews, _setPerformanceReviews] = useState<PerformanceReview[]>(initialPerformanceReviews);
+  const [_billsOfMaterials, _setBillsOfMaterials] = useState<BillOfMaterials[]>(initialBillsOfMaterials);
+  const [_productionOrders, _setProductionOrders] = useState<ProductionOrder[]>(initialProductionOrders);
+  const [_qualityChecks, _setQualityChecks] = useState<QualityCheck[]>(initialQualityChecks);
+  const [_leads, _setLeads] = useState<Lead[]>(initialLeads);
+  const [_campaigns, _setCampaigns] = useState<Campaign[]>(initialCampaigns);
+  const [_projects, _setProjects] = useState<Project[]>(initialProjects);
+  const [_tasks, _setTasks] = useState<Task[]>(initialTasks);
+  const [_tickets, _setTickets] = useState<Ticket[]>(initialTickets);
+  const [_jobRequisitions, _setJobRequisitions] = useState<JobRequisition[]>(initialJobRequisitions);
+  const [_shipments, _setShipments] = useState<Shipment[]>(initialShipments);
+  const [_notifications, _setNotifications] = useState<Notification[]>([]);
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -184,43 +186,42 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [companyAddress, setCompanyAddress] = useState<string>('123 Innovation Drive, Tech City, 12345');
   const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState<number>(1);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Rehydrate state from localStorage on client-side mount
   useEffect(() => {
     const loadedStores = getStoredState('stores', initialStores);
-    setStores(loadedStores);
+    _setStores(loadedStores);
     
-    setInvoices(getStoredState('invoices', initialInvoices));
-    setCustomers(getStoredState('customers', initialCustomers));
-    setProducts(getStoredState('products', initialProducts));
-    setVendors(getStoredState('vendors', initialVendors));
-    setPurchaseOrders(getStoredState('purchaseOrders', initialPurchaseOrders));
-    setRfqs(getStoredState('rfqs', initialRfqs));
-    setAssets(getStoredState('assets', initialAssets));
-    setUsers(getStoredState('users', initialUsers));
-    setEmployees(getStoredState('employees', initialEmployees));
-    setActivityLogs(getStoredState('activityLogs', []));
-    setAttendance(getStoredState('attendance', initialAttendance));
-    setLeaveRequests(getStoredState('leaveRequests', initialLeaveRequests));
-    setLedgerEntries(getStoredState('ledgerEntries', initialLedgerEntries));
-    setTaxRates(getStoredState('taxRates', initialTaxRates));
-    setBudgets(getStoredState('budgets', initialBudgets));
-    setCandidates(getStoredState('candidates', initialCandidates));
-    setPerformanceReviews(getStoredState('performanceReviews', initialPerformanceReviews));
-    setBillsOfMaterials(getStoredState('billsOfMaterials', initialBillsOfMaterials));
-    setProductionOrders(getStoredState('productionOrders', initialProductionOrders));
-    setQualityChecks(getStoredState('qualityChecks', initialQualityChecks));
-    setLeads(getStoredState('leads', initialLeads));
-    setCampaigns(getStoredState('campaigns', initialCampaigns));
-    setProjects(getStoredState('projects', initialProjects));
-    setTasks(getStoredState('tasks', initialTasks));
-    setTickets(getStoredState('tickets', initialTickets));
-    setJobRequisitions(getStoredState('jobRequisitions', initialJobRequisitions));
-    setNotifications(getStoredState('notifications', []));
-    setShipments(getStoredState('shipments', initialShipments));
+    _setInvoices(getStoredState('invoices', initialInvoices));
+    _setCustomers(getStoredState('customers', initialCustomers));
+    _setProducts(getStoredState('products', initialProducts));
+    _setVendors(getStoredState('vendors', initialVendors));
+    _setPurchaseOrders(getStoredState('purchaseOrders', initialPurchaseOrders));
+    _setRfqs(getStoredState('rfqs', initialRfqs));
+    _setAssets(getStoredState('assets', initialAssets));
+    _setUsers(getStoredState('users', initialUsers));
+    _setEmployees(getStoredState('employees', initialEmployees));
+    _setActivityLogs(getStoredState('activityLogs', []));
+    _setAttendance(getStoredState('attendance', initialAttendance));
+    _setLeaveRequests(getStoredState('leaveRequests', initialLeaveRequests));
+    _setLedgerEntries(getStoredState('ledgerEntries', initialLedgerEntries));
+    _setTaxRates(getStoredState('taxRates', initialTaxRates));
+    _setBudgets(getStoredState('budgets', initialBudgets));
+    _setCandidates(getStoredState('candidates', initialCandidates));
+    _setPerformanceReviews(getStoredState('performanceReviews', initialPerformanceReviews));
+    _setBillsOfMaterials(getStoredState('billsOfMaterials', initialBillsOfMaterials));
+    _setProductionOrders(getStoredState('productionOrders', initialProductionOrders));
+    _setQualityChecks(getStoredState('qualityChecks', initialQualityChecks));
+    _setLeads(getStoredState('leads', initialLeads));
+    _setCampaigns(getStoredState('campaigns', initialCampaigns));
+    _setProjects(getStoredState('projects', initialProjects));
+    _setTasks(getStoredState('tasks', initialTasks));
+    _setTickets(getStoredState('tickets', initialTickets));
+    _setJobRequisitions(getStoredState('jobRequisitions', initialJobRequisitions));
+    _setNotifications(getStoredState('notifications', []));
+    _setShipments(getStoredState('shipments', initialShipments));
     
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
@@ -245,35 +246,35 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Effects to persist state changes to localStorage after hydration
-  useEffect(() => { if (isHydrated) localStorage.setItem('invoices', JSON.stringify(invoices)); }, [invoices, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('customers', JSON.stringify(customers)); }, [customers, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('products', JSON.stringify(products)); }, [products, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('vendors', JSON.stringify(vendors)); }, [vendors, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('purchaseOrders', JSON.stringify(purchaseOrders)); }, [purchaseOrders, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('rfqs', JSON.stringify(rfqs)); }, [rfqs, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('assets', JSON.stringify(assets)); }, [assets, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(users)); }, [users, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('employees', JSON.stringify(employees)); }, [employees, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('stores', JSON.stringify(stores)); }, [stores, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(activityLogs)); }, [activityLogs, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('attendance', JSON.stringify(attendance)); }, [attendance, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests)); }, [leaveRequests, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('ledgerEntries', JSON.stringify(ledgerEntries)); }, [ledgerEntries, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('taxRates', JSON.stringify(taxRates)); }, [taxRates, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('budgets', JSON.stringify(budgets)); }, [budgets, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('candidates', JSON.stringify(candidates)); }, [candidates, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('performanceReviews', JSON.stringify(performanceReviews)); }, [performanceReviews, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('billsOfMaterials', JSON.stringify(billsOfMaterials)); }, [billsOfMaterials, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('productionOrders', JSON.stringify(productionOrders)); }, [productionOrders, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('qualityChecks', JSON.stringify(qualityChecks)); }, [qualityChecks, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('leads', JSON.stringify(leads)); }, [leads, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('campaigns', JSON.stringify(campaigns)); }, [campaigns, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('projects', JSON.stringify(projects)); }, [projects, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('tasks', JSON.stringify(tasks)); }, [tasks, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('tickets', JSON.stringify(tickets)); }, [tickets, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('jobRequisitions', JSON.stringify(jobRequisitions)); }, [jobRequisitions, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('shipments', JSON.stringify(shipments)); }, [shipments, isHydrated]);
-  useEffect(() => { if (isHydrated) localStorage.setItem('notifications', JSON.stringify(notifications)); }, [notifications, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('invoices', JSON.stringify(_invoices)); }, [_invoices, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('customers', JSON.stringify(_customers)); }, [_customers, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('products', JSON.stringify(_products)); }, [_products, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('vendors', JSON.stringify(_vendors)); }, [_vendors, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('purchaseOrders', JSON.stringify(_purchaseOrders)); }, [_purchaseOrders, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('rfqs', JSON.stringify(_rfqs)); }, [_rfqs, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('assets', JSON.stringify(_assets)); }, [_assets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('users', JSON.stringify(_users)); }, [_users, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('employees', JSON.stringify(_employees)); }, [_employees, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('stores', JSON.stringify(_stores)); }, [_stores, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('activityLogs', JSON.stringify(_activityLogs)); }, [_activityLogs, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('attendance', JSON.stringify(_attendance)); }, [_attendance, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('leaveRequests', JSON.stringify(_leaveRequests)); }, [_leaveRequests, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('ledgerEntries', JSON.stringify(_ledgerEntries)); }, [_ledgerEntries, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('taxRates', JSON.stringify(_taxRates)); }, [_taxRates, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('budgets', JSON.stringify(_budgets)); }, [_budgets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('candidates', JSON.stringify(_candidates)); }, [_candidates, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('performanceReviews', JSON.stringify(_performanceReviews)); }, [_performanceReviews, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('billsOfMaterials', JSON.stringify(_billsOfMaterials)); }, [_billsOfMaterials, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('productionOrders', JSON.stringify(_productionOrders)); }, [_productionOrders, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('qualityChecks', JSON.stringify(_qualityChecks)); }, [_qualityChecks, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('leads', JSON.stringify(_leads)); }, [_leads, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('campaigns', JSON.stringify(_campaigns)); }, [_campaigns, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('projects', JSON.stringify(_projects)); }, [_projects, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('tasks', JSON.stringify(_tasks)); }, [_tasks, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('tickets', JSON.stringify(_tickets)); }, [_tickets, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('jobRequisitions', JSON.stringify(_jobRequisitions)); }, [_jobRequisitions, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('shipments', JSON.stringify(_shipments)); }, [_shipments, isHydrated]);
+  useEffect(() => { if (isHydrated) localStorage.setItem('notifications', JSON.stringify(_notifications)); }, [_notifications, isHydrated]);
 
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('user', JSON.stringify(user)); }, [user, isHydrated]);
@@ -284,14 +285,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => { if (isHydrated) localStorage.setItem('fiscalYearStartMonth', JSON.stringify(fiscalYearStartMonth)); }, [fiscalYearStartMonth, isHydrated]);
   useEffect(() => { if (isHydrated) localStorage.setItem('themeSettings', JSON.stringify(themeSettings)); }, [themeSettings, isHydrated]);
 
+  const addActivityLog = (action: string, details: string) => {
+    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@czium.com', avatar: '', role: 'admin' } : null);
+    if (!currentUser) return;
 
-  // Effect to update currency symbol when currency changes
-  useEffect(() => {
-    setCurrencySymbol(currencySymbols[currency]);
-  }, [currency]);
+    const storeInfo = currentStore ? ` (Store: ${currentStore.name})` : '';
 
+    const newLog: ActivityLog = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      user: currentUser.email,
+      action: action,
+      details: `${details}${storeInfo}`,
+    };
+    _setActivityLogs(prevLogs => [newLog, ...prevLogs]);
+  };
+  
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => {
-    setNotifications(prev => {
+    _setNotifications(prev => {
         const existing = prev.find(n => n.title === notification.title && n.description === notification.description && !n.isRead);
         if (existing) return prev;
         
@@ -307,12 +318,41 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    _setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
   };
 
   const markAllNotificationsAsRead = () => {
-    setNotifications(prev => prev.map(n => ({...n, isRead: true})));
+    _setNotifications(prev => prev.map(n => ({...n, isRead: true})));
   };
+
+  // Scoped data accessors
+  const filterByStore = useCallback(<T extends { storeId?: string }>(data: T[]): T[] => {
+    if (!isHydrated || !currentStore || currentStore.id === 'all') {
+      return data;
+    }
+    return data.filter(item => item.storeId === currentStore.id);
+  }, [currentStore, isHydrated]);
+  
+  const customers = useMemo(() => filterByStore(_customers), [_customers, filterByStore]);
+  const products = useMemo(() => filterByStore(_products), [_products, filterByStore]);
+  const vendors = useMemo(() => filterByStore(_vendors), [_vendors, filterByStore]);
+  const employees = useMemo(() => filterByStore(_employees), [_employees, filterByStore]);
+  const projects = useMemo(() => filterByStore(_projects), [_projects, filterByStore]);
+  const invoices = useMemo(() => filterByStore(_invoices), [_invoices, filterByStore]);
+  const purchaseOrders = useMemo(() => filterByStore(_purchaseOrders), [_purchaseOrders, filterByStore]);
+  const rfqs = useMemo(() => filterByStore(_rfqs), [_rfqs, filterByStore]);
+  const assets = useMemo(() => filterByStore(_assets), [_assets, filterByStore]);
+  const budgets = useMemo(() => filterByStore(_budgets), [_budgets, filterByStore]);
+  const productionOrders = useMemo(() => filterByStore(_productionOrders), [_productionOrders, filterByStore]);
+  const qualityChecks = useMemo(() => filterByStore(_qualityChecks), [_qualityChecks, filterByStore]);
+  const leads = useMemo(() => filterByStore(_leads), [_leads, filterByStore]);
+  const campaigns = useMemo(() => filterByStore(_campaigns), [_campaigns, filterByStore]);
+  const tickets = useMemo(() => filterByStore(_tickets), [_tickets, filterByStore]);
+
+  // Effect to update currency symbol when currency changes
+  useEffect(() => {
+    setCurrencySymbol(currencySymbols[currency]);
+  }, [currency]);
 
   const handleSetCurrency = (newCurrency: Currency) => {
     if (currencySymbols[newCurrency]) {
@@ -321,24 +361,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addActivityLog = (action: string, details: string) => {
-    const currentUser = user || (isAuthenticated ? { name: 'Admin User', email: 'admin@czium.com', avatar: '', role: 'admin' } : null);
-    if (!currentUser) return;
-
-    const storeInfo = currentStore ? ` (Store: ${currentStore.name})` : '';
-
-    const newLog: ActivityLog = {
-      id: `log-${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      user: currentUser.email,
-      action: action,
-      details: `${details}${storeInfo}`,
-    };
-    setActivityLogs(prevLogs => [newLog, ...prevLogs]);
-  };
-
   const login = (email: string, pass: string): User | null => {
-    const foundUser = users.find(u => u.email === email && u.password === pass);
+    const foundUser = _users.find(u => u.email === email && u.password === pass);
 
     if (foundUser) {
       const loggedInUser: User = { ...foundUser };
@@ -368,7 +392,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    const store = stores.find(s => s.id === storeId);
+    const store = _stores.find(s => s.id === storeId);
     if (store) {
         setCurrentStore(store);
         addActivityLog('Store Selected', `Session set to store: ${store.name}`);
@@ -425,20 +449,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider value={{ 
-      invoices, setInvoices, 
-      customers, setCustomers,
-      products, setProducts,
-      vendors, setVendors,
-      purchaseOrders, setPurchaseOrders,
-      rfqs, setRfqs,
-      assets, setAssets,
-      employees, setEmployees,
-      stores,
-      setStores,
+      invoices, setInvoices: _setInvoices, 
+      customers, setCustomers: _setCustomers,
+      products, setProducts: _setProducts,
+      vendors, setVendors: _setVendors,
+      purchaseOrders, setPurchaseOrders: _setPurchaseOrders,
+      rfqs, setRfqs: _setRfqs,
+      assets, setAssets: _setAssets,
+      employees, setEmployees: _setEmployees,
+      stores: _stores,
+      setStores: _setStores,
       currentStore,
       selectStore,
-      isAuthenticated, user, users, setUsers, login, logout,
-      activityLogs, addActivityLog,
+      isAuthenticated, user, users: _users, setUsers: _setUsers, login, logout,
+      activityLogs: _activityLogs, addActivityLog,
       currency,
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
       currencySymbol,
@@ -448,24 +472,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       fiscalYearStartMonth, setFiscalYearStartMonth,
       themeSettings, setThemeSettings,
       isHydrated,
-      attendance, setAttendance,
-      leaveRequests, setLeaveRequests,
-      ledgerEntries, setLedgerEntries,
-      taxRates, setTaxRates,
-      budgets, setBudgets,
-      candidates, setCandidates,
-      performanceReviews, setPerformanceReviews,
-      billsOfMaterials, setBillsOfMaterials,
-      productionOrders, setProductionOrders,
-      qualityChecks, setQualityChecks,
-      leads, setLeads,
-      campaigns, setCampaigns,
-      projects, setProjects,
-      tasks, setTasks,
-      tickets, setTickets,
-      notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
-      jobRequisitions, setJobRequisitions,
-      shipments, setShipments,
+      attendance: _attendance, setAttendance: _setAttendance,
+      leaveRequests: _leaveRequests, setLeaveRequests: _setLeaveRequests,
+      ledgerEntries: _ledgerEntries, setLedgerEntries: _setLedgerEntries,
+      taxRates: _taxRates, setTaxRates: _setTaxRates,
+      budgets, setBudgets: _setBudgets,
+      candidates: _candidates, setCandidates: _setCandidates,
+      performanceReviews: _performanceReviews, setPerformanceReviews: _setPerformanceReviews,
+      billsOfMaterials: filterByStore(_billsOfMaterials), setBillsOfMaterials: _setBillsOfMaterials,
+      productionOrders, setProductionOrders: _setProductionOrders,
+      qualityChecks, setQualityChecks: _setQualityChecks,
+      leads, setLeads: _setLeads,
+      campaigns, setCampaigns: _setCampaigns,
+      projects, setProjects: _setProjects,
+      tasks: _tasks, setTasks: _setTasks,
+      tickets, setTickets: _setTickets,
+      notifications: _notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
+      jobRequisitions: _jobRequisitions, setJobRequisitions: _setJobRequisitions,
+      shipments: _shipments, setShipments: _setShipments,
     }}>
       {children}
     </AppContext.Provider>
@@ -481,4 +505,3 @@ export const useAppContext = () => {
 };
 
     
-

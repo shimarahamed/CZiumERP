@@ -3,6 +3,7 @@
 
 
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -26,6 +27,7 @@ export type Employee = {
   salary: number;
   annualLeaveAllowance?: number;
   leaveTaken?: number;
+  storeId?: string;
 };
 
 export type Store = {
@@ -46,6 +48,7 @@ export type Customer = {
   shippingAddress?: string;
   loyaltyPoints?: number;
   tier?: CustomerTier;
+  storeId?: string;
 };
 
 export type Vendor = {
@@ -55,6 +58,7 @@ export type Vendor = {
   email: string;
   phone: string;
   leadTimeDays?: number;
+  storeId?: string;
 };
 
 export type Product = {
@@ -71,6 +75,7 @@ export type Product = {
   expiryDate?: string;
   warrantyDate?: string;
   productType?: 'manufactured' | 'component' | 'standard';
+  storeId?: string;
 };
 
 export type InvoiceItem = {
@@ -212,6 +217,7 @@ export type Asset = {
   status: AssetStatus;
   location: string;
   assignedTo?: string; // User ID
+  storeId?: string;
 };
 
 export type AttendanceStatus = 'present' | 'absent' | 'leave' | 'half-day';
@@ -241,6 +247,7 @@ export type LedgerEntry = {
   description: string;
   debit: number;
   credit: number;
+  storeId?: string;
 };
 
 export type TaxRate = {
@@ -256,6 +263,7 @@ export type Budget = {
   period: 'Monthly' | 'Quarterly' | 'Yearly';
   budgetedAmount: number;
   actualAmount: number;
+  storeId?: string;
 };
 
 export type CandidateStatus = 'applied' | 'interviewing' | 'offer' | 'hired' | 'rejected';
@@ -317,6 +325,7 @@ export type BillOfMaterials = {
   productName: string;
   items: BOMItem[];
   createdAt: string;
+  storeId?: string;
 };
 
 export type ProductionOrderStatus = 'planned' | 'in-progress' | 'completed' | 'on-hold' | 'cancelled';
@@ -333,6 +342,7 @@ export type ProductionOrder = {
   actualStartDate?: string;
   actualCompletionDate?: string;
   notes?: string;
+  storeId?: string;
 };
 
 export type QualityCheck = {
@@ -344,6 +354,7 @@ export type QualityCheck = {
   inspectorName: string;
   status: 'pass' | 'fail' | 'pending';
   notes: string;
+  storeId?: string;
 };
 
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'proposal-won' | 'proposal-lost';
@@ -361,6 +372,7 @@ export type Lead = {
     assignedToId: string;
     assignedToName: string;
     createdAt: string; // ISO String
+    storeId?: string;
 };
 
 export type CampaignStatus = 'planning' | 'active' | 'completed' | 'cancelled';
@@ -376,6 +388,7 @@ export type Campaign = {
   budget: number;
   startDate: string; // YYYY-MM-DD
   endDate: string; // YYYY-MM-DD
+  storeId?: string;
 };
 
 export type ProjectStatus = 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'cancelled';
@@ -393,6 +406,7 @@ export type Project = {
   startDate: string;
   endDate: string;
   budget: number;
+  storeId?: string;
 };
 
 export type Task = {
@@ -433,6 +447,7 @@ export type Ticket = {
   reporterName: string;
   createdAt: string; // ISO String
   comments: TicketComment[];
+  storeId?: string;
 };
 
 export type Notification = {
@@ -465,4 +480,3 @@ export type Shipment = {
 };
 
     
-
