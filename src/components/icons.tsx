@@ -17,7 +17,6 @@ import { Calendar } from 'lucide-react';
 import { CalendarPlus } from 'lucide-react';
 import { Check } from 'lucide-react';
 import { CheckCircle } from 'lucide-react';
-import { Checkbox as CheckboxIcon } from 'lucide-react';
 import { CheckSquare } from 'lucide-react';
 import { ChevronDown } from 'lucide-react';
 import { ChevronLeft } from 'lucide-react';
@@ -104,7 +103,6 @@ export {
   CalendarPlus,
   Check,
   CheckCircle,
-  CheckboxIcon,
   CheckSquare,
   ChevronDown,
   ChevronLeft,
