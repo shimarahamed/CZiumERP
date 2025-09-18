@@ -31,6 +31,7 @@ import { CreditCard } from 'lucide-react';
 import { DollarSign } from 'lucide-react';
 import { Download } from 'lucide-react';
 import { FileText } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { Flag } from 'lucide-react';
 import { History } from 'lucide-react';
 import { Hourglass } from 'lucide-react';
@@ -117,6 +118,7 @@ export {
   DollarSign,
   Download,
   FileText,
+  Filter,
   Flag,
   History,
   Hourglass,
