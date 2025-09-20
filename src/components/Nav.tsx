@@ -70,15 +70,6 @@ const categories: NavCategory[] = [
       { href: '/inventory', label: 'Inventory', icon: Package },
     ],
   },
-    {
-    label: 'Shipping & Logistics',
-    icon: Truck,
-    links: [
-      { href: '/shipping/shipments', label: 'Shipment Tracking', icon: ClipboardList },
-      { href: '/shipping/vehicles', label: 'Fleet Management', icon: UserCog },
-      { href: '/shipping/routes', label: 'Route Planning', icon: Map },
-    ],
-  },
   {
     label: 'Manufacturing',
     icon: Settings,
@@ -89,11 +80,13 @@ const categories: NavCategory[] = [
     ]
   },
   {
-    label: 'Project Management',
-    icon: Briefcase,
+    label: 'Shipping & Logistics',
+    icon: Truck,
     links: [
-      { href: '/projects', label: 'Projects', icon: Briefcase },
-    ]
+      { href: '/shipping/shipments', label: 'Shipment Tracking', icon: ClipboardList },
+      { href: '/shipping/vehicles', label: 'Fleet Management', icon: UserCog },
+      { href: '/shipping/routes', label: 'Route Planning', icon: Map },
+    ],
   },
   {
     label: 'Finance',
@@ -118,6 +111,13 @@ const categories: NavCategory[] = [
       { href: '/human-resources/performance', label: 'Performance', icon: Star },
       { href: '/human-resources/payroll', label: 'Payroll', icon: Banknote },
     ],
+  },
+  {
+    label: 'Project Management',
+    icon: Briefcase,
+    links: [
+      { href: '/projects', label: 'Projects', icon: Briefcase },
+    ]
   },
   {
     label: 'Service Desk',
