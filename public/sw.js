@@ -1,56 +1,67 @@
-const CACHE_NAME = 'czium-pos-cache-v1';
+// A basic service worker for offline functionality
 
-// On install, cache the app shell and other critical assets.
+const CACHE_NAME = 'czium-erp-cache-v1';
+const urlsToCache = [
+  '/',
+  '/login',
+  '/select-store',
+  // Add other critical routes and assets here
+];
+
 self.addEventListener('install', (event) => {
-  // Since Next.js generates hashed assets, we won't pre-cache specific files.
-  // The fetch handler below will cache assets dynamically as they are requested.
-  console.log('Service Worker: Installing...');
-  event.waitUntil(self.skipWaiting()); // Activate worker immediately
-});
-
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
-  // Clean up old caches
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Deleting old cache', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim()) // Take control of all clients
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  // We only want to cache GET requests.
-  if (event.request.method !== 'GET') {
-    return;
-  }
-  
   event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      // Try to get the response from the cache.
-      const cachedResponse = await cache.match(event.request);
-      
-      // Await the network request, regardless of whether there's a cache hit.
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        // If the request is successful, clone it and cache it.
-        if (networkResponse.ok) {
-            cache.put(event.request, networkResponse.clone());
+    caches.match(event.request)
+      .then((response) => {
+        // Cache hit - return response
+        if (response) {
+          return response;
         }
-        return networkResponse;
-      }).catch(() => {
-        // This will only be reached if the network request fails.
-        // If there was no cached response, this will result in a network error.
-      });
 
-      // Return the cached response if it exists, otherwise wait for the network response.
-      // This is a "stale-while-revalidate" strategy. Good for performance and offline.
-      return cachedResponse || await fetchPromise;
+        // Clone the request because it's a one-time-use stream
+        const fetchRequest = event.request.clone();
+
+        return fetch(fetchRequest).then(
+          (response) => {
+            // Check if we received a valid response
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+
+            const responseToCache = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+
+            return response;
+          }
+        );
+      })
+    );
+});
+
+self.addEventListener('activate', (event) => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
     })
   );
 });
