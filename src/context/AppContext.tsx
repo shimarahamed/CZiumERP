@@ -188,6 +188,36 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
   return [data, setCollection] as const;
 }
 
+// Memoize initial data arrays outside the component
+const memoizedInitialInvoices = initialInvoices;
+const memoizedInitialCustomers = initialCustomers;
+const memoizedInitialProducts = initialProducts;
+const memoizedInitialVendors = initialVendors;
+const memoizedInitialPurchaseOrders = initialPurchaseOrders;
+const memoizedInitialRfqs = initialRfqs;
+const memoizedInitialAssets = initialAssets;
+const memoizedInitialItAssets = initialItAssets;
+const memoizedInitialUsers = initialUsers;
+const memoizedInitialEmployees = initialEmployees;
+const memoizedInitialStores = initialStores;
+const memoizedInitialAttendance = initialAttendance;
+const memoizedInitialLeaveRequests = initialLeaveRequests;
+const memoizedInitialLedgerEntries = initialLedgerEntries;
+const memoizedInitialTaxRates = initialTaxRates;
+const memoizedInitialBudgets = initialBudgets;
+const memoizedInitialCandidates = initialCandidates;
+const memoizedInitialPerformanceReviews = initialPerformanceReviews;
+const memoizedInitialBillsOfMaterials = initialBillsOfMaterials;
+const memoizedInitialProductionOrders = initialProductionOrders;
+const memoizedInitialQualityChecks = initialQualityChecks;
+const memoizedInitialLeads = initialLeads;
+const memoizedInitialCampaigns = initialCampaigns;
+const memoizedInitialProjects = initialProjects;
+const memoizedInitialTasks = initialTasks;
+const memoizedInitialTickets = initialTickets;
+const memoizedInitialJobRequisitions = initialJobRequisitions;
+const memoizedInitialShipments = initialShipments;
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -202,36 +232,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [currencySymbol, setCurrencySymbol] = useState<string>('AED');
   
-  // Memoize initial data arrays
-  const memoizedInitialInvoices = useMemo(() => initialInvoices, []);
-  const memoizedInitialCustomers = useMemo(() => initialCustomers, []);
-  const memoizedInitialProducts = useMemo(() => initialProducts, []);
-  const memoizedInitialVendors = useMemo(() => initialVendors, []);
-  const memoizedInitialPurchaseOrders = useMemo(() => initialPurchaseOrders, []);
-  const memoizedInitialRfqs = useMemo(() => initialRfqs, []);
-  const memoizedInitialAssets = useMemo(() => initialAssets, []);
-  const memoizedInitialItAssets = useMemo(() => initialItAssets, []);
-  const memoizedInitialUsers = useMemo(() => initialUsers, []);
-  const memoizedInitialEmployees = useMemo(() => initialEmployees, []);
-  const memoizedInitialStores = useMemo(() => initialStores, []);
-  const memoizedInitialAttendance = useMemo(() => initialAttendance, []);
-  const memoizedInitialLeaveRequests = useMemo(() => initialLeaveRequests, []);
-  const memoizedInitialLedgerEntries = useMemo(() => initialLedgerEntries, []);
-  const memoizedInitialTaxRates = useMemo(() => initialTaxRates, []);
-  const memoizedInitialBudgets = useMemo(() => initialBudgets, []);
-  const memoizedInitialCandidates = useMemo(() => initialCandidates, []);
-  const memoizedInitialPerformanceReviews = useMemo(() => initialPerformanceReviews, []);
-  const memoizedInitialBillsOfMaterials = useMemo(() => initialBillsOfMaterials, []);
-  const memoizedInitialProductionOrders = useMemo(() => initialProductionOrders, []);
-  const memoizedInitialQualityChecks = useMemo(() => initialQualityChecks, []);
-  const memoizedInitialLeads = useMemo(() => initialLeads, []);
-  const memoizedInitialCampaigns = useMemo(() => initialCampaigns, []);
-  const memoizedInitialProjects = useMemo(() => initialProjects, []);
-  const memoizedInitialTasks = useMemo(() => initialTasks, []);
-  const memoizedInitialTickets = useMemo(() => initialTickets, []);
-  const memoizedInitialJobRequisitions = useMemo(() => initialJobRequisitions, []);
-  const memoizedInitialShipments = useMemo(() => initialShipments, []);
-
   const [invoices, setInvoices] = useFirestoreCollection<Invoice>('invoices', memoizedInitialInvoices, isHydrated);
   const [customers, setCustomers] = useFirestoreCollection<Customer>('customers', memoizedInitialCustomers, isHydrated);
   const [products, setProducts] = useFirestoreCollection<Product>('products', memoizedInitialProducts, isHydrated);
