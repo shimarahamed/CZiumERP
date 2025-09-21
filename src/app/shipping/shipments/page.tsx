@@ -176,9 +176,9 @@ export default function ShipmentsPage() {
             items: data.items,
             shippingAddress: data.shippingAddress,
             trackingNumber: data.trackingNumber,
-            assignedDriverId: data.assignedDriverId === 'unassigned' ? undefined : data.assignedDriverId,
+            assignedDriverId: data.assignedDriverId,
             assignedDriverName: driver?.name,
-            vehicleId: data.vehicleId === 'unassigned' ? undefined : data.vehicleId,
+            vehicleId: data.vehicleId,
         }
 
         if (shipmentToEdit) {
@@ -187,13 +187,23 @@ export default function ShipmentsPage() {
             toast({ title: 'Shipment Updated' });
             addActivityLog('Shipment Updated', `Updated shipment ${shipmentToEdit.customId || shipmentToEdit.id}`);
         } else {
-            const newShipment: Shipment = {
-                id: `SHIP-${Date.now()}`,
+            const newShipment: Omit<Shipment, 'id'> & { id?: string } = {
                 status: 'pending',
                 dispatchDate: new Date().toISOString(),
                 ...newShipmentData,
             };
-            setShipments([newShipment, ...shipments]);
+            
+            if (!newShipment.customerId) delete newShipment.customerId;
+            if (!newShipment.trackingNumber) delete newShipment.trackingNumber;
+            if (!newShipment.customId) delete newShipment.customId;
+            if (!newShipment.assignedDriverId || newShipment.assignedDriverId === 'unassigned') {
+              delete newShipment.assignedDriverId;
+              delete newShipment.assignedDriverName;
+            }
+            if (!newShipment.vehicleId || newShipment.vehicleId === 'unassigned') delete newShipment.vehicleId;
+
+
+            setShipments(prev => [{ id: `SHIP-${Date.now()}`, ...newShipment } as Shipment, ...prev]);
             toast({ title: 'Shipment Created' });
             addActivityLog('Shipment Created', `Created shipment for invoice ${invoice.id}`);
         }

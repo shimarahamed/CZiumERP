@@ -23,7 +23,7 @@ export const initialStores: Store[] = [
   { id: 'store-3', name: 'Northpoint Plaza', address: '789 Pine Ln, Anytown, USA' },
 ];
 
-export const customers: Customer[] = [
+export const initialCustomers: Customer[] = [
   { id: 'cust-1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40', billingAddress: '123 Billing Rd, Anytown, USA', shippingAddress: '123 Shipping Rd, Anytown, USA', loyaltyPoints: 525, tier: 'Silver', storeId: 'store-1' },
   { id: 'cust-2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', avatar: 'https://placehold.co/40x40', billingAddress: '456 Billing Ave, Anytown, USA', shippingAddress: '456 Shipping Ave, Anytown, USA', loyaltyPoints: 80, tier: 'Bronze', storeId: 'store-2' },
   { id: 'cust-3', name: 'Sam Wilson', email: 'sam@example.com', phone: '345-678-9012', avatar: 'https://placehold.co/40x40', billingAddress: '789 Billing Ln, Anytown, USA', shippingAddress: '789 Shipping Ln, Anytown, USA', loyaltyPoints: 130, tier: 'Bronze', storeId: 'store-1' },
@@ -569,13 +569,9 @@ export const initialShipments: Shipment[] = [
      {
         id: 'SHIP-1672704000000',
         invoiceId: 'INV-006',
-        customerId: undefined,
         customerName: 'Walk-in Customer',
         trackingNumber: '1Z999AA10123456786',
         status: 'processing',
-        assignedDriverId: undefined,
-        assignedDriverName: undefined,
-        vehicleId: undefined,
         items: [
             { productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 1, price: 22.00, cost: 12.00 }
         ],
