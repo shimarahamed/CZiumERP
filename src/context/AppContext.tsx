@@ -397,7 +397,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('currentStoreId');
   };
   
-  const contextValue = useMemo(() => ({
+  const contextValue: AppContextType = {
       // Raw Data & Setters
       invoices, setInvoices: setInvoices as any,
       customers, setCustomers: setCustomers as any,
@@ -454,13 +454,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       usersMap,
       vendorsMap,
       storesMap
-  }), [
-      invoices, customers, products, vendors, purchaseOrders, rfqs, assets, itAssets, employees, users, stores, activityLogs, attendance, leaveRequests, ledgerEntries, taxRates, budgets, candidates, performanceReviews, billsOfMaterials, productionOrders, qualityChecks, leads, campaigns, projects, tasks, tickets, notifications, jobRequisitions, shipments,
-      setInvoices, setCustomers, setProducts, setVendors, setPurchaseOrders, setRfqs, setAssets, setItAssets, setEmployees, setUsers, setStores, addActivityLog, setAttendance, setLeaveRequests, setLedgerEntries, setTaxRates, setBudgets, setCandidates, setPerformanceReviews, setBillsOfMaterials, setProductionOrders, setQualityChecks, setLeads, setCampaigns, setProjects, setTasks, setTickets, addNotification, markNotificationAsRead, markAllNotificationsAsRead, setJobRequisitions, setShipments,
-      currentStore, isAuthenticated, user,
-      currency, currencySymbol, companyName, companyAddress, fiscalYearStartMonth, themeSettings, isHydrated, isDataLoaded,
-      customersMap, productsMap, employeesMap, usersMap, vendorsMap, storesMap
-  ]);
+  };
 
 
   return (
