@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Project, ProjectStatus } from '@/types';
+import type { Project, ProjectStatus, Employee } from '@/types';
 import { PlusCircle, Calendar, Flag, User, Users } from '@/components/icons';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -61,7 +61,7 @@ const statusDisplay: { [key in ProjectStatus]: string } = {
 };
 
 export default function ProjectsPage() {
-    const { projects, setProjects, tasks, employees, addActivityLog, user: currentUser, currencySymbol } = useAppContext();
+    const { projects, setProjects, tasks, employees, employeesMap, addActivityLog, user: currentUser, currencySymbol } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [teamSearchTerm, setTeamSearchTerm] = useState('');
@@ -135,8 +135,8 @@ export default function ProjectsPage() {
                         const projectTasks = tasks.filter(t => t.projectId === project.id);
                         const completedTasks = projectTasks.filter(t => t.status === 'done').length;
                         const progress = projectTasks.length > 0 ? (completedTasks / projectTasks.length) * 100 : 0;
-                        const manager = employees.find(e => e.id === project.managerId);
-                        const teamMembers = employees.filter(e => project.teamIds.includes(e.id));
+                        const manager = employeesMap.get(project.managerId);
+                        const teamMembers = project.teamIds.map(id => employeesMap.get(id)).filter(Boolean) as Employee[];
 
                         return (
                             <Card key={project.id} className="flex flex-col">

@@ -81,7 +81,7 @@ export const initialInvoices: Invoice[] = [
   { id: 'INV-019', storeId: 'store-2', customerId: 'cust-6', customerName: 'Emily White', userId: 'user-3', userName: 'Cashier Chloe', items: [{ productId: 'prod-2', productName: 'Coffee Grinder', quantity: 1, price: 129.50, cost: 80.00 }], amount: 123.03, status: 'paid', date: '2025-11-15', discount: 5, taxRate: 0 },
   { id: 'INV-020', storeId: 'store-1', customerId: 'cust-5', customerName: 'Bob Brown', userId: 'user-3', userName: 'Cashier Chloe', items: [{ productId: 'prod-3', productName: 'Bag of Premium Coffee Beans (1kg)', quantity: 2, price: 22.00, cost: 12.00 }], amount: 44.00, status: 'paid', date: '2025-11-16' },
   { id: 'INV-021', storeId: 'store-2', customerId: 'cust-3', customerName: 'Sam Wilson', userId: 'user-3', userName: 'Cashier Chloe', items: [{ productId: 'prod-5', productName: 'Set of 4 Ceramic Mugs', quantity: 1, price: 40.00, cost: 20.00 }, { productId: 'prod-6', productName: 'Almond Milk (1L)', quantity: 3, price: 4.50, cost: 2.50 }], amount: 53.50, status: 'pending', date: '2025-11-17' },
-  { id: 'INV-022', storeId: 'store-3', customerId: 'cust-1', customerName: 'John Doe', userId: 'user-2', userName: 'Manager Mike', items: [{ productId: 'prod-9', productName: 'Cleaning Tablets', quantity: 4, price: 15.00, cost: 8.00 }], amount: 57, status: 'paid', date: '2025-11-18', discount: 5, taxRate: 0 },
+  { id: 'INV-022', storeId: 'store-1', customerId: 'cust-1', customerName: 'John Doe', userId: 'user-2', userName: 'Manager Mike', items: [{ productId: 'prod-9', productName: 'Cleaning Tablets', quantity: 4, price: 15.00, cost: 8.00 }], amount: 57, status: 'paid', date: '2025-11-18', discount: 5, taxRate: 0 },
   { id: 'INV-023', storeId: 'store-1', customerId: 'cust-2', customerName: 'Jane Smith', userId: 'user-3', userName: 'Cashier Chloe', items: [{ productId: 'prod-13', productName: 'Barista Apron', quantity: 1, price: 30.00, cost: 18.00 }], amount: 31.5, status: 'paid', date: '2025-08-20', taxRate: 5 },
   { id: 'INV-024', storeId: 'store-2', customerId: 'cust-3', customerName: 'Sam Wilson', userId: 'user-3', userName: 'Cashier Chloe', items: [{ productId: 'prod-12', productName: 'Travel Mug', quantity: 1, price: 25.00, cost: 15.00 }], amount: 25, status: 'overdue', date: '2025-10-10' },
   { id: 'INV-025', storeId: 'store-3', customerId: 'cust-8', customerName: 'Sarah Black', userId: 'user-3', userName: 'Cashier Chloe', items: [{ productId: 'prod-14', productName: 'Syrup Variety Pack', quantity: 1, price: 18.00, cost: 10.00 }], amount: 18.00, status: 'paid', date: '2025-11-19' },
@@ -133,16 +133,6 @@ export const initialAttendance: AttendanceEntry[] = [];
 export const initialLeaveRequests: LeaveRequest[] = [
   { id: 'lr-1', userId: 'user-3', userName: 'Cashier Chloe', startDate: '2025-07-01', endDate: '2025-07-03', reason: 'Family vacation', status: 'approved', requestedAt: '2025-06-15T00:00:00.000Z'},
   { id: 'lr-2', userId: 'user-4', userName: 'Inventory Ian', startDate: '2025-07-10', endDate: '2025-07-11', reason: 'Doctor\'s appointment', status: 'pending', requestedAt: '2025-06-20T00:00:00.000Z'}
-];
-
-
-export const salesData: Sale[] = [
-    { month: 'Jan', revenue: 4000 },
-    { month: 'Feb', revenue: 3000 },
-    { month: 'Mar', revenue: 5000 },
-    { month: 'Apr', revenue: 4500 },
-    { month: 'May', revenue: 6000 },
-    { month: 'Jun', revenue: 5500 },
 ];
 
 export const initialLedgerEntries: LedgerEntry[] = [
@@ -617,3 +607,5 @@ export const initialShipments: Shipment[] = [
 ];
 
 export const initialVehicles: Asset[] = [];
+
+    

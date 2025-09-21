@@ -4,7 +4,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, ITAsset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings } from '@/types';
 import { initialInvoices, initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialItAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
-import { differenceInDays, parseISO } from 'date-fns';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
 
@@ -54,6 +53,7 @@ const defaultThemeSettings: ThemeSettings = {
 };
 
 interface AppContextType {
+  // Raw Data & Setters
   invoices: Invoice[];
   setInvoices: React.Dispatch<React.SetStateAction<Invoice[]>>;
   customers: Customer[];
@@ -72,31 +72,12 @@ interface AppContextType {
   setItAssets: React.Dispatch<React.SetStateAction<ITAsset[]>>;
   employees: Employee[];
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
-  stores: Store[];
-  setStores: React.Dispatch<React.SetStateAction<Store[]>>;
-  currentStore: Store | null;
-  selectStore: (storeId: string) => void;
-  isAuthenticated: boolean;
-  user: User | null;
   users: User[];
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
-  login: (email: string, pass: string) => User | null;
-  logout: () => void;
+  stores: Store[];
+  setStores: React.Dispatch<React.SetStateAction<Store[]>>;
   activityLogs: ActivityLog[];
   addActivityLog: (action: string, details: string) => void;
-  currency: Currency;
-  setCurrency: React.Dispatch<React.SetStateAction<Currency>>;
-  currencySymbol: string;
-  currencySymbols: CurrencySymbols;
-  companyName: string;
-  setCompanyName: React.Dispatch<React.SetStateAction<string>>;
-  companyAddress: string;
-  setCompanyAddress: React.Dispatch<React.SetStateAction<string>>;
-  fiscalYearStartMonth: number;
-  setFiscalYearStartMonth: React.Dispatch<React.SetStateAction<number>>;
-  themeSettings: ThemeSettings;
-  setThemeSettings: React.Dispatch<React.SetStateAction<ThemeSettings>>;
-  isHydrated: boolean;
   attendance: AttendanceEntry[];
   setAttendance: React.Dispatch<React.SetStateAction<AttendanceEntry[]>>;
   leaveRequests: LeaveRequest[];
@@ -135,6 +116,37 @@ interface AppContextType {
   setJobRequisitions: React.Dispatch<React.SetStateAction<JobRequisition[]>>;
   shipments: Shipment[];
   setShipments: React.Dispatch<React.SetStateAction<Shipment[]>>;
+  
+  // Auth & Store
+  currentStore: Store | null;
+  selectStore: (storeId: string) => void;
+  isAuthenticated: boolean;
+  user: User | null;
+  login: (email: string, pass: string) => User | null;
+  logout: () => void;
+  
+  // Settings
+  currency: Currency;
+  setCurrency: React.Dispatch<React.SetStateAction<Currency>>;
+  currencySymbol: string;
+  currencySymbols: CurrencySymbols;
+  companyName: string;
+  setCompanyName: React.Dispatch<React.SetStateAction<string>>;
+  companyAddress: string;
+  setCompanyAddress: React.Dispatch<React.SetStateAction<string>>;
+  fiscalYearStartMonth: number;
+  setFiscalYearStartMonth: React.Dispatch<React.SetStateAction<number>>;
+  themeSettings: ThemeSettings;
+  setThemeSettings: React.Dispatch<React.SetStateAction<ThemeSettings>>;
+  isHydrated: boolean;
+
+  // Derived & Memoized Data Maps for performance
+  customersMap: Map<string, Customer>;
+  productsMap: Map<string, Product>;
+  employeesMap: Map<string, Employee>;
+  usersMap: Map<string, User>;
+  vendorsMap: Map<string, Vendor>;
+  storesMap: Map<string, Store>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -153,17 +165,17 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
 
     const collRef = collection(db, collectionName);
     const unsubscribe = onSnapshot(collRef, 
-      (snapshot) => {
-        if (snapshot.empty) {
+      async (snapshot) => {
+        if (snapshot.empty && initialData.length > 0) {
           console.log(`No data found in ${collectionName}. Seeding initial data...`);
           const batch = writeBatch(db);
           initialData.forEach(item => {
             const docRef = doc(db, collectionName, item.id);
             batch.set(docRef, item);
           });
-          batch.commit().catch(e => console.error(`Failed to seed ${collectionName}:`, e));
+          await batch.commit().catch(e => console.error(`Failed to seed ${collectionName}:`, e));
         } else {
-          const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+          const newData = snapshot.docs.map(doc => ({ ...doc.data() } as T));
           setData(newData);
         }
       },
@@ -178,14 +190,28 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
   const setCollection = useCallback(async (newData: T[] | ((prev: T[]) => T[])) => {
     const dataToSet = typeof newData === 'function' ? newData(data) : newData;
     const batch = writeBatch(db);
+    const collectionRef = collection(db, collectionName);
+    
+    // Optional: Get all existing docs to delete ones not in the new data set
+    const existingDocs = await getDocs(collectionRef);
+    const newIds = new Set(dataToSet.map(item => item.id));
+    
+    existingDocs.forEach(doc => {
+        if (!newIds.has(doc.id)) {
+            batch.delete(doc.ref);
+        }
+    });
+
     dataToSet.forEach(item => {
       const docRef = doc(db, collectionName, item.id);
       batch.set(docRef, item);
     });
+    
     await batch.commit();
   }, [collectionName, data]);
 
-  return [data, setCollection] as const;
+
+  return [data, setData] as const;
 }
 
 // Memoize initial data arrays outside the component
@@ -274,7 +300,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if(storedStoreId){
         if (storedStoreId === 'all' && (storedUser?.role === 'admin' || storedUser?.role === 'manager')) {
             setCurrentStore(allStoresView);
-        } else {
+        } else if (stores.length > 0) {
             setCurrentStore(stores.find(s => s.id === storedStoreId) || null);
         }
     }
@@ -285,7 +311,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setThemeSettings(getStoredState('themeSettings', defaultThemeSettings));
     
     setIsHydrated(true);
-  }, [stores]); // Depend on stores to ensure it's loaded
+  }, [stores.length]); // Depend on stores to ensure it's loaded before setting current store
 
   // Effects to persist non-Firestore state changes to localStorage after hydration
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
@@ -338,7 +364,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     await batch.commit();
   }, [notifications]);
 
-  // Scoped data accessors
+  // Scoped data accessors based on currentStore
   const filterByStore = useCallback(<T extends { storeId?: string }>(data: T[]): T[] => {
     if (!isHydrated || !currentStore || currentStore.id === 'all') {
       return data;
@@ -346,12 +372,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return data.filter(item => item.storeId === currentStore.id);
   }, [currentStore, isHydrated]);
   
+  const filteredInvoices = useMemo(() => filterByStore(invoices), [invoices, filterByStore]);
   const filteredCustomers = useMemo(() => filterByStore(customers), [customers, filterByStore]);
   const filteredProducts = useMemo(() => filterByStore(products), [products, filterByStore]);
   const filteredVendors = useMemo(() => filterByStore(vendors), [vendors, filterByStore]);
   const filteredEmployees = useMemo(() => filterByStore(employees), [employees, filterByStore]);
   const filteredProjects = useMemo(() => filterByStore(projects), [projects, filterByStore]);
-  const filteredInvoices = useMemo(() => filterByStore(invoices), [invoices, filterByStore]);
   const filteredPurchaseOrders = useMemo(() => filterByStore(purchaseOrders), [purchaseOrders, filterByStore]);
   const filteredRfqs = useMemo(() => filterByStore(rfqs), [rfqs, filterByStore]);
   const filteredAssets = useMemo(() => filterByStore(assets), [assets, filterByStore]);
@@ -361,6 +387,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const filteredLeads = useMemo(() => filterByStore(leads), [leads, filterByStore]);
   const filteredCampaigns = useMemo(() => filterByStore(campaigns), [campaigns, filterByStore]);
   const filteredTickets = useMemo(() => filterByStore(tickets), [tickets, filterByStore]);
+  const filteredShipments = useMemo(() => filterByStore(shipments), [shipments, filterByStore]);
+  const filteredItAssets = useMemo(() => filterByStore(itAssets), [itAssets, filterByStore]);
+  
+  // Memoized maps for performant lookups
+  const customersMap = useMemo(() => new Map(customers.map(c => [c.id, c])), [customers]);
+  const productsMap = useMemo(() => new Map(products.map(p => [p.id, p])), [products]);
+  const employeesMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees]);
+  const usersMap = useMemo(() => new Map(users.map(u => [u.id, u])), [users]);
+  const vendorsMap = useMemo(() => new Map(vendors.map(v => [v.id, v])), [vendors]);
+  const storesMap = useMemo(() => new Map(stores.map(s => [s.id, s])), [stores]);
 
   // Effect to update currency symbol when currency changes
   useEffect(() => {
@@ -424,25 +460,46 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('currentStoreId');
   };
-
-  const fakeSetter = () => {};
-
-  return (
-    <AppContext.Provider value={{ 
-      invoices: filteredInvoices, setInvoices: setInvoices as any,
-      customers: filteredCustomers, setCustomers: setCustomers as any,
-      products: filteredProducts, setProducts: setProducts as any,
-      vendors: filteredVendors, setVendors: setVendors as any,
-      purchaseOrders: filteredPurchaseOrders, setPurchaseOrders: setPurchaseOrders as any,
-      rfqs: filteredRfqs, setRfqs: setRfqs as any,
-      assets: filteredAssets, setAssets: setAssets as any,
+  
+  const contextValue = useMemo(() => ({
+      // Raw Data & Setters
+      invoices, setInvoices: setInvoices as any,
+      customers, setCustomers: setCustomers as any,
+      products, setProducts: setProducts as any,
+      vendors, setVendors: setVendors as any,
+      purchaseOrders, setPurchaseOrders: setPurchaseOrders as any,
+      rfqs, setRfqs: setRfqs as any,
+      assets, setAssets: setAssets as any,
       itAssets, setItAssets: setItAssets as any,
-      employees: filteredEmployees, setEmployees: setEmployees as any,
+      employees, setEmployees: setEmployees as any,
+      users, setUsers: setUsers as any,
       stores, setStores: setStores as any,
+      activityLogs, addActivityLog,
+      attendance, setAttendance: setAttendance as any,
+      leaveRequests, setLeaveRequests: setLeaveRequests as any,
+      ledgerEntries, setLedgerEntries: setLedgerEntries as any,
+      taxRates, setTaxRates: setTaxRates as any,
+      budgets, setBudgets: setBudgets as any,
+      candidates, setCandidates: setCandidates as any,
+      performanceReviews, setPerformanceReviews: setPerformanceReviews as any,
+      billsOfMaterials, setBillsOfMaterials: setBillsOfMaterials as any,
+      productionOrders, setProductionOrders: setProductionOrders as any,
+      qualityChecks, setQualityChecks: setQualityChecks as any,
+      leads, setLeads: setLeads as any,
+      campaigns, setCampaigns: setCampaigns as any,
+      projects, setProjects: setProjects as any,
+      tasks, setTasks: setTasks as any,
+      tickets, setTickets: setTickets as any,
+      notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
+      jobRequisitions, setJobRequisitions: setJobRequisitions as any,
+      shipments, setShipments: setShipments as any,
+      
+      // Auth & Store
       currentStore,
       selectStore,
-      isAuthenticated, user, users, setUsers: setUsers as any, login, logout,
-      activityLogs, addActivityLog,
+      isAuthenticated, user, login, logout,
+      
+      // Settings
       currency,
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
       currencySymbol,
@@ -452,25 +509,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       fiscalYearStartMonth, setFiscalYearStartMonth,
       themeSettings, setThemeSettings,
       isHydrated,
-      attendance, setAttendance: setAttendance as any,
-      leaveRequests, setLeaveRequests: setLeaveRequests as any,
-      ledgerEntries, setLedgerEntries: setLedgerEntries as any,
-      taxRates, setTaxRates: setTaxRates as any,
-      budgets: filteredBudgets, setBudgets: setBudgets as any,
-      candidates, setCandidates: setCandidates as any,
-      performanceReviews, setPerformanceReviews: setPerformanceReviews as any,
-      billsOfMaterials: filterByStore(billsOfMaterials), setBillsOfMaterials: setBillsOfMaterials as any,
-      productionOrders: filteredProductionOrders, setProductionOrders: setProductionOrders as any,
-      qualityChecks: filteredQualityChecks, setQualityChecks: setQualityChecks as any,
-      leads: filteredLeads, setLeads: setLeads as any,
-      campaigns: filteredCampaigns, setCampaigns: setCampaigns as any,
-      projects: filteredProjects, setProjects: setProjects as any,
-      tasks, setTasks: setTasks as any,
-      tickets: filteredTickets, setTickets: setTickets as any,
-      notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
-      jobRequisitions, setJobRequisitions: setJobRequisitions as any,
-      shipments, setShipments: setShipments as any,
-    }}>
+    
+      // Derived & Memoized Data Maps
+      customersMap,
+      productsMap,
+      employeesMap,
+      usersMap,
+      vendorsMap,
+      storesMap
+  }), [
+      invoices, customers, products, vendors, purchaseOrders, rfqs, assets, itAssets, employees, users, stores, activityLogs, attendance, leaveRequests, ledgerEntries, taxRates, budgets, candidates, performanceReviews, billsOfMaterials, productionOrders, qualityChecks, leads, campaigns, projects, tasks, tickets, notifications, jobRequisitions, shipments,
+      setInvoices, setCustomers, setProducts, setVendors, setPurchaseOrders, setRfqs, setAssets, setItAssets, setEmployees, setUsers, setStores, setAttendance, setLeaveRequests, setLedgerEntries, setTaxRates, setBudgets, setCandidates, setPerformanceReviews, setBillsOfMaterials, setProductionOrders, setQualityChecks, setLeads, setCampaigns, setProjects, setTasks, setTickets, setJobRequisitions, setShipments,
+      addActivityLog, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
+      currentStore, selectStore, isAuthenticated, user, login, logout,
+      currency, handleSetCurrency, currencySymbol, companyName, setCompanyName, companyAddress, setCompanyAddress, fiscalYearStartMonth, setFiscalYearStartMonth, themeSettings, setThemeSettings, isHydrated,
+      customersMap, productsMap, employeesMap, usersMap, vendorsMap, storesMap
+  ]);
+
+
+  return (
+    <AppContext.Provider value={contextValue as any}>
       {children}
     </AppContext.Provider>
   );
@@ -483,3 +541,5 @@ export const useAppContext = () => {
   }
   return context;
 };
+
+    

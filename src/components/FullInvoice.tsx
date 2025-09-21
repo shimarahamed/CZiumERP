@@ -18,7 +18,7 @@ interface FullInvoiceProps {
 }
 
 const FullInvoice = ({ invoice }: FullInvoiceProps) => {
-    const { currencySymbol, customers, companyName, companyAddress, themeSettings } = useAppContext();
+    const { currencySymbol, customersMap, companyName, companyAddress, themeSettings } = useAppContext();
     const { toast } = useToast();
     
     const handlePrint = () => {
@@ -50,7 +50,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
     }
 
     const handleEmailReceipt = () => {
-      const customer = customers.find(c => c.id === invoice.customerId);
+      const customer = invoice.customerId ? customersMap.get(invoice.customerId) : undefined;
       if (!customer?.email) {
           toast({
               variant: 'destructive',
@@ -95,7 +95,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <div>
                         <h3 className="font-semibold mb-1">Bill To:</h3>
                         <p>{invoice.customerName || 'Walk-in Customer'}</p>
-                        {invoice.customerId && <p className="text-muted-foreground">{customers.find(c=>c.id === invoice.customerId)?.email}</p>}
+                        {invoice.customerId && <p className="text-muted-foreground">{customersMap.get(invoice.customerId)?.email}</p>}
                     </div>
                     <div className="text-right">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -173,3 +173,5 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
 };
 
 export default FullInvoice;
+
+    

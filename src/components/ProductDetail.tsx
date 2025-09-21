@@ -16,8 +16,8 @@ interface ProductDetailProps {
 }
 
 const ProductDetail = ({ product }: ProductDetailProps) => {
-    const { currencySymbol, vendors, purchaseOrders } = useAppContext();
-    const vendor = vendors.find(v => v.id === product.vendorId);
+    const { currencySymbol, vendorsMap, purchaseOrders } = useAppContext();
+    const vendor = product.vendorId ? vendorsMap.get(product.vendorId) : undefined;
     const productPurchaseHistory = purchaseOrders.filter(po => 
         po.status === 'received' && po.items.some(item => item.productId === product.id)
     );
@@ -91,3 +91,5 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
 };
 
 export default ProductDetail;
+
+    

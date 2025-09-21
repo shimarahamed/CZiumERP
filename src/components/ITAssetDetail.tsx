@@ -24,13 +24,12 @@ const DetailItem = ({ label, value }: { label: string, value: React.ReactNode })
 );
 
 const ITAssetDetail = ({ asset, onUpdate }: ITAssetDetailProps) => {
-    const { currencySymbol, vendors, employees, addActivityLog } = useAppContext();
+    const { currencySymbol, vendorsMap, employees, addActivityLog } = useAppContext();
     const { toast } = useToast();
     const [currentStatus, setCurrentStatus] = useState<AssetStatus>(asset.status);
     const [assignedUserId, setAssignedUserId] = useState(asset.assignedTo);
 
-    const assignedUser = employees.find(e => e.id === asset.assignedTo);
-    const vendor = vendors.find(v => v.id === asset.vendorId);
+    const vendor = asset.vendorId ? vendorsMap.get(asset.vendorId) : undefined;
     
     const employeeOptions = useMemo(() => employees.map(e => ({ label: e.name, value: e.id })), [employees]);
 
@@ -55,7 +54,8 @@ const ITAssetDetail = ({ asset, onUpdate }: ITAssetDetailProps) => {
         setAssignedUserId(newAssignedUserId);
         const updatedAsset: ITAsset = { ...asset, assignedTo: newAssignedUserId };
         onUpdate(updatedAsset);
-        addActivityLog('IT Asset Assignment Updated', `Asset ${asset.name} assigned to ${employees.find(e => e.id === userId)?.name || 'Unassigned'}.`);
+        const employeeName = employees.find(e => e.id === userId)?.name || 'Unassigned';
+        addActivityLog('IT Asset Assignment Updated', `Asset ${asset.name} assigned to ${employeeName}.`);
         toast({ title: "Assignment Updated" });
     }
 
@@ -143,3 +143,5 @@ const ITAssetDetail = ({ asset, onUpdate }: ITAssetDetailProps) => {
 };
 
 export default ITAssetDetail;
+
+    

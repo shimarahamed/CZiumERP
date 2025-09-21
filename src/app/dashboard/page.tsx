@@ -3,15 +3,14 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
-import { salesData } from "@/lib/data";
 import Header from "@/components/Header";
 import { DollarSign, Users, CreditCard, TrendingUp, PlusCircle, AlertCircle, AlertTriangle, Trophy, ShoppingBag, AreaChart, Hourglass, FileText } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
-import { format, differenceInDays, parseISO } from 'date-fns';
+import { format, differenceInDays, parseISO, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +37,40 @@ export default function DashboardPage() {
   
   const paidInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'paid'), [storeInvoices]);
   const pendingInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue'), [storeInvoices]);
+
+  const salesData = useMemo(() => {
+    if (paidInvoices.length === 0) {
+        // Return a default structure for the last 6 months with 0 revenue
+        const last6Months = eachMonthOfInterval({
+            start: startOfMonth(new Date(new Date().setMonth(new Date().getMonth() - 5))),
+            end: endOfMonth(new Date())
+        });
+        return last6Months.map(month => ({
+            month: format(month, 'MMM'),
+            revenue: 0,
+        }));
+    }
+
+    const monthlySales = paidInvoices.reduce((acc, inv) => {
+      const month = format(parseISO(inv.date), 'MMM');
+      acc[month] = (acc[month] || 0) + inv.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Ensure we have data for the last 6 months, even if it's 0
+    const last6Months = eachMonthOfInterval({
+        start: startOfMonth(new Date(new Date().setMonth(new Date().getMonth() - 5))),
+        end: endOfMonth(new Date())
+    });
+
+    return last6Months.map(monthDate => {
+        const monthName = format(monthDate, 'MMM');
+        return {
+            month: monthName,
+            revenue: monthlySales[monthName] || 0,
+        };
+    });
+}, [paidInvoices]);
 
 
   const chartConfig = {
@@ -363,3 +396,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

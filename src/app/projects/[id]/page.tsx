@@ -96,7 +96,7 @@ const defaultTaskValues = {
 
 export default function ProjectDetailPage() {
     const { id } = useParams();
-    const { projects, setProjects, tasks, setTasks, employees, addActivityLog, currencySymbol } = useAppContext();
+    const { projects, setProjects, tasks, setTasks, employees, employeesMap, addActivityLog, currencySymbol } = useAppContext();
     const { toast } = useToast();
     
     // Task form state
@@ -110,8 +110,8 @@ export default function ProjectDetailPage() {
 
     const project = useMemo(() => projects.find(p => p.id === id), [id, projects]);
     const projectTasks = useMemo(() => tasks.filter(t => t.projectId === id), [id, tasks]);
-    const manager = useMemo(() => employees.find(e => e.id === project?.managerId), [project, employees]);
-    const teamMembers = useMemo(() => project ? employees.filter(e => project.teamIds.includes(e.id)) : [], [project, employees]);
+    const manager = useMemo(() => project?.managerId ? employeesMap.get(project.managerId) : undefined, [project, employeesMap]);
+    const teamMembers = useMemo(() => project ? project.teamIds.map(id => employeesMap.get(id)).filter(Boolean) as Employee[] : [], [project, employeesMap]);
     
     const actualCost = useMemo(() => {
         return projectTasks
@@ -323,7 +323,7 @@ export default function ProjectDetailPage() {
                                             </TableHeader>
                                             <TableBody>
                                                 {projectTasks.map(task => {
-                                                    const assignee = employees.find(e => e.id === task.assigneeId);
+                                                    const assignee = employeesMap.get(task.assigneeId);
                                                     return (
                                                         <TableRow key={task.id}>
                                                             <TableCell className="font-medium">

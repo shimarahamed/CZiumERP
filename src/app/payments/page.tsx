@@ -15,7 +15,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { Invoice } from "@/types";
 
 export default function PaymentsPage() {
-  const { invoices, setInvoices, customers, addActivityLog, currentStore, currencySymbol, stores } = useAppContext();
+  const { invoices, setInvoices, customersMap, addActivityLog, currentStore, currencySymbol, storesMap } = useAppContext();
   const [unpaidInvoices, setUnpaidInvoices] = useState<Invoice[]>([]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
   const [amount, setAmount] = useState<number | string>('');
@@ -100,7 +100,7 @@ export default function PaymentsPage() {
                         </SelectTrigger>
                         <SelectContent>
                         {unpaidInvoices.map(invoice => {
-                            const store = stores.find(s => s.id === invoice.storeId);
+                            const store = invoice.storeId ? storesMap.get(invoice.storeId) : undefined;
                             return (
                                 <SelectItem key={invoice.id} value={invoice.id}>
                                     <div className="truncate">
@@ -122,7 +122,7 @@ export default function PaymentsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">None</SelectItem>
-                      {customers.map(customer => (
+                      {Array.from(customersMap.values()).map(customer => (
                         <SelectItem key={customer.id} value={customer.id}>{customer.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -182,3 +182,5 @@ export default function PaymentsPage() {
     </div>
   );
 }
+
+    

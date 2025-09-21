@@ -16,7 +16,7 @@ interface InvoiceDetailProps {
 }
 
 const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
-    const { companyName, companyAddress, currencySymbol, customers, themeSettings } = useAppContext();
+    const { companyName, companyAddress, currencySymbol, customersMap, themeSettings } = useAppContext();
     const { toast } = useToast();
     
     const handlePrint = () => {
@@ -48,7 +48,7 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
     }
 
     const handleEmailReceipt = () => {
-      const customer = customers.find(c => c.id === invoice.customerId);
+      const customer = invoice.customerId ? customersMap.get(invoice.customerId) : undefined;
       if (!customer?.email) {
           toast({
               variant: 'destructive',
@@ -159,3 +159,5 @@ const InvoiceDetail = ({ invoice }: InvoiceDetailProps) => {
 };
 
 export default InvoiceDetail;
+
+    

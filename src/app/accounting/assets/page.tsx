@@ -57,7 +57,7 @@ const statusVariant: { [key in AssetStatus]: 'default' | 'secondary' | 'destruct
 
 
 export default function AssetsPage() {
-    const { assets, setAssets, users, stores, addActivityLog, currencySymbol, user: currentUser } = useAppContext();
+    const { assets, setAssets, users, stores, addActivityLog, currencySymbol, user: currentUser, usersMap, storesMap } = useAppContext();
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [assetToEdit, setAssetToEdit] = useState<Asset | null>(null);
@@ -81,7 +81,7 @@ export default function AssetsPage() {
     
     const sortedAndFilteredAssets = useMemo(() => {
         let filtered = [...assets].map(asset => {
-            const assignedUser = users.find(u => u.id === asset.assignedTo);
+            const assignedUser = asset.assignedTo ? usersMap.get(asset.assignedTo) : undefined;
             return { ...asset, assignedUserName: assignedUser?.name || 'Unassigned' };
         });
 
@@ -114,7 +114,7 @@ export default function AssetsPage() {
         });
 
         return filtered;
-    }, [assets, users, filters, sortKey, sortDirection]);
+    }, [assets, usersMap, filters, sortKey, sortDirection]);
 
     if (!canManage) {
         return (
@@ -292,7 +292,7 @@ export default function AssetsPage() {
                             </TableHeader>
                             <TableBody>
                                 {sortedAndFilteredAssets.map(asset => {
-                                    const locationName = stores.find(s => s.id === asset.location)?.name || asset.location;
+                                    const locationName = storesMap.get(asset.location)?.name || asset.location;
                                     return (
                                         <TableRow key={asset.id}>
                                             <TableCell className="font-medium">
@@ -406,9 +406,5 @@ export default function AssetsPage() {
         </div>
     );
 }
-
-    
-
-    
 
     
