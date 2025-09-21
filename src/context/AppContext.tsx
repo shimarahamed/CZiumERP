@@ -175,7 +175,7 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
           });
           await batch.commit().catch(e => console.error(`Failed to seed ${collectionName}:`, e));
         } else {
-          const newData = snapshot.docs.map(doc => ({ ...doc.data() } as T));
+          const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
           setData(newData);
         }
       },
@@ -188,30 +188,36 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
   }, [isHydrated, collectionName, initialData]);
 
   const setCollection = useCallback(async (newData: T[] | ((prev: T[]) => T[])) => {
-    const dataToSet = typeof newData === 'function' ? newData(data) : newData;
-    const batch = writeBatch(db);
-    const collectionRef = collection(db, collectionName);
-    
-    // Optional: Get all existing docs to delete ones not in the new data set
-    const existingDocs = await getDocs(collectionRef);
-    const newIds = new Set(dataToSet.map(item => item.id));
-    
-    existingDocs.forEach(doc => {
-        if (!newIds.has(doc.id)) {
-            batch.delete(doc.ref);
-        }
+    setData(prevData => {
+        const dataToSet = typeof newData === 'function' ? newData(prevData) : newData;
+        
+        (async () => {
+            const batch = writeBatch(db);
+            const collectionRef = collection(db, collectionName);
+            
+            const existingDocs = await getDocs(collectionRef);
+            const newIds = new Set(dataToSet.map(item => item.id));
+            
+            existingDocs.forEach(doc => {
+                if (!newIds.has(doc.id)) {
+                    batch.delete(doc.ref);
+                }
+            });
+
+            dataToSet.forEach(item => {
+              const docRef = doc(db, collectionName, item.id);
+              batch.set(docRef, item);
+            });
+            
+            await batch.commit();
+        })();
+
+        return dataToSet;
     });
-
-    dataToSet.forEach(item => {
-      const docRef = doc(db, collectionName, item.id);
-      batch.set(docRef, item);
-    });
-    
-    await batch.commit();
-  }, [collectionName, data]);
+  }, [collectionName]);
 
 
-  return [data, setData] as const;
+  return [data, setCollection] as const;
 }
 
 // Memoize initial data arrays outside the component
