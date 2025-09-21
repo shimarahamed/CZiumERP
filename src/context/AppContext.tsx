@@ -2,11 +2,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
-import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, ITAsset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings } from '@/types';
+import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, ITAsset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings, Notification } from '@/types';
 import { initialInvoices, initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialItAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
-import { db } from '@/lib/firebase';
-import { doc, setDoc, writeBatch } from 'firebase/firestore';
 import { useFirestoreCollection } from '@/hooks/use-firestore-collection';
+import { doc, setDoc, writeBatch } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
 
 // Helper to get item from localStorage. This is now only used for user session info.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -234,6 +235,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Rehydrate state from localStorage on client-side mount
   useEffect(() => {
+    if (isHydrated) return;
     const storedAuth = getStoredState('isAuthenticated', false);
     setIsAuthenticated(storedAuth);
     const storedUser = getStoredState('user', null);
@@ -254,7 +256,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setThemeSettings(getStoredState('themeSettings', defaultThemeSettings));
     
     setIsHydrated(true);
-  }, [stores.length]); // Depend on stores to ensure it's loaded before setting current store
+  }, [stores, isHydrated]);
 
   // Effects to persist non-Firestore state changes to localStorage after hydration
   useEffect(() => { if (isHydrated) localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated)); }, [isAuthenticated, isHydrated]);
@@ -378,7 +380,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('currentStoreId');
   };
   
-  const contextValue = {
+  const contextValue = useMemo(() => ({
       // Raw Data & Setters
       invoices, setInvoices: setInvoices as any,
       customers, setCustomers: setCustomers as any,
@@ -434,11 +436,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       usersMap,
       vendorsMap,
       storesMap
-  };
+  }), [
+      invoices, customers, products, vendors, purchaseOrders, rfqs, assets, itAssets, employees, users, stores, activityLogs, attendance, leaveRequests, ledgerEntries, taxRates, budgets, candidates, performanceReviews, billsOfMaterials, productionOrders, qualityChecks, leads, campaigns, projects, tasks, tickets, notifications, jobRequisitions, shipments,
+      setInvoices, setCustomers, setProducts, setVendors, setPurchaseOrders, setRfqs, setAssets, setItAssets, setEmployees, setUsers, setStores, addActivityLog, setAttendance, setLeaveRequests, setLedgerEntries, setTaxRates, setBudgets, setCandidates, setPerformanceReviews, setBillsOfMaterials, setProductionOrders, setQualityChecks, setLeads, setCampaigns, setProjects, setTasks, setTickets, addNotification, markNotificationAsRead, markAllNotificationsAsRead, setJobRequisitions, setShipments,
+      currentStore, selectStore, isAuthenticated, user, login, logout,
+      currency, handleSetCurrency, currencySymbol, companyName, setCompanyName, companyAddress, setCompanyAddress, fiscalYearStartMonth, setFiscalYearStartMonth, themeSettings, setThemeSettings, isHydrated,
+      customersMap, productsMap, employeesMap, usersMap, vendorsMap, storesMap
+  ]);
 
 
   return (
-    <AppContext.Provider value={contextValue as any}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
@@ -451,4 +459,3 @@ export const useAppContext = () => {
   }
   return context;
 };
-
