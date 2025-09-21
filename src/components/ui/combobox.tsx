@@ -29,6 +29,7 @@ type ComboboxProps = {
   options: ComboboxOption[]
   value?: string
   onValueChange: (value: string) => void
+  onSearchChange?: (search: string) => void
   placeholder?: string
   searchPlaceholder?: string
   emptyText?: string
@@ -39,20 +40,13 @@ export function Combobox({
     options, 
     value, 
     onValueChange, 
+    onSearchChange,
     placeholder, 
     searchPlaceholder, 
     emptyText,
     className
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false);
-  const [localSearch, setLocalSearch] = React.useState("");
-
-  const filteredOptions = React.useMemo(() => {
-    if (!localSearch) return options;
-    return options.filter(option => 
-      option.label.toLowerCase().includes(localSearch.toLowerCase())
-    );
-  }, [options, localSearch]);
+  const [open, setOpen] = React.useState(false)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -74,21 +68,19 @@ export function Combobox({
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
           <CommandInput 
-            placeholder={searchPlaceholder || "Search..."} 
-            value={localSearch}
-            onValueChange={setLocalSearch}
+            placeholder={searchPlaceholder || "Search..."}
+            onValueChange={onSearchChange}
           />
           <CommandList>
             <CommandEmpty>{emptyText || "No results found."}</CommandEmpty>
             <CommandGroup>
-              {filteredOptions.map((option) => (
+              {options.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}
                   onSelect={(currentValue) => {
                     onValueChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
-                    setLocalSearch("");
                   }}
                 >
                   <Check
