@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
@@ -172,7 +173,7 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
     );
 
     return () => unsubscribe();
-  }, [isHydrated, collectionName]);
+  }, [isHydrated, collectionName, initialData]);
 
   const setCollection = useCallback(async (newData: T[] | ((prev: T[]) => T[])) => {
     const dataToSet = typeof newData === 'function' ? newData(data) : newData;
@@ -200,36 +201,66 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState<number>(1);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [currencySymbol, setCurrencySymbol] = useState<string>('AED');
+  
+  // Memoize initial data arrays
+  const memoizedInitialInvoices = useMemo(() => initialInvoices, []);
+  const memoizedInitialCustomers = useMemo(() => initialCustomers, []);
+  const memoizedInitialProducts = useMemo(() => initialProducts, []);
+  const memoizedInitialVendors = useMemo(() => initialVendors, []);
+  const memoizedInitialPurchaseOrders = useMemo(() => initialPurchaseOrders, []);
+  const memoizedInitialRfqs = useMemo(() => initialRfqs, []);
+  const memoizedInitialAssets = useMemo(() => initialAssets, []);
+  const memoizedInitialItAssets = useMemo(() => initialItAssets, []);
+  const memoizedInitialUsers = useMemo(() => initialUsers, []);
+  const memoizedInitialEmployees = useMemo(() => initialEmployees, []);
+  const memoizedInitialStores = useMemo(() => initialStores, []);
+  const memoizedInitialAttendance = useMemo(() => initialAttendance, []);
+  const memoizedInitialLeaveRequests = useMemo(() => initialLeaveRequests, []);
+  const memoizedInitialLedgerEntries = useMemo(() => initialLedgerEntries, []);
+  const memoizedInitialTaxRates = useMemo(() => initialTaxRates, []);
+  const memoizedInitialBudgets = useMemo(() => initialBudgets, []);
+  const memoizedInitialCandidates = useMemo(() => initialCandidates, []);
+  const memoizedInitialPerformanceReviews = useMemo(() => initialPerformanceReviews, []);
+  const memoizedInitialBillsOfMaterials = useMemo(() => initialBillsOfMaterials, []);
+  const memoizedInitialProductionOrders = useMemo(() => initialProductionOrders, []);
+  const memoizedInitialQualityChecks = useMemo(() => initialQualityChecks, []);
+  const memoizedInitialLeads = useMemo(() => initialLeads, []);
+  const memoizedInitialCampaigns = useMemo(() => initialCampaigns, []);
+  const memoizedInitialProjects = useMemo(() => initialProjects, []);
+  const memoizedInitialTasks = useMemo(() => initialTasks, []);
+  const memoizedInitialTickets = useMemo(() => initialTickets, []);
+  const memoizedInitialJobRequisitions = useMemo(() => initialJobRequisitions, []);
+  const memoizedInitialShipments = useMemo(() => initialShipments, []);
 
-  const [invoices, setInvoices] = useFirestoreCollection<Invoice>('invoices', initialInvoices, isHydrated);
-  const [customers, setCustomers] = useFirestoreCollection<Customer>('customers', initialCustomers, isHydrated);
-  const [products, setProducts] = useFirestoreCollection<Product>('products', initialProducts, isHydrated);
-  const [vendors, setVendors] = useFirestoreCollection<Vendor>('vendors', initialVendors, isHydrated);
-  const [purchaseOrders, setPurchaseOrders] = useFirestoreCollection<PurchaseOrder>('purchaseOrders', initialPurchaseOrders, isHydrated);
-  const [rfqs, setRfqs] = useFirestoreCollection<RFQ>('rfqs', initialRfqs, isHydrated);
-  const [assets, setAssets] = useFirestoreCollection<Asset>('assets', initialAssets, isHydrated);
-  const [itAssets, setItAssets] = useFirestoreCollection<ITAsset>('itAssets', initialItAssets, isHydrated);
-  const [users, setUsers] = useFirestoreCollection<User>('users', initialUsers, isHydrated);
-  const [employees, setEmployees] = useFirestoreCollection<Employee>('employees', initialEmployees, isHydrated);
-  const [stores, setStores] = useFirestoreCollection<Store>('stores', initialStores, isHydrated);
+  const [invoices, setInvoices] = useFirestoreCollection<Invoice>('invoices', memoizedInitialInvoices, isHydrated);
+  const [customers, setCustomers] = useFirestoreCollection<Customer>('customers', memoizedInitialCustomers, isHydrated);
+  const [products, setProducts] = useFirestoreCollection<Product>('products', memoizedInitialProducts, isHydrated);
+  const [vendors, setVendors] = useFirestoreCollection<Vendor>('vendors', memoizedInitialVendors, isHydrated);
+  const [purchaseOrders, setPurchaseOrders] = useFirestoreCollection<PurchaseOrder>('purchaseOrders', memoizedInitialPurchaseOrders, isHydrated);
+  const [rfqs, setRfqs] = useFirestoreCollection<RFQ>('rfqs', memoizedInitialRfqs, isHydrated);
+  const [assets, setAssets] = useFirestoreCollection<Asset>('assets', memoizedInitialAssets, isHydrated);
+  const [itAssets, setItAssets] = useFirestoreCollection<ITAsset>('itAssets', memoizedInitialItAssets, isHydrated);
+  const [users, setUsers] = useFirestoreCollection<User>('users', memoizedInitialUsers, isHydrated);
+  const [employees, setEmployees] = useFirestoreCollection<Employee>('employees', memoizedInitialEmployees, isHydrated);
+  const [stores, setStores] = useFirestoreCollection<Store>('stores', memoizedInitialStores, isHydrated);
   const [activityLogs, setActivityLogs] = useFirestoreCollection<ActivityLog>('activityLogs', [], isHydrated);
-  const [attendance, setAttendance] = useFirestoreCollection<AttendanceEntry>('attendance', initialAttendance, isHydrated);
-  const [leaveRequests, setLeaveRequests] = useFirestoreCollection<LeaveRequest>('leaveRequests', initialLeaveRequests, isHydrated);
-  const [ledgerEntries, setLedgerEntries] = useFirestoreCollection<LedgerEntry>('ledgerEntries', initialLedgerEntries, isHydrated);
-  const [taxRates, setTaxRates] = useFirestoreCollection<TaxRate>('taxRates', initialTaxRates, isHydrated);
-  const [budgets, setBudgets] = useFirestoreCollection<Budget>('budgets', initialBudgets, isHydrated);
-  const [candidates, setCandidates] = useFirestoreCollection<Candidate>('candidates', initialCandidates, isHydrated);
-  const [performanceReviews, setPerformanceReviews] = useFirestoreCollection<PerformanceReview>('performanceReviews', initialPerformanceReviews, isHydrated);
-  const [billsOfMaterials, setBillsOfMaterials] = useFirestoreCollection<BillOfMaterials>('billsOfMaterials', initialBillsOfMaterials, isHydrated);
-  const [productionOrders, setProductionOrders] = useFirestoreCollection<ProductionOrder>('productionOrders', initialProductionOrders, isHydrated);
-  const [qualityChecks, setQualityChecks] = useFirestoreCollection<QualityCheck>('qualityChecks', initialQualityChecks, isHydrated);
-  const [leads, setLeads] = useFirestoreCollection<Lead>('leads', initialLeads, isHydrated);
-  const [campaigns, setCampaigns] = useFirestoreCollection<Campaign>('campaigns', initialCampaigns, isHydrated);
-  const [projects, setProjects] = useFirestoreCollection<Project>('projects', initialProjects, isHydrated);
-  const [tasks, setTasks] = useFirestoreCollection<Task>('tasks', initialTasks, isHydrated);
-  const [tickets, setTickets] = useFirestoreCollection<Ticket>('tickets', initialTickets, isHydrated);
-  const [jobRequisitions, setJobRequisitions] = useFirestoreCollection<JobRequisition>('jobRequisitions', initialJobRequisitions, isHydrated);
-  const [shipments, setShipments] = useFirestoreCollection<Shipment>('shipments', initialShipments, isHydrated);
+  const [attendance, setAttendance] = useFirestoreCollection<AttendanceEntry>('attendance', memoizedInitialAttendance, isHydrated);
+  const [leaveRequests, setLeaveRequests] = useFirestoreCollection<LeaveRequest>('leaveRequests', memoizedInitialLeaveRequests, isHydrated);
+  const [ledgerEntries, setLedgerEntries] = useFirestoreCollection<LedgerEntry>('ledgerEntries', memoizedInitialLedgerEntries, isHydrated);
+  const [taxRates, setTaxRates] = useFirestoreCollection<TaxRate>('taxRates', memoizedInitialTaxRates, isHydrated);
+  const [budgets, setBudgets] = useFirestoreCollection<Budget>('budgets', memoizedInitialBudgets, isHydrated);
+  const [candidates, setCandidates] = useFirestoreCollection<Candidate>('candidates', memoizedInitialCandidates, isHydrated);
+  const [performanceReviews, setPerformanceReviews] = useFirestoreCollection<PerformanceReview>('performanceReviews', memoizedInitialPerformanceReviews, isHydrated);
+  const [billsOfMaterials, setBillsOfMaterials] = useFirestoreCollection<BillOfMaterials>('billsOfMaterials', memoizedInitialBillsOfMaterials, isHydrated);
+  const [productionOrders, setProductionOrders] = useFirestoreCollection<ProductionOrder>('productionOrders', memoizedInitialProductionOrders, isHydrated);
+  const [qualityChecks, setQualityChecks] = useFirestoreCollection<QualityCheck>('qualityChecks', memoizedInitialQualityChecks, isHydrated);
+  const [leads, setLeads] = useFirestoreCollection<Lead>('leads', memoizedInitialLeads, isHydrated);
+  const [campaigns, setCampaigns] = useFirestoreCollection<Campaign>('campaigns', memoizedInitialCampaigns, isHydrated);
+  const [projects, setProjects] = useFirestoreCollection<Project>('projects', memoizedInitialProjects, isHydrated);
+  const [tasks, setTasks] = useFirestoreCollection<Task>('tasks', memoizedInitialTasks, isHydrated);
+  const [tickets, setTickets] = useFirestoreCollection<Ticket>('tickets', memoizedInitialTickets, isHydrated);
+  const [jobRequisitions, setJobRequisitions] = useFirestoreCollection<JobRequisition>('jobRequisitions', memoizedInitialJobRequisitions, isHydrated);
+  const [shipments, setShipments] = useFirestoreCollection<Shipment>('shipments', memoizedInitialShipments, isHydrated);
   const [notifications, setNotifications] = useFirestoreCollection<Notification>('notifications', [], isHydrated);
 
   // Rehydrate state from localStorage on client-side mount
