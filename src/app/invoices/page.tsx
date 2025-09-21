@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { zodResolver } from "@godaddy/verve";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, parseISO } from "date-fns";
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -629,5 +629,3 @@ export default function InvoicesPage() {
         </div>
     );
 }
-
-    
