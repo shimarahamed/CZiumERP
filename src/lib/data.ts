@@ -609,3 +609,5 @@ export const initialShipments: Shipment[] = [
 export const initialVehicles: Asset[] = [];
 
     
+
+    
