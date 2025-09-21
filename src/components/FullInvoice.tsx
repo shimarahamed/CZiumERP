@@ -95,7 +95,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <div>
                         <h3 className="font-semibold mb-1">Bill To:</h3>
                         <p>{invoice.customerName || 'Walk-in Customer'}</p>
-                        {invoice.customerId && <p className="text-muted-foreground">{customersMap.get(invoice.customerId)?.email}</p>}
+                        {invoice.customerId && customersMap && <p className="text-muted-foreground">{customersMap.get(invoice.customerId)?.email}</p>}
                     </div>
                     <div className="text-right">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
