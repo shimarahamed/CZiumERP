@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { db, enableNetwork, disableNetwork } from '@/lib/firebase';
 
 const months = [
     { value: 1, label: 'January' }, { value: 2, label: 'February' },
@@ -59,6 +60,7 @@ export default function SettingsPage() {
     const [localCompanyAddress, setLocalCompanyAddress] = useState(companyAddress);
     const [localFiscalYearStart, setLocalFiscalYearStart] = useState(fiscalYearStartMonth);
     const [localThemeSettings, setLocalThemeSettings] = useState(themeSettings);
+    const [isOnline, setIsOnline] = useState(false);
 
     useEffect(() => {
         setLocalCurrency(currency);
@@ -66,7 +68,16 @@ export default function SettingsPage() {
         setLocalCompanyAddress(companyAddress);
         setLocalFiscalYearStart(fiscalYearStartMonth);
         setLocalThemeSettings(themeSettings);
+        setIsOnline(getStoredIsOnline());
     }, [currency, companyName, companyAddress, fiscalYearStartMonth, themeSettings]);
+
+    const getStoredIsOnline = () => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('isOnline');
+            return stored === 'true';
+        }
+        return false;
+    }
 
     const canManage = user?.role === 'admin';
 
@@ -128,6 +139,21 @@ export default function SettingsPage() {
         }))
     };
 
+    const handleOnlineSyncToggle = (checked: boolean) => {
+        setIsOnline(checked);
+        if (checked) {
+            enableNetwork(db).then(() => {
+                toast({ title: 'Online Sync Enabled', description: 'Data will now sync with the cloud.' });
+                localStorage.setItem('isOnline', 'true');
+            });
+        } else {
+            disableNetwork(db).then(() => {
+                toast({ title: 'Online Sync Disabled', description: 'Application is now in offline mode.' });
+                localStorage.setItem('isOnline', 'false');
+            });
+        }
+    };
+
     if (!canManage) {
         return (
             <div className="flex flex-col h-full">
@@ -153,11 +179,12 @@ export default function SettingsPage() {
             <Header title="Settings" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
                 <Tabs defaultValue="company-branding" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-5">
                         <TabsTrigger value="company-branding">Company & Branding</TabsTrigger>
                         <TabsTrigger value="financial-regional">Financial & Regional</TabsTrigger>
                         <TabsTrigger value="loyalty">Loyalty Program</TabsTrigger>
                         <TabsTrigger value="modules">Modules</TabsTrigger>
+                        <TabsTrigger value="developer">Developer</TabsTrigger>
                     </TabsList>
                     <TabsContent value="company-branding">
                         <Card>
@@ -296,6 +323,28 @@ export default function SettingsPage() {
                                         />
                                     </div>
                                 ))}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                     <TabsContent value="developer">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Developer Settings</CardTitle>
+                                <CardDescription>Advanced options for development and testing.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Enable Online Sync</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                            Connect to the live Firestore database. When disabled, the app works offline.
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        checked={isOnline}
+                                        onCheckedChange={handleOnlineSyncToggle}
+                                    />
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
