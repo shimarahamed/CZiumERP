@@ -433,7 +433,7 @@ export const initialTasks: Task[] = [
 
 export const initialTickets: Ticket[] = [
   {
-    id: 1,
+    id: 'ticket-1',
     title: 'Cannot print invoices from Westside Mall',
     description: 'The receipt printer at the Westside Mall location is not responding. We have tried restarting it, but it still does not print any invoices or receipts. This is urgent as we cannot provide customers with physical copies.',
     status: 'open',
@@ -457,7 +457,7 @@ export const initialTickets: Ticket[] = [
     ],
   },
   {
-    id: 2,
+    id: 'ticket-2',
     title: 'Product price mismatch for Espresso Machine',
     description: 'The price for the Espresso Machine in the system is showing as $499.99, but the shelf tag says $479.99. Please clarify which is correct and update the system if necessary.',
     status: 'in-progress',
@@ -473,7 +473,7 @@ export const initialTickets: Ticket[] = [
     comments: [],
   },
   {
-    id: 3,
+    id: 'ticket-3',
     title: 'Request for new report: Customer Lifetime Value',
     description: 'It would be helpful to have a report that calculates the total amount spent by each customer over their lifetime with us. This would help in identifying our most valuable customers.',
     status: 'open',
@@ -487,7 +487,7 @@ export const initialTickets: Ticket[] = [
     comments: [],
   },
     {
-    id: 4,
+    id: 'ticket-4',
     title: 'System is slow during peak hours',
     description: 'Between 12 PM and 2 PM, the invoicing page becomes very slow to load. It takes several seconds to add items to a new invoice. It seems to happen every day.',
     status: 'on-hold',
@@ -503,7 +503,7 @@ export const initialTickets: Ticket[] = [
     comments: [],
   },
   {
-    id: 5,
+    id: 'ticket-5',
     title: 'Forgot password functionality not working',
     description: 'A user reported that the "Forgot Password" link on the login page does not seem to do anything. Tested and confirmed.',
     status: 'closed',

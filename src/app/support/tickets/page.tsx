@@ -95,7 +95,7 @@ export default function SupportTicketsPage() {
                 }
                 const lowercasedFilter = searchTerm.toLowerCase();
                 return (
-                    (`#${ticket.id}`).toLowerCase().includes(lowercasedFilter) ||
+                    `#${ticket.id}`.toLowerCase().includes(lowercasedFilter) ||
                     ticket.title.toLowerCase().includes(lowercasedFilter) ||
                     ticket.description.toLowerCase().includes(lowercasedFilter) ||
                     (ticket.assigneeName && ticket.assigneeName.toLowerCase().includes(lowercasedFilter))
@@ -131,7 +131,7 @@ export default function SupportTicketsPage() {
         const assignee = finalAssigneeId ? users.find(u => u.id === finalAssigneeId) : undefined;
         
         const newTicket: Ticket = {
-            id: tickets.length + 1,
+            id: `ticket-${Date.now()}`,
             reporterId: user.id,
             reporterName: user.name,
             assigneeId: finalAssigneeId,
@@ -152,7 +152,7 @@ export default function SupportTicketsPage() {
         form.reset({ title: '', description: '', priority: 'medium', assigneeId: 'unassigned', category: '', group: '' });
     };
 
-    const handleStatusChange = (ticketId: number, newStatus: TicketStatus) => {
+    const handleStatusChange = (ticketId: string, newStatus: TicketStatus) => {
         setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
         const ticket = tickets.find(t => t.id === ticketId);
         if (ticket) {

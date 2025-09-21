@@ -1,3 +1,4 @@
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
 
 export type User = {
@@ -449,7 +450,7 @@ export type TicketComment = {
 };
 
 export type Ticket = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   status: TicketStatus;
