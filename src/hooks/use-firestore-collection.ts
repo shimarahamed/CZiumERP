@@ -23,12 +23,17 @@ export function useFirestoreCollection<T extends { id: string }>(
           console.log(`No data found in ${collectionName}. Seeding initial data...`);
           const batch = writeBatch(db);
           initialData.forEach((item) => {
-            const docRef = doc(db, collectionName, item.id);
-            batch.set(docRef, item);
+            // CRITICAL FIX: Ensure item.id is a valid string before calling doc()
+            if (typeof item.id === 'string' && item.id.length > 0) {
+              const docRef = doc(db, collectionName, item.id);
+              batch.set(docRef, item);
+            } else {
+              console.error(`Skipping seeding for item with invalid ID in ${collectionName}:`, item);
+            }
           });
           await batch.commit().catch((e) => console.error(`Failed to seed ${collectionName}:`, e));
         } else {
-          const newData = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+          const newData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as T));
           setData(newData);
         }
       },
@@ -41,8 +46,8 @@ export function useFirestoreCollection<T extends { id: string }>(
   }, [isHydrated, collectionName, initialData]);
 
   const setCollection = useCallback(
-    (newData: T[] | ((prev: T[]) => T[])) => {
-      const dataToSet = typeof newData === 'function' ? newData(data) : newData;
+    (updater: T[] | ((prev: T[]) => T[])) => {
+      const dataToSet = typeof updater === 'function' ? updater(data) : updater;
       setData(dataToSet);
 
       (async () => {
@@ -60,8 +65,12 @@ export function useFirestoreCollection<T extends { id: string }>(
             });
 
             dataToSet.forEach(item => {
-              const docRef = doc(db, collectionName, item.id);
-              batch.set(docRef, item);
+              if (typeof item.id === 'string' && item.id.length > 0) {
+                const docRef = doc(db, collectionName, item.id);
+                batch.set(docRef, item);
+              } else {
+                console.error(`Skipping update for item with invalid ID in ${collectionName}:`, item);
+              }
             });
             
             await batch.commit();
