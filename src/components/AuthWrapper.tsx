@@ -14,15 +14,25 @@ import {
 } from '@/components/ui/sidebar';
 import Nav from '@/components/Nav';
 import { Button } from '@/components/ui/button';
-import { LifeBuoy, Store } from '@/components/icons';
+import { LifeBuoy, Store, Loader2 } from '@/components/icons';
 import UserNav from './UserNav';
 import Image from 'next/image';
 
 const UNAUTH_ROUTES = ['/login'];
 const AUTH_NO_STORE_ROUTES = ['/login', '/select-store'];
 
+function FullScreenLoader() {
+  return (
+    <div className="fixed inset-0 bg-background z-50 flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <p className="text-muted-foreground">Loading Application Data...</p>
+    </div>
+  );
+}
+
+
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, currentStore, isHydrated, themeSettings } = useAppContext();
+  const { isAuthenticated, currentStore, isHydrated, isDataLoaded, themeSettings } = useAppContext();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,7 +67,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   }, [isAuthenticated, currentStore, pathname, router, isHydrated]);
 
   if (!isHydrated) {
-    return null; // Render nothing until hydration is complete to avoid mismatch
+    return <FullScreenLoader />;
   }
   
   const isPublicPage = AUTH_NO_STORE_ROUTES.includes(pathname);
@@ -67,9 +77,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   }
 
   if (!isAuthenticated) {
-    return null; // App is redirecting, render nothing to avoid content flash
+    return <FullScreenLoader />; // Show loader while redirecting
   }
 
+  if (!isDataLoaded) {
+    return <FullScreenLoader />; // Show loader until all firestore data is ready
+  }
 
   return (
     <SidebarProvider>
@@ -80,7 +93,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                 {themeSettings.logoUrl ? (
                     <Image src={themeSettings.logoUrl} alt={themeSettings.appName} width={24} height={24} className="object-contain" />
                 ) : (
-                    <Store className="w-6 h-6 text-primary-foreground" />
+                    <Store className="w-6 h-6 text-primary" />
                 )}
              </div>
              <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">{themeSettings.appName}</h1>
