@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@godaddy/verve";
 import * as z from "zod";
 import { format, parseISO } from "date-fns";
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -382,16 +382,22 @@ export default function InvoicesPage() {
             <TableBody>
                 {invoices.map(invoice => (
                     <TableRow key={invoice.id}>
-                        <TableCell onClick={() => onView(invoice)} className="font-medium cursor-pointer">{invoice.id}</TableCell>
-                        <TableCell onClick={() => onView(invoice)} className="cursor-pointer">
-                            <div className="truncate">{invoice.customerName || 'N/A'}</div>
+                        <TableCell className="font-medium" onClick={() => onView(invoice)}>
+                            <span className="md:hidden font-bold">{invoice.id}</span>
+                            <span className="hidden md:inline">{invoice.id}</span>
+                        </TableCell>
+                        <TableCell onClick={() => onView(invoice)}>
+                            <div className="font-medium">{invoice.customerName || 'N/A'}</div>
                             <div className="text-sm text-muted-foreground md:hidden">
-                                {currencySymbol} {invoice.amount.toFixed(2)}
+                                <p>{currencySymbol} {invoice.amount.toFixed(2)} - {format(parseISO(invoice.date), 'yyyy-MM-dd')}</p>
+                                <Badge variant={statusVariant[invoice.status]} className="capitalize mt-1">{invoice.status.replace('-', ' ')}</Badge>
                             </div>
                         </TableCell>
-                        <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer">{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
-                        <TableCell onClick={() => onView(invoice)} className="hidden md:table-cell cursor-pointer"><Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge></TableCell>
-                        <TableCell onClick={() => onView(invoice)} className="hidden lg:table-cell cursor-pointer">{format(parseISO(invoice.date), 'yyyy-MM-dd')}</TableCell>
+                        <TableCell className="hidden md:table-cell" onClick={() => onView(invoice)}>{currencySymbol} {invoice.amount.toFixed(2)}</TableCell>
+                        <TableCell className="hidden md:table-cell" onClick={() => onView(invoice)}>
+                            <Badge variant={statusVariant[invoice.status]} className="capitalize">{invoice.status.replace('-', ' ')}</Badge>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell" onClick={() => onView(invoice)}>{format(parseISO(invoice.date), 'yyyy-MM-dd')}</TableCell>
                         <TableCell className="text-right">
                            <TooltipProvider>
                                 <div className="flex items-center justify-end gap-1">
@@ -623,3 +629,5 @@ export default function InvoicesPage() {
         </div>
     );
 }
+
+    
