@@ -56,6 +56,7 @@ export function useFirestoreCollection<T extends { id: string }>(
     );
 
     return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionName]);
 
   const setCollection = useCallback(
@@ -69,21 +70,23 @@ export function useFirestoreCollection<T extends { id: string }>(
             const batch = writeBatch(db);
             const collectionRef = collection(db, collectionName);
             
-            // This is a simple but expensive way to sync. 
-            // For production apps, a more nuanced add/update/delete logic is better.
-            const existingDocs = await getDocs(collectionRef);
+            const existingDocsSnapshot = await getDocs(collectionRef);
+            const existingIds = new Set(existingDocsSnapshot.docs.map(d => d.id));
             const newIds = new Set(newData.map(item => item.id));
 
-            existingDocs.forEach(existingDoc => {
+            // Delete docs that are no longer in the new data
+            existingDocsSnapshot.forEach(existingDoc => {
                 if (!newIds.has(existingDoc.id)) {
                     batch.delete(existingDoc.ref);
                 }
             });
 
+            // Set/update docs from the new data
             newData.forEach(item => {
-              if (!item.id || typeof item.id !== 'string') {
-                console.error(`Attempted to write item with invalid ID to ${collectionName}:`, item);
-                return; // Skip this item
+              // *** CRITICAL FIX: Ensure item.id is a valid string before creating a doc ref ***
+              if (typeof item.id !== 'string' || item.id.trim() === '') {
+                console.error(`[Firestore] Skipped write for item with invalid ID in collection "${collectionName}":`, item);
+                return; // Skip this item to prevent crash
               }
               const docRef = doc(db, collectionName, item.id);
               batch.set(docRef, item, { merge: true });
