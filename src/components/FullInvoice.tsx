@@ -50,7 +50,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
     }
 
     const handleEmailReceipt = () => {
-      const customer = invoice.customerId ? customersMap.get(invoice.customerId) : undefined;
+      const customer = invoice.customerId && customersMap ? customersMap.get(invoice.customerId) : undefined;
       if (!customer?.email) {
           toast({
               variant: 'destructive',
@@ -66,6 +66,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
       window.location.href = `mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
+    const customer = invoice.customerId && customersMap ? customersMap.get(invoice.customerId) : undefined;
 
     return (
         <DialogContent className="sm:max-w-4xl p-0 printable-area-container">
@@ -95,7 +96,7 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
                     <div>
                         <h3 className="font-semibold mb-1">Bill To:</h3>
                         <p>{invoice.customerName || 'Walk-in Customer'}</p>
-                        {invoice.customerId && customersMap && <p className="text-muted-foreground">{customersMap.get(invoice.customerId)?.email}</p>}
+                        {customer && <p className="text-muted-foreground">{customer.email}</p>}
                     </div>
                     <div className="text-right">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -173,5 +174,3 @@ const FullInvoice = ({ invoice }: FullInvoiceProps) => {
 };
 
 export default FullInvoice;
-
-    
