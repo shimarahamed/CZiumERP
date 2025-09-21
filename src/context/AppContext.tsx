@@ -6,7 +6,7 @@ import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Curr
 import { initialInvoices, customers as initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialItAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
 import { differenceInDays, parseISO } from 'date-fns';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
 
 
 // Helper to get item from localStorage. This is now only used for user session info.
@@ -151,20 +151,20 @@ function useFirestoreCollection<T extends { id: string }>(collectionName: string
   useEffect(() => {
     if (!isHydrated) return;
 
-    const unsubscribe = onSnapshot(collection(db, collectionName), 
+    const collRef = collection(db, collectionName);
+    const unsubscribe = onSnapshot(collRef, 
       (snapshot) => {
-        const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
-        setData(newData);
-        
-        // Seed database if it's empty
-        if (newData.length === 0) {
-          console.log(`Seeding initial data for ${collectionName}...`);
+        if (snapshot.empty) {
+          console.log(`No data found in ${collectionName}. Seeding initial data...`);
           const batch = writeBatch(db);
           initialData.forEach(item => {
             const docRef = doc(db, collectionName, item.id);
             batch.set(docRef, item);
           });
-          batch.commit();
+          batch.commit().catch(e => console.error(`Failed to seed ${collectionName}:`, e));
+        } else {
+          const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+          setData(newData);
         }
       },
       (error) => {
@@ -399,19 +399,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider value={{ 
-      invoices: filteredInvoices, setInvoices: fakeSetter,
-      customers: filteredCustomers, setCustomers: fakeSetter,
-      products: filteredProducts, setProducts: fakeSetter,
-      vendors: filteredVendors, setVendors: fakeSetter,
-      purchaseOrders: filteredPurchaseOrders, setPurchaseOrders: fakeSetter,
-      rfqs: filteredRfqs, setRfqs: fakeSetter,
-      assets: filteredAssets, setAssets: fakeSetter,
-      itAssets, setItAssets: fakeSetter,
-      employees: filteredEmployees, setEmployees: fakeSetter,
-      stores, setStores: fakeSetter,
+      invoices: filteredInvoices, setInvoices: setInvoices as any,
+      customers: filteredCustomers, setCustomers: setCustomers as any,
+      products: filteredProducts, setProducts: setProducts as any,
+      vendors: filteredVendors, setVendors: setVendors as any,
+      purchaseOrders: filteredPurchaseOrders, setPurchaseOrders: setPurchaseOrders as any,
+      rfqs: filteredRfqs, setRfqs: setRfqs as any,
+      assets: filteredAssets, setAssets: setAssets as any,
+      itAssets, setItAssets: setItAssets as any,
+      employees: filteredEmployees, setEmployees: setEmployees as any,
+      stores, setStores: setStores as any,
       currentStore,
       selectStore,
-      isAuthenticated, user, users, setUsers: fakeSetter, login, logout,
+      isAuthenticated, user, users, setUsers: setUsers as any, login, logout,
       activityLogs, addActivityLog,
       currency,
       setCurrency: handleSetCurrency as React.Dispatch<React.SetStateAction<Currency>>,
@@ -422,24 +422,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       fiscalYearStartMonth, setFiscalYearStartMonth,
       themeSettings, setThemeSettings,
       isHydrated,
-      attendance, setAttendance: fakeSetter,
-      leaveRequests, setLeaveRequests: fakeSetter,
-      ledgerEntries, setLedgerEntries: fakeSetter,
-      taxRates, setTaxRates: fakeSetter,
-      budgets: filteredBudgets, setBudgets: fakeSetter,
-      candidates, setCandidates: fakeSetter,
-      performanceReviews, setPerformanceReviews: fakeSetter,
-      billsOfMaterials: filterByStore(billsOfMaterials), setBillsOfMaterials: fakeSetter,
-      productionOrders: filteredProductionOrders, setProductionOrders: fakeSetter,
-      qualityChecks: filteredQualityChecks, setQualityChecks: fakeSetter,
-      leads: filteredLeads, setLeads: fakeSetter,
-      campaigns: filteredCampaigns, setCampaigns: fakeSetter,
-      projects: filteredProjects, setProjects: fakeSetter,
-      tasks, setTasks: fakeSetter,
-      tickets: filteredTickets, setTickets: fakeSetter,
+      attendance, setAttendance: setAttendance as any,
+      leaveRequests, setLeaveRequests: setLeaveRequests as any,
+      ledgerEntries, setLedgerEntries: setLedgerEntries as any,
+      taxRates, setTaxRates: setTaxRates as any,
+      budgets: filteredBudgets, setBudgets: setBudgets as any,
+      candidates, setCandidates: setCandidates as any,
+      performanceReviews, setPerformanceReviews: setPerformanceReviews as any,
+      billsOfMaterials: filterByStore(billsOfMaterials), setBillsOfMaterials: setBillsOfMaterials as any,
+      productionOrders: filteredProductionOrders, setProductionOrders: setProductionOrders as any,
+      qualityChecks: filteredQualityChecks, setQualityChecks: setQualityChecks as any,
+      leads: filteredLeads, setLeads: setLeads as any,
+      campaigns: filteredCampaigns, setCampaigns: setCampaigns as any,
+      projects: filteredProjects, setProjects: setProjects as any,
+      tasks, setTasks: setTasks as any,
+      tickets: filteredTickets, setTickets: setTickets as any,
       notifications, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
-      jobRequisitions, setJobRequisitions: fakeSetter,
-      shipments, setShipments: fakeSetter,
+      jobRequisitions, setJobRequisitions: setJobRequisitions as any,
+      shipments, setShipments: setShipments as any,
     }}>
       {children}
     </AppContext.Provider>

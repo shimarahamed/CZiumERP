@@ -58,7 +58,7 @@ const statusVariant: { [key in Invoice['status']]: 'default' | 'secondary' | 'de
 };
 
 export default function InvoicesPage() {
-    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol, user, themeSettings } = useAppContext();
+    const { invoices, setInvoices, customers, setCustomers, products, setProducts, addActivityLog, currentStore, currencySymbol, user, themeSettings, addNotification } = useAppContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
@@ -273,6 +273,16 @@ export default function InvoicesPage() {
                 const originalItem = invoiceToEdit?.items.find(i => i.productId === item.productId);
                 const stockChange = item.quantity - (originalItem?.quantity || 0);
                 updatedProducts[productIndex].stock -= stockChange;
+
+                 // Check for low stock notification
+                const product = updatedProducts[productIndex];
+                if (typeof product.reorderThreshold !== 'undefined' && product.stock <= product.reorderThreshold) {
+                    addNotification({
+                        title: 'Low Stock Alert',
+                        description: `${product.name} is low on stock (${product.stock} remaining).`,
+                        href: `/purchase-orders?action=new&productId=${product.id}&vendorId=${product.vendorId || ''}`,
+                    });
+                }
              }
         });
         setProducts(updatedProducts);
@@ -613,5 +623,3 @@ export default function InvoicesPage() {
         </div>
     );
 }
-
-    
