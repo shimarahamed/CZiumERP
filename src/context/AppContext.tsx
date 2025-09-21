@@ -4,9 +4,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import type { Invoice, Customer, Product, User, Vendor, ActivityLog, Store, Currency, CurrencySymbols, PurchaseOrder, RFQ, Asset, ITAsset, AttendanceEntry, LeaveRequest, Employee, LedgerEntry, TaxRate, Budget, Candidate, PerformanceReview, BillOfMaterials, ProductionOrder, QualityCheck, Lead, Campaign, Project, Task, Ticket, Notification, JobRequisition, Shipment, ThemeSettings, Module, LoyaltySettings } from '@/types';
 import { initialInvoices, initialCustomers, initialProducts, initialVendors, initialStores, initialUsers, initialPurchaseOrders, initialRfqs, initialAssets, initialItAssets, initialAttendance, initialLeaveRequests, initialEmployees, initialLedgerEntries, initialTaxRates, initialBudgets, initialCandidates, initialPerformanceReviews, initialBillsOfMaterials, initialProductionOrders, initialQualityChecks, initialLeads, initialCampaigns, initialProjects, initialTasks, initialTickets, initialJobRequisitions, initialShipments } from '@/lib/data';
-import { db, enableNetwork, disableNetwork } from '@/lib/firebase';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
-
+import { db } from '@/lib/firebase';
+import { doc, setDoc, writeBatch } from 'firebase/firestore';
+import { useFirestoreCollection } from '@/hooks/use-firestore-collection';
 
 // Helper to get item from localStorage. This is now only used for user session info.
 const getStoredState = <T,>(key: string, defaultValue: T): T => {
@@ -156,69 +156,6 @@ const allStoresView: Store = { id: 'all', name: 'All Stores', address: 'Global A
 
 let notificationIdCounter = 0;
 
-// Generic hook for managing state with Firestore
-function useFirestoreCollection<T extends { id: string }>(collectionName: string, initialData: T[], isHydrated: boolean) {
-  const [data, setData] = useState<T[]>(initialData);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    const collRef = collection(db, collectionName);
-    const unsubscribe = onSnapshot(collRef, 
-      async (snapshot) => {
-        if (snapshot.empty && initialData.length > 0) {
-          console.log(`No data found in ${collectionName}. Seeding initial data...`);
-          const batch = writeBatch(db);
-          initialData.forEach(item => {
-            const docRef = doc(db, collectionName, item.id);
-            batch.set(docRef, item);
-          });
-          await batch.commit().catch(e => console.error(`Failed to seed ${collectionName}:`, e));
-        } else {
-          const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
-          setData(newData);
-        }
-      },
-      (error) => {
-        console.error(`Error fetching ${collectionName}:`, error);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [isHydrated, collectionName, initialData]);
-
-  const setCollection = useCallback(async (newData: T[] | ((prev: T[]) => T[])) => {
-    setData(prevData => {
-        const dataToSet = typeof newData === 'function' ? newData(prevData) : newData;
-        
-        (async () => {
-            const batch = writeBatch(db);
-            const collectionRef = collection(db, collectionName);
-            
-            const existingDocs = await getDocs(collectionRef);
-            const newIds = new Set(dataToSet.map(item => item.id));
-            
-            existingDocs.forEach(doc => {
-                if (!newIds.has(doc.id)) {
-                    batch.delete(doc.ref);
-                }
-            });
-
-            dataToSet.forEach(item => {
-              const docRef = doc(db, collectionName, item.id);
-              batch.set(docRef, item);
-            });
-            
-            await batch.commit();
-        })();
-
-        return dataToSet;
-    });
-  }, [collectionName]);
-
-
-  return [data, setCollection] as const;
-}
 
 // Memoize initial data arrays outside the component
 const memoizedInitialInvoices = initialInvoices;
@@ -369,32 +306,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
     await batch.commit();
   }, [notifications]);
-
-  // Scoped data accessors based on currentStore
-  const filterByStore = useCallback(<T extends { storeId?: string }>(data: T[]): T[] => {
-    if (!isHydrated || !currentStore || currentStore.id === 'all') {
-      return data;
-    }
-    return data.filter(item => item.storeId === currentStore.id);
-  }, [currentStore, isHydrated]);
-  
-  const filteredInvoices = useMemo(() => filterByStore(invoices), [invoices, filterByStore]);
-  const filteredCustomers = useMemo(() => filterByStore(customers), [customers, filterByStore]);
-  const filteredProducts = useMemo(() => filterByStore(products), [products, filterByStore]);
-  const filteredVendors = useMemo(() => filterByStore(vendors), [vendors, filterByStore]);
-  const filteredEmployees = useMemo(() => filterByStore(employees), [employees, filterByStore]);
-  const filteredProjects = useMemo(() => filterByStore(projects), [projects, filterByStore]);
-  const filteredPurchaseOrders = useMemo(() => filterByStore(purchaseOrders), [purchaseOrders, filterByStore]);
-  const filteredRfqs = useMemo(() => filterByStore(rfqs), [rfqs, filterByStore]);
-  const filteredAssets = useMemo(() => filterByStore(assets), [assets, filterByStore]);
-  const filteredBudgets = useMemo(() => filterByStore(budgets), [budgets, filterByStore]);
-  const filteredProductionOrders = useMemo(() => filterByStore(productionOrders), [productionOrders, filterByStore]);
-  const filteredQualityChecks = useMemo(() => filterByStore(qualityChecks), [qualityChecks, filterByStore]);
-  const filteredLeads = useMemo(() => filterByStore(leads), [leads, filterByStore]);
-  const filteredCampaigns = useMemo(() => filterByStore(campaigns), [campaigns, filterByStore]);
-  const filteredTickets = useMemo(() => filterByStore(tickets), [tickets, filterByStore]);
-  const filteredShipments = useMemo(() => filterByStore(shipments), [shipments, filterByStore]);
-  const filteredItAssets = useMemo(() => filterByStore(itAssets), [itAssets, filterByStore]);
   
   // Memoized maps for performant lookups
   const customersMap = useMemo(() => new Map(customers.map(c => [c.id, c])), [customers]);
@@ -527,8 +438,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       invoices, customers, products, vendors, purchaseOrders, rfqs, assets, itAssets, employees, users, stores, activityLogs, attendance, leaveRequests, ledgerEntries, taxRates, budgets, candidates, performanceReviews, billsOfMaterials, productionOrders, qualityChecks, leads, campaigns, projects, tasks, tickets, notifications, jobRequisitions, shipments,
       setInvoices, setCustomers, setProducts, setVendors, setPurchaseOrders, setRfqs, setAssets, setItAssets, setEmployees, setUsers, setStores, setAttendance, setLeaveRequests, setLedgerEntries, setTaxRates, setBudgets, setCandidates, setPerformanceReviews, setBillsOfMaterials, setProductionOrders, setQualityChecks, setLeads, setCampaigns, setProjects, setTasks, setTickets, setJobRequisitions, setShipments,
       addActivityLog, addNotification, markNotificationAsRead, markAllNotificationsAsRead,
-      currentStore, selectStore, isAuthenticated, user, login, logout,
-      currency, handleSetCurrency, currencySymbol, companyName, setCompanyName, companyAddress, setCompanyAddress, fiscalYearStartMonth, setFiscalYearStartMonth, themeSettings, setThemeSettings, isHydrated,
+      currentStore, isAuthenticated, user,
+      currency, currencySymbol, companyName, companyAddress, fiscalYearStartMonth, themeSettings, isHydrated,
       customersMap, productsMap, employeesMap, usersMap, vendorsMap, storesMap
   ]);
 
@@ -547,4 +458,3 @@ export const useAppContext = () => {
   }
   return context;
 };
-
