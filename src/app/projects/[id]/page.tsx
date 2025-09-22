@@ -144,7 +144,7 @@ export default function ProjectDetailPage() {
 
     const ganttTasks: GanttTask[] = useMemo(() => {
         return projectTasks
-            .filter(task => typeof task.startDate === 'string' && typeof task.endDate === 'string' && task.startDate && task.endDate)
+            .filter(task => typeof task.startDate === 'string' && task.startDate && typeof task.endDate === 'string' && task.endDate)
             .map(task => {
                 let progress = 0;
                 if (task.status === 'in-progress') progress = 50;
@@ -169,10 +169,12 @@ export default function ProjectDetailPage() {
             <div className="flex flex-col h-full">
                 <Header title="Project Not Found" showBackButton />
                 <main className="flex-1 p-6">
-                    <Card>
-                        <CardHeader><CardTitle>Error</CardTitle></CardHeader>
-                        <CardContent><p>The requested project could not be found.</p></CardContent>
-                    </Card>
+                    <div className="w-full max-w-sm mx-auto sm:max-w-none">
+                        <Card>
+                            <CardHeader><CardTitle>Error</CardTitle></CardHeader>
+                            <CardContent><p>The requested project could not be found.</p></CardContent>
+                        </Card>
+                    </div>
                 </main>
             </div>
         );
@@ -293,141 +295,143 @@ export default function ProjectDetailPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title={project.name} showBackButton />
-            <main className="flex-1 overflow-auto p-4 md:p-6 w-full max-w-sm mx-auto sm:max-w-none">
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card>
-                             <CardHeader className="flex flex-row justify-between items-start">
-                                <div>
-                                <CardTitle>Tasks</CardTitle>
-                                <CardDescription>All tasks associated with this project.</CardDescription>
-                                </div>
-                                <Button size="sm" onClick={() => handleOpenTaskForm(null)}><PlusCircle className="mr-2 h-4 w-4"/> Add Task</Button>
-                            </CardHeader>
-                            <CardContent>
-                                <Tabs defaultValue="list">
-                                    <TabsList className="mb-4">
-                                        <TabsTrigger value="list">Task List</TabsTrigger>
-                                        <TabsTrigger value="gantt">Gantt Chart</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="list">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Task</TableHead>
-                                                    <TableHead>Assignee</TableHead>
-                                                    <TableHead>Timeline</TableHead>
-                                                    <TableHead>Status</TableHead>
-                                                    <TableHead><span className="sr-only">Actions</span></TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {projectTasks.map(task => {
-                                                    const assignee = employeesMap.get(task.assigneeId);
-                                                    return (
-                                                        <TableRow key={task.id}>
-                                                            <TableCell className="font-medium">
-                                                                <div className="flex flex-col">
-                                                                    <span>{task.title}</span>
-                                                                    <Badge variant={priorityVariant[task.priority]} className="capitalize w-fit mt-1">{task.priority}</Badge>
-                                                                </div>
-                                                            </TableCell>
-                                                            <TableCell>{assignee?.name || 'Unassigned'}</TableCell>
-                                                            <TableCell>{task.startDate && task.endDate ? `${format(parseISO(task.startDate), 'MMM d')} - ${format(parseISO(task.endDate), 'MMM d, yyyy')}` : 'N/A'}</TableCell>
-                                                            <TableCell>
-                                                                <Select value={task.status} onValueChange={(value: TaskStatus) => handleTaskStatusChange(task.id, value)}>
-                                                                    <SelectTrigger className="h-8 w-[120px]">
-                                                                        <SelectValue />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {['todo', 'in-progress', 'done'].map((key) => (
-                                                                            <SelectItem key={key} value={key as TaskStatus}>{statusDisplay[key as TaskStatus]}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <DropdownMenu>
-                                                                    <DropdownMenuTrigger asChild>
-                                                                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                                                    </DropdownMenuTrigger>
-                                                                    <DropdownMenuContent align="end">
-                                                                        <DropdownMenuItem onClick={() => handleOpenTaskForm(task)}>Edit</DropdownMenuItem>
-                                                                        <DropdownMenuItem className="text-destructive" onClick={() => setTaskToDelete(task)}>Delete</DropdownMenuItem>
-                                                                    </DropdownMenuContent>
-                                                                </DropdownMenu>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    )
-                                                })}
-                                            </TableBody>
-                                        </Table>
-                                    </TabsContent>
-                                    <TabsContent value="gantt">
-                                        <GanttChart tasks={ganttTasks} />
-                                    </TabsContent>
-                                </Tabs>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <div className="lg:col-span-1 space-y-6">
-                        <Card>
-                            <CardHeader className="flex flex-row items-start justify-between">
-                                <CardTitle>Project Details</CardTitle>
-                                <Button variant="outline" size="sm" onClick={handleOpenProjectForm}>Edit Project</Button>
-                            </CardHeader>
-                            <CardContent className="space-y-4 text-sm">
-                                <div className="flex items-center gap-2"><Flag className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Status:</span>
-                                    <Select value={project.status} onValueChange={(value: ProjectStatus) => handleProjectStatusChange(value)}>
-                                        <SelectTrigger className="h-8 w-fit gap-1 capitalize">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {Object.entries(statusDisplay)
-                                                .filter(([key]) => !['todo', 'done'].includes(key))
-                                                .map(([key, value]) => (
-                                                    <SelectItem key={key} value={key as ProjectStatus} className="capitalize">{value}</SelectItem>
-                                                ))
-                                            }
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                {project.client && <div className="flex items-center gap-2"><BriefcaseIcon className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Client:</span><span>{project.client}</span></div>}
-                                
-                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Timeline:</span><span>{format(parseISO(project.startDate), 'MMM d, yyyy')} - {format(parseISO(project.endDate), 'MMM d, yyyy')}</span></div>
-                                <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Manager:</span><span>{manager?.name}</span></div>
-
-                                <Separator className="my-4"/>
-
-                                <div>
-                                    <h4 className="font-medium mb-2 flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground"/>Budget Utilization</h4>
-                                    <Progress value={budgetProgress} className={cn(budgetProgress > 100 && "[&>div]:bg-destructive")} />
-                                    <div className="flex justify-between text-xs mt-2 text-muted-foreground">
-                                        <span>{currencySymbol}{actualCost.toLocaleString()} Spent</span>
-                                        <span>{currencySymbol}{(project.budget - actualCost).toLocaleString()} Remaining</span>
+            <main className="flex-1 overflow-auto p-4 md:p-6">
+                <div className="w-full max-w-sm mx-auto sm:max-w-none">
+                    <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="lg:col-span-2 space-y-6">
+                            <Card>
+                                <CardHeader className="flex flex-row justify-between items-start">
+                                    <div>
+                                    <CardTitle>Tasks</CardTitle>
+                                    <CardDescription>All tasks associated with this project.</CardDescription>
                                     </div>
-                                    {budgetProgress > 100 && 
-                                        <p className="text-xs text-destructive mt-1">
-                                            Project is {currencySymbol}{(actualCost - project.budget).toLocaleString()} over budget.
-                                        </p>
-                                    }
-                                </div>
-
-                                <Separator className="my-4"/>
-
-                                <div>
-                                    <h4 className="font-medium mb-2 flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/>Team</h4>
-                                    <div className="space-y-2">
-                                        {teamMembers.map(member => (
-                                            <div key={member.id} className="flex items-center gap-2">
-                                                <Avatar className="h-6 w-6"><AvatarImage src={member.avatar} data-ai-hint="person user" /><AvatarFallback>{member.name.charAt(0)}</AvatarFallback></Avatar>
-                                                <span>{member.name}</span>
-                                            </div>
-                                        ))}
+                                    <Button size="sm" onClick={() => handleOpenTaskForm(null)}><PlusCircle className="mr-2 h-4 w-4"/> Add Task</Button>
+                                </CardHeader>
+                                <CardContent>
+                                    <Tabs defaultValue="list">
+                                        <TabsList className="mb-4">
+                                            <TabsTrigger value="list">Task List</TabsTrigger>
+                                            <TabsTrigger value="gantt">Gantt Chart</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="list">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Task</TableHead>
+                                                        <TableHead>Assignee</TableHead>
+                                                        <TableHead>Timeline</TableHead>
+                                                        <TableHead>Status</TableHead>
+                                                        <TableHead><span className="sr-only">Actions</span></TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {projectTasks.map(task => {
+                                                        const assignee = employeesMap.get(task.assigneeId);
+                                                        return (
+                                                            <TableRow key={task.id}>
+                                                                <TableCell className="font-medium">
+                                                                    <div className="flex flex-col">
+                                                                        <span>{task.title}</span>
+                                                                        <Badge variant={priorityVariant[task.priority]} className="capitalize w-fit mt-1">{task.priority}</Badge>
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell>{assignee?.name || 'Unassigned'}</TableCell>
+                                                                <TableCell>{task.startDate && task.endDate ? `${format(parseISO(task.startDate), 'MMM d')} - ${format(parseISO(task.endDate), 'MMM d, yyyy')}` : 'N/A'}</TableCell>
+                                                                <TableCell>
+                                                                    <Select value={task.status} onValueChange={(value: TaskStatus) => handleTaskStatusChange(task.id, value)}>
+                                                                        <SelectTrigger className="h-8 w-[120px]">
+                                                                            <SelectValue />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            {['todo', 'in-progress', 'done'].map((key) => (
+                                                                                <SelectItem key={key} value={key as TaskStatus}>{statusDisplay[key as TaskStatus]}</SelectItem>
+                                                                            ))}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent align="end">
+                                                                            <DropdownMenuItem onClick={() => handleOpenTaskForm(task)}>Edit</DropdownMenuItem>
+                                                                            <DropdownMenuItem className="text-destructive" onClick={() => setTaskToDelete(task)}>Delete</DropdownMenuItem>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )
+                                                    })}
+                                                </TableBody>
+                                            </Table>
+                                        </TabsContent>
+                                        <TabsContent value="gantt">
+                                            <GanttChart tasks={ganttTasks} />
+                                        </TabsContent>
+                                    </Tabs>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        <div className="lg:col-span-1 space-y-6">
+                            <Card>
+                                <CardHeader className="flex flex-row items-start justify-between">
+                                    <CardTitle>Project Details</CardTitle>
+                                    <Button variant="outline" size="sm" onClick={handleOpenProjectForm}>Edit Project</Button>
+                                </CardHeader>
+                                <CardContent className="space-y-4 text-sm">
+                                    <div className="flex items-center gap-2"><Flag className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Status:</span>
+                                        <Select value={project.status} onValueChange={(value: ProjectStatus) => handleProjectStatusChange(value)}>
+                                            <SelectTrigger className="h-8 w-fit gap-1 capitalize">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.entries(statusDisplay)
+                                                    .filter(([key]) => !['todo', 'done'].includes(key))
+                                                    .map(([key, value]) => (
+                                                        <SelectItem key={key} value={key as ProjectStatus} className="capitalize">{value}</SelectItem>
+                                                    ))
+                                                }
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    {project.client && <div className="flex items-center gap-2"><BriefcaseIcon className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Client:</span><span>{project.client}</span></div>}
+                                    
+                                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Timeline:</span><span>{format(parseISO(project.startDate), 'MMM d, yyyy')} - {format(parseISO(project.endDate), 'MMM d, yyyy')}</span></div>
+                                    <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Manager:</span><span>{manager?.name}</span></div>
+
+                                    <Separator className="my-4"/>
+
+                                    <div>
+                                        <h4 className="font-medium mb-2 flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground"/>Budget Utilization</h4>
+                                        <Progress value={budgetProgress} className={cn(budgetProgress > 100 && "[&>div]:bg-destructive")} />
+                                        <div className="flex justify-between text-xs mt-2 text-muted-foreground">
+                                            <span>{currencySymbol}{actualCost.toLocaleString()} Spent</span>
+                                            <span>{currencySymbol}{(project.budget - actualCost).toLocaleString()} Remaining</span>
+                                        </div>
+                                        {budgetProgress > 100 && 
+                                            <p className="text-xs text-destructive mt-1">
+                                                Project is {currencySymbol}{(actualCost - project.budget).toLocaleString()} over budget.
+                                            </p>
+                                        }
+                                    </div>
+
+                                    <Separator className="my-4"/>
+
+                                    <div>
+                                        <h4 className="font-medium mb-2 flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/>Team</h4>
+                                        <div className="space-y-2">
+                                            {teamMembers.map(member => (
+                                                <div key={member.id} className="flex items-center gap-2">
+                                                    <Avatar className="h-6 w-6"><AvatarImage src={member.avatar} data-ai-hint="person user" /><AvatarFallback>{member.name.charAt(0)}</AvatarFallback></Avatar>
+                                                    <span>{member.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -503,7 +507,7 @@ export default function ProjectDetailPage() {
                         <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive hover:bg-destructive/90">Delete Task</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
-            </AlertDialog>
+            </Dialog>
             
             {/* Project Edit Dialog */}
             <Dialog open={isProjectFormOpen} onOpenChange={setIsProjectFormOpen}>
@@ -521,7 +525,7 @@ export default function ProjectDetailPage() {
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                              <FormField control={projectForm.control} name="client" render={({ field }) => (
-                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input placeholder="e.g. Acme Corp or Marketing Dept." {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={projectForm.control} name="managerId" render={({ field }) => (

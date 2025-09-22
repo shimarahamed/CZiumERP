@@ -63,92 +63,96 @@ export default function HRDashboardPage() {
         <div className="flex flex-col h-full">
             <Header title="Human Resources Dashboard" />
             <main className="flex-1 overflow-auto p-4 md:p-6">
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">My Leave Balance</CardTitle>
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{leaveBalance.balance} Days</div>
-                            <p className="text-xs text-muted-foreground">Remaining of {leaveBalance.allowance} days</p>
-                        </CardContent>
-                    </Card>
-                    {canManage && (
+                 <div className="w-full max-w-sm mx-auto sm:max-w-none">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <Card>
-                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-                                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">My Leave Balance</CardTitle>
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{pendingApprovals}</div>
-                                <p className="text-xs text-muted-foreground">Leave requests needing review</p>
+                                <div className="text-2xl font-bold">{leaveBalance.balance} Days</div>
+                                <p className="text-xs text-muted-foreground">Remaining of {leaveBalance.allowance} days</p>
                             </CardContent>
                         </Card>
-                    )}
-                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{employees.length}</div>
-                            <p className="text-xs text-muted-foreground">Across all departments</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium">Today's Attendance</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex justify-around items-center">
-                            <div className="text-center">
-                                <UserCheck className="h-6 w-6 text-green-500 mx-auto"/>
-                                <p className="font-bold text-lg">{attendanceSummary.present}</p>
-                                <p className="text-xs text-muted-foreground">Present</p>
-                            </div>
-                            <div className="text-center">
-                                <UserX className="h-6 w-6 text-red-500 mx-auto"/>
-                                <p className="font-bold text-lg">{attendanceSummary.absent}</p>
-                                <p className="text-xs text-muted-foreground">Absent</p>
-                            </div>
-                             <div className="text-center">
-                                <Plane className="h-6 w-6 text-blue-500 mx-auto"/>
-                                <p className="font-bold text-lg">{attendanceSummary.onLeave}</p>
-                                <p className="text-xs text-muted-foreground">On Leave</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                    <Card>
-                        <CardHeader><CardTitle>Quick Links</CardTitle><CardDescription>Navigate to key HR functions.</CardDescription></CardHeader>
-                        <CardContent className="space-y-4">
-                           <QuickLinkCard href="/human-resources/employees" title="Employee Directory" description="View and manage all employees." icon={Users} />
-                           <QuickLinkCard href="/human-resources/leave-requests" title="Leave Management" description="Request leave and manage approvals." icon={Calendar} />
-                           <QuickLinkCard href="/human-resources/recruitment" title="Recruitment Pipeline" description="Track candidates and manage hiring." icon={UserPlus} />
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader><CardTitle>My Profile</CardTitle><CardDescription>Your personal information at a glance.</CardDescription></CardHeader>
-                        <CardContent className="space-y-4">
-                           <div className="flex items-center gap-4">
-                                <Avatar className="h-16 w-16">
-                                    <AvatarImage src={user?.avatar} data-ai-hint="person user"/>
-                                    <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <h3 className="text-lg font-bold">{user?.name}</h3>
-                                    <p className="text-sm text-muted-foreground">{currentEmployee?.jobTitle}</p>
-                                    <p className="text-sm text-muted-foreground">{currentEmployee?.department}</p>
+                        {canManage && (
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+                                    <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold">{pendingApprovals}</div>
+                                    <p className="text-xs text-muted-foreground">Leave requests needing review</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
+                                <Users className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{employees.length}</div>
+                                <p className="text-xs text-muted-foreground">Across all departments</p>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium">Today's Attendance</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex justify-around items-center">
+                                <div className="text-center">
+                                    <UserCheck className="h-6 w-6 text-green-500 mx-auto"/>
+                                    <p className="font-bold text-lg">{attendanceSummary.present}</p>
+                                    <p className="text-xs text-muted-foreground">Present</p>
                                 </div>
-                           </div>
-                           <Button className="w-full">View My Profile</Button>
-                        </CardContent>
-                    </Card>
+                                <div className="text-center">
+                                    <UserX className="h-6 w-6 text-red-500 mx-auto"/>
+                                    <p className="font-bold text-lg">{attendanceSummary.absent}</p>
+                                    <p className="text-xs text-muted-foreground">Absent</p>
+                                </div>
+                                <div className="text-center">
+                                    <Plane className="h-6 w-6 text-blue-500 mx-auto"/>
+                                    <p className="font-bold text-lg">{attendanceSummary.onLeave}</p>
+                                    <p className="text-xs text-muted-foreground">On Leave</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                        <Card>
+                            <CardHeader><CardTitle>Quick Links</CardTitle><CardDescription>Navigate to key HR functions.</CardDescription></CardHeader>
+                            <CardContent className="space-y-4">
+                            <QuickLinkCard href="/human-resources/employees" title="Employee Directory" description="View and manage all employees." icon={Users} />
+                            <QuickLinkCard href="/human-resources/leave-requests" title="Leave Management" description="Request leave and manage approvals." icon={Calendar} />
+                            <QuickLinkCard href="/human-resources/recruitment" title="Recruitment Pipeline" description="Track candidates and manage hiring." icon={UserPlus} />
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader><CardTitle>My Profile</CardTitle><CardDescription>Your personal information at a glance.</CardDescription></CardHeader>
+                            <CardContent className="space-y-4">
+                            <div className="flex items-center gap-4">
+                                    <Avatar className="h-16 w-16">
+                                        <AvatarImage src={user?.avatar} data-ai-hint="person user"/>
+                                        <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <h3 className="text-lg font-bold">{user?.name}</h3>
+                                        <p className="text-sm text-muted-foreground">{currentEmployee?.jobTitle}</p>
+                                        <p className="text-sm text-muted-foreground">{currentEmployee?.department}</p>
+                                    </div>
+                            </div>
+                            <Button className="w-full">View My Profile</Button>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </main>
         </div>
     );
 }
+
+    

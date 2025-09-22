@@ -83,8 +83,9 @@ export default function PaymentsPage() {
   return (
     <div className="flex flex-col h-full">
       <Header title="Process Payment" />
-      <main className="flex-1 overflow-auto p-4 md:p-6 flex justify-center items-start">
-        <Card className="w-full max-w-2xl">
+      <main className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="w-full max-w-sm mx-auto sm:max-w-2xl">
+        <Card>
           <CardHeader>
             <CardTitle>New Transaction</CardTitle>
             <CardDescription>Select an invoice from {currentStore?.id === 'all' ? 'any store' : currentStore?.name} to complete the transaction.</CardDescription>
@@ -178,6 +179,7 @@ export default function PaymentsPage() {
             </form>
           </CardContent>
         </Card>
+        </div>
       </main>
     </div>
   );
