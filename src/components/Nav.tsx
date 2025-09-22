@@ -10,7 +10,7 @@ import {
   Building2, History, Settings, Undo2, ShoppingCart, UserCog, Store, ClipboardList, 
   Archive, Clock, CalendarPlus, Banknote, UserRoundCog, BookCopy, Target, Landmark as LandmarkIcon, 
   UserPlus, Star, ClipboardCheck, Megaphone, Briefcase, LifeBuoy, Truck, Map, ChevronDown, Wrench
-} from '@/components/icons';
+} from 'lucide-react';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
 import type { Role, Module } from '@/types';
