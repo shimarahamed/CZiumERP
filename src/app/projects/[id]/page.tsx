@@ -20,7 +20,7 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import Header from "@/components/Header";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from '@/context/AppContext';
-import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus } from '@/types';
+import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus, Employee } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { PlusCircle, User, Users, Calendar, Flag, DollarSign, MoreHorizontal, Briefcase as BriefcaseIcon } from '@/components/icons';
 import { format } from 'date-fns/format';
@@ -144,7 +144,7 @@ export default function ProjectDetailPage() {
 
     const ganttTasks: GanttTask[] = useMemo(() => {
         return projectTasks
-            .filter(task => task.startDate && task.endDate)
+            .filter(task => typeof task.startDate === 'string' && typeof task.endDate === 'string' && task.startDate && task.endDate)
             .map(task => {
                 let progress = 0;
                 if (task.status === 'in-progress') progress = 50;
@@ -293,7 +293,7 @@ export default function ProjectDetailPage() {
     return (
         <div className="flex flex-col h-full">
             <Header title={project.name} showBackButton />
-            <main className="flex-1 overflow-auto p-4 md:p-6">
+            <main className="flex-1 overflow-auto p-4 md:p-6 w-full max-w-sm mx-auto sm:max-w-none">
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
@@ -521,7 +521,7 @@ export default function ProjectDetailPage() {
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                              <FormField control={projectForm.control} name="client" render={({ field }) => (
-                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input {...field} placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Client / Department</FormLabel><FormControl><Input placeholder="e.g. Acme Corp or Marketing Dept."/></FormControl><FormMessage /></FormItem>
                             )}/>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={projectForm.control} name="managerId" render={({ field }) => (
@@ -597,5 +597,7 @@ export default function ProjectDetailPage() {
         </div>
     );
 }
+
+    
 
     
