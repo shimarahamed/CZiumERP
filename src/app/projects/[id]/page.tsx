@@ -597,7 +597,6 @@ export default function ProjectDetailPage() {
                     </Form>
                 </DialogContent>
             </Dialog>
-
         </div>
     );
 }
