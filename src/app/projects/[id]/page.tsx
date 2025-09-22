@@ -35,13 +35,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { initialProjects } from '@/lib/data';
-
-export async function generateStaticParams() {
-  return initialProjects.map((project) => ({
-    id: project.id,
-  }));
-}
 
 const projectSchema = z.object({
   name: z.string().min(1, "Project name is required."),
