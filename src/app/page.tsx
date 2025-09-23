@@ -28,21 +28,27 @@ export default function DashboardPage() {
   const { invoices, currentStore, currencySymbol, products, user, stores } = useAppContext();
   const [drilldownData, setDrilldownData] = useState<{ month: string, invoices: Invoice[] } | null>(null);
   
-  const storeInvoices = useMemo(() => {
-    if (currentStore?.id === 'all') {
-      return invoices;
-    }
-    return invoices.filter(i => i.storeId === currentStore?.id);
+  const { storeInvoices, paidInvoices, pendingInvoices } = useMemo(() => {
+    const relevantInvoices = currentStore?.id === 'all' 
+      ? invoices 
+      : invoices.filter(i => i.storeId === currentStore?.id);
+    
+    const paid = relevantInvoices.filter(i => i.status === 'paid');
+    const pending = relevantInvoices.filter(i => i.status === 'pending' || i.status === 'overdue');
+
+    return { storeInvoices: relevantInvoices, paidInvoices: paid, pendingInvoices: pending };
   }, [invoices, currentStore]);
   
-  const paidInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'paid'), [storeInvoices]);
-  const pendingInvoices = useMemo(() => storeInvoices.filter(i => i.status === 'pending' || i.status === 'overdue'), [storeInvoices]);
-
   const salesData = useMemo(() => {
-    if (paidInvoices.length === 0) {
+    const sixMonthsAgo = startOfMonth(new Date(new Date().setMonth(new Date().getMonth() - 5)));
+    
+    // Filter invoices to the last 6 months first
+    const recentPaidInvoices = paidInvoices.filter(inv => parseISO(inv.date) >= sixMonthsAgo);
+
+    if (recentPaidInvoices.length === 0) {
         // Return a default structure for the last 6 months with 0 revenue
         const last6Months = eachMonthOfInterval({
-            start: startOfMonth(new Date(new Date().setMonth(new Date().getMonth() - 5))),
+            start: sixMonthsAgo,
             end: endOfMonth(new Date())
         });
         return last6Months.map(month => ({
@@ -51,7 +57,7 @@ export default function DashboardPage() {
         }));
     }
 
-    const monthlySales = paidInvoices.reduce((acc, inv) => {
+    const monthlySales = recentPaidInvoices.reduce((acc, inv) => {
       const month = format(parseISO(inv.date), 'MMM');
       acc[month] = (acc[month] || 0) + inv.amount;
       return acc;
@@ -59,7 +65,7 @@ export default function DashboardPage() {
 
     // Ensure we have data for the last 6 months, even if it's 0
     const last6Months = eachMonthOfInterval({
-        start: startOfMonth(new Date(new Date().setMonth(new Date().getMonth() - 5))),
+        start: sixMonthsAgo,
         end: endOfMonth(new Date())
     });
 
