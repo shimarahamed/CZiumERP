@@ -1,5 +1,10 @@
 
+
 export type Role = 'admin' | 'manager' | 'cashier' | 'inventory-staff';
+
+export type DashboardSettings = {
+  hiddenWidgets: string[];
+}
 
 export type User = {
   id: string;
@@ -8,6 +13,7 @@ export type User = {
   avatar: string;
   role: Role;
   password?: string;
+  dashboardSettings?: DashboardSettings;
 };
 
 export type Employee = {
