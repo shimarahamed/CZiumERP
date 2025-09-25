@@ -542,3 +542,4 @@ export default function ShipmentsPage() {
             </Dialog>
         </div>
     );
+}
