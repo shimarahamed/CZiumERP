@@ -18,11 +18,14 @@ import { useAppContext } from '@/context/AppContext';
 import type { Shipment, ShipmentStatus, Invoice } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { PlusCircle, Search, MoreHorizontal, Trash2, ClipboardList } from '@/components/icons';
+import { PlusCircle, Search, MoreHorizontal, Trash2, ClipboardList, Check, Circle } from '@/components/icons';
 import { ShipmentDetail } from '@/components/ShipmentDetail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
+
 
 const shipmentItemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
@@ -39,6 +42,7 @@ const shipmentSchema = z.object({
   trackingNumber: z.string().optional(),
   assignedDriverId: z.string().optional(),
   vehicleId: z.string().optional(),
+  estimatedDeliveryDate: z.date().optional(),
   items: z.array(shipmentItemSchema).min(1, "Shipment must have at least one item."),
 });
 
@@ -138,10 +142,11 @@ export default function ShipmentsPage() {
                 trackingNumber: shipment.trackingNumber,
                 assignedDriverId: shipment.assignedDriverId || 'unassigned',
                 vehicleId: shipment.vehicleId || 'unassigned',
+                estimatedDeliveryDate: shipment.estimatedDeliveryDate ? parseISO(shipment.estimatedDeliveryDate) : undefined,
                 items: shipment.items
             });
         } else {
-            form.reset({ customId: '', invoiceId: '', shippingAddress: '', trackingNumber: '', assignedDriverId: 'unassigned', vehicleId: 'unassigned', items: [] });
+            form.reset({ customId: '', invoiceId: '', shippingAddress: '', trackingNumber: '', assignedDriverId: 'unassigned', vehicleId: 'unassigned', estimatedDeliveryDate: undefined, items: [] });
         }
         setIsFormOpen(true);
     };
@@ -179,6 +184,7 @@ export default function ShipmentsPage() {
             assignedDriverId: data.assignedDriverId,
             assignedDriverName: driver?.name,
             vehicleId: data.vehicleId,
+            estimatedDeliveryDate: data.estimatedDeliveryDate ? format(data.estimatedDeliveryDate, 'yyyy-MM-dd') : undefined,
         }
 
         if (shipmentToEdit) {
@@ -336,8 +342,14 @@ export default function ShipmentsPage() {
                                                      <div className="flex items-center w-full">
                                                         {timelineSteps.map((step, index) => (
                                                             <React.Fragment key={step.status}>
-                                                                <div className={`h-2 w-2 rounded-full ${index <= currentStepIndex && !isFailedOrCancelled ? 'bg-primary' : 'bg-muted'}`} />
-                                                                {index < timelineSteps.length - 1 && <div className={`flex-1 h-0.5 ${index < currentStepIndex && !isFailedOrCancelled ? 'bg-primary' : 'bg-muted'}`} />}
+                                                                <div className={cn(
+                                                                    "h-2 w-2 rounded-full", 
+                                                                    index <= currentStepIndex && !isFailedOrCancelled ? 'bg-primary' : 'bg-muted'
+                                                                )} />
+                                                                {index < timelineSteps.length - 1 && <div className={cn(
+                                                                    "flex-1 h-0.5",
+                                                                    index < currentStepIndex && !isFailedOrCancelled ? 'bg-primary' : 'bg-muted'
+                                                                )} />}
                                                             </React.Fragment>
                                                         ))}
                                                     </div>
@@ -443,6 +455,9 @@ export default function ShipmentsPage() {
                                     </FormItem>
                                 )}
                             />
+                             <FormField control={form.control} name="estimatedDeliveryDate" render={({ field }) => (
+                                <FormItem className="flex flex-col pt-2"><FormLabel>Estimated Delivery</FormLabel><FormControl><DatePicker date={field.value} setDate={field.onChange} /></FormControl><FormMessage /></FormItem>
+                            )}/>
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="assignedDriverId" render={({ field }) => (
                                     <FormItem><FormLabel>Assign Driver</FormLabel>
@@ -527,5 +542,3 @@ export default function ShipmentsPage() {
             </Dialog>
         </div>
     );
-
-    
