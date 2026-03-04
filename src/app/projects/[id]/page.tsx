@@ -1,5 +1,4 @@
-
-:use clien:;
+"use client";
 
 import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
