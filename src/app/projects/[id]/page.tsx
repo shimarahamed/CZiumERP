@@ -506,7 +506,7 @@ export default function ProjectDetailPage() {
                         <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive hover:bg-destructive/90">Delete Task</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
-            </Dialog>
+            </AlertDialog>
             
             {/* Project Edit Dialog */}
             <Dialog open={isProjectFormOpen} onOpenChange={setIsProjectFormOpen}>
